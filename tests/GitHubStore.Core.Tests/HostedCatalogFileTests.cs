@@ -1,3 +1,4 @@
+using GitHubStore.App.Services.Preferences;
 using GitHubStore.Core.Catalog;
 using Xunit;
 
@@ -5,6 +6,16 @@ namespace GitHubStore.Core.Tests;
 
 public sealed class HostedCatalogFileTests
 {
+    [Fact]
+    public void ShippedDefaultAddressPointsAtTheVersionedHostedCatalogFile()
+    {
+        var address = AppPreferences.DefaultCatalogLibraryUrl;
+        // 客户端默认地址必须就是本仓库中的目录文件，否则软件库无法随仓库更新。
+        Assert.Equal(address, PreferencesService.NormalizeCatalogLibraryUrl(address));
+        Assert.EndsWith("/catalog/catalog.json", new Uri(address).AbsolutePath, StringComparison.Ordinal);
+        Assert.Contains("/SRW-OG/githubstore/", address, StringComparison.Ordinal);
+    }
+
     [Fact]
     public async Task PublishedCatalogCanBeLoadedByTheClient()
     {

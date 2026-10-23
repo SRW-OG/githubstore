@@ -23,7 +23,8 @@ public sealed class CatalogLibrarySettingsTests
         vm.CatalogLibraryUrl = address;
         await vm.SyncCatalogLibraryAsync();
         Assert.Empty(sync.Urls);
-        Assert.Null(fixture.Preferences.Current.CatalogLibraryUrl);
+        // 无效地址既不能覆盖已保存的值，也不能覆盖随程序发布的默认库地址。
+        Assert.Equal(AppPreferences.DefaultCatalogLibraryUrl, fixture.Preferences.Current.CatalogLibraryUrl);
         Assert.NotEmpty(vm.ErrorMessage);
     }
 
@@ -85,15 +86,31 @@ public sealed class CatalogLibrarySettingsTests
     }
 
     [Fact]
-    public async Task StartupWithoutAddressOrWithOptOutDoesNotRequestNetwork()
+    public async Task FreshInstallUsesTheShippedAddressForStartupSync()
     {
         using var fixture = new Fixture();
         var sync = new FakeSync();
         using var vm = new SettingsViewModel(fixture.Preferences, new LocalizationService("zh-CN"), librarySync: sync);
         await vm.InitializeAsync();
+        Assert.Equal(AppPreferences.DefaultCatalogLibraryUrl, vm.CatalogLibraryUrl);
+        await vm.SyncCatalogLibraryAtStartupAsync();
+        Assert.Equal(new[] { AppPreferences.DefaultCatalogLibraryUrl }, sync.Urls);
+    }
+
+    [Fact]
+    public async Task ClearedAddressOrOptOutStopsStartupSync()
+    {
+        using var fixture = new Fixture();
+        var sync = new FakeSync();
+        using var vm = new SettingsViewModel(fixture.Preferences, new LocalizationService("zh-CN"), librarySync: sync);
+        await vm.InitializeAsync();
+        // 清空地址并保存：用户明确不再跟随远端库，之后启动不得联网。
+        vm.CatalogLibraryUrl = string.Empty;
+        await vm.ApplyCatalogLibraryAsync();
+        Assert.Null(fixture.Preferences.Current.CatalogLibraryUrl);
         await vm.SyncCatalogLibraryAtStartupAsync();
         Assert.Empty(sync.Urls);
-        vm.CatalogLibraryUrl = "https://example.com/catalog.json";
+        vm.CatalogLibraryUrl = AppPreferences.DefaultCatalogLibraryUrl;
         vm.SyncCatalogLibraryOnStartup = false;
         await vm.ApplyCatalogLibraryAsync();
         await vm.SyncCatalogLibraryAtStartupAsync();

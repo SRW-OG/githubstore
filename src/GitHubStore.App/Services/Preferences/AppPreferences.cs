@@ -11,8 +11,15 @@ public sealed record AppPreferences
     public ThemeMode Theme { get; init; } = ThemeMode.System;
     public string Language { get; init; } = "system";
 
+    /// <summary>
+    /// 随程序发布的软件目录库地址：首次启动即从该文件同步，软件库更新只需提交仓库里的 catalog.json。
+    /// 用户在设置中清空地址并保存后，就不再进行远端同步（null 表示只用本地目录）。
+    /// </summary>
+    public const string DefaultCatalogLibraryUrl =
+        "https://raw.githubusercontent.com/SRW-OG/githubstore/main/catalog/catalog.json";
+
     /// <summary>HTTPS direct URL for the shared software catalog JSON; null keeps the local catalog.</summary>
-    public string? CatalogLibraryUrl { get; init; }
+    public string? CatalogLibraryUrl { get; init; } = DefaultCatalogLibraryUrl;
     public bool SyncCatalogLibraryOnStartup { get; init; } = true;
 
     /// <summary>下载缓存目录；null 表示使用应用默认缓存目录。</summary>
