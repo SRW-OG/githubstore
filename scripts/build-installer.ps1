@@ -44,6 +44,7 @@ $installer = Join-Path $outputDirectory "GitHubStore-Setup-$Version-win-x64.exe"
 # Do not silently replace an already delivered installer.
 if (Test-Path -LiteralPath $installer) { throw "Installer already exists: $installer. Choose a new version or archive it first." }
 & $CompilerPath "/DAppVersion=$Version" "/DPublishDir=$publishDirectory" "/DInstallerOutputDir=$outputDirectory" `
+    "/DIconPath=$(Join-Path $repository 'src\GitHubStore.App\Assets\githubstore.ico')" `
     (Join-Path $repository 'packaging\GitHubStore.iss')
 if ($LASTEXITCODE -ne 0) { throw "Installer compilation failed: $LASTEXITCODE" }
 if (-not (Test-Path -LiteralPath $installer -PathType Leaf)) { throw 'Expected installer was not produced.' }

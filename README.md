@@ -1,5 +1,7 @@
 # GitHubStore
 
+<img src="docs/images/app-icon.png" alt="GitHubStore 图标" width="96" height="96" align="right">
+
 Windows GitHub 软件目录与管理客户端，使用 **C# / .NET 8 + WinUI 3**。当前处于开发阶段：已支持软件目录同步、README AI 摘要、资产下载、首次安装和按分类启动已安装应用；升级与回滚尚未实现。
 
 > 文档核对日期：2026-10-22。功能状态以当前源码的实际调用链和验证结果为准；“有接口、有服务或构建通过”不等于“用户已能使用”。

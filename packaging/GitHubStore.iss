@@ -7,6 +7,9 @@
 #ifndef InstallerOutputDir
   #error InstallerOutputDir is required
 #endif
+#ifndef IconPath
+  #define IconPath "..\src\GitHubStore.App\Assets\githubstore.ico"
+#endif
 
 [Setup]
 AppId={{739F23F9-0C57-4938-A740-54A455E166DA}
@@ -26,6 +29,7 @@ OutputBaseFilename=GitHubStore-Setup-{#AppVersion}-win-x64
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile={#IconPath}
 UninstallDisplayIcon={app}\githubstore-ui.exe
 UninstallDisplayName=GitHubStore
 CloseApplications=yes

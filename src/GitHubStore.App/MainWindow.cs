@@ -18,6 +18,9 @@ public sealed class MainWindow : Window
         Title = "GitHubStore · 开源应用目录";
         Content = shell;
         if (MicaControllerSupported()) SystemBackdrop = new MicaBackdrop();
+        // 自包含发布不注册包标识，标题栏与任务栏图标需显式指定，否则回退到默认图标。
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "githubstore.ico");
+        if (File.Exists(iconPath)) AppWindow.SetIcon(iconPath);
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var scale = windows.GetDpi(handle) / 96d;
         AppWindow.Resize(new SizeInt32((int)(1360 * scale), (int)(860 * scale)));
