@@ -40,6 +40,8 @@ public sealed partial class SettingsViewModel
         () => Preferences.Current with
         {
             CatalogLibraryUrl = PreferencesService.NormalizeCatalogLibraryUrl(CatalogLibraryUrl),
+            // 清空地址是明确的停用动作：记录该选择，避免被默认地址悄悄覆盖。
+            CatalogLibraryOptedOut = string.IsNullOrWhiteSpace(CatalogLibraryUrl),
             SyncCatalogLibraryOnStartup = SyncCatalogLibraryOnStartup,
         }, RestoreCatalogLibrary, validateNetwork: false, ct);
 

@@ -118,6 +118,42 @@ public sealed class CatalogLibrarySettingsTests
     }
 
     [Fact]
+    public async Task LegacySettingsWithoutTheOptOutFlagFollowTheShippedAddress()
+    {
+        using var fixture = new Fixture();
+        // 旧版本保存的设置文件：库地址为 null，且没有“主动停用”字段。
+        // 这里的 null 只是当时的默认值，升级后必须回落到随程序发布的地址，而不是当作停用。
+        Directory.CreateDirectory(Path.GetDirectoryName(fixture.Path)!);
+        await File.WriteAllTextAsync(fixture.Path, """
+            { "theme": "System", "language": "system", "catalogLibraryUrl": null }
+            """);
+        var loaded = new PreferencesService(fixture.Path);
+        await loaded.LoadAsync();
+        Assert.Equal(AppPreferences.DefaultCatalogLibraryUrl, loaded.Current.CatalogLibraryUrl);
+        Assert.False(loaded.Current.CatalogLibraryOptedOut);
+    }
+
+    [Fact]
+    public async Task ExplicitOptOutSurvivesReloadAndKeepsTheLocalCatalog()
+    {
+        using var fixture = new Fixture();
+        var sync = new FakeSync();
+        using var vm = new SettingsViewModel(fixture.Preferences, new LocalizationService("zh-CN"), librarySync: sync);
+        await vm.InitializeAsync();
+        vm.CatalogLibraryUrl = string.Empty;
+        await vm.ApplyCatalogLibraryAsync();
+        Assert.True(fixture.Preferences.Current.CatalogLibraryOptedOut);
+
+        // 重新加载：用户主动停用的选择必须保留，不能被默认地址覆盖。
+        var reopened = new PreferencesService(fixture.Path);
+        await reopened.LoadAsync();
+        Assert.Null(reopened.Current.CatalogLibraryUrl);
+        Assert.True(reopened.Current.CatalogLibraryOptedOut);
+        await vm.SyncCatalogLibraryAtStartupAsync();
+        Assert.Empty(sync.Urls);
+    }
+
+    [Fact]
     public async Task ActiveSyncRejectsDuplicateRequestsAndCanBeCancelled()
     {
         using var fixture = new Fixture();

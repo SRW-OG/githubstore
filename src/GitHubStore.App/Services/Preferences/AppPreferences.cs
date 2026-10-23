@@ -18,8 +18,16 @@ public sealed record AppPreferences
     public const string DefaultCatalogLibraryUrl =
         "https://raw.githubusercontent.com/SRW-OG/githubstore/main/catalog/catalog.json";
 
-    /// <summary>HTTPS direct URL for the shared software catalog JSON; null keeps the local catalog.</summary>
+    /// <summary>HTTPS direct URL for the shared software catalog JSON; null keeps only the local catalog.</summary>
     public string? CatalogLibraryUrl { get; init; } = DefaultCatalogLibraryUrl;
+
+    /// <summary>
+    /// 用户在设置中清空库地址并保存后为 true：表示不使用远端软件目录库。
+    /// 旧版本没有这个字段，其保存的空地址只是当时的默认值，因此升级后仍使用随程序发布的默认地址，
+    /// 不会被误读成“用户主动停用同步”。
+    /// </summary>
+    public bool CatalogLibraryOptedOut { get; init; }
+
     public bool SyncCatalogLibraryOnStartup { get; init; } = true;
 
     /// <summary>下载缓存目录；null 表示使用应用默认缓存目录。</summary>

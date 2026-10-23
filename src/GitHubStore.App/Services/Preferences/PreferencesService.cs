@@ -337,10 +337,14 @@ public sealed class PreferencesService
             proxyPort = 0;
         }
 
+        // 只有用户显式停用（或在设置里清空地址）才不使用远端软件库；其余情况——包括旧版本留下的空值——
+        // 一律回落到随程序发布的默认地址，这样升级用户和新用户都能跟随仓库的目录文件更新。
+        var catalogLibraryUrl = NormalizeCatalogLibraryUrl(preferences.CatalogLibraryUrl);
+
         return preferences with
         {
             Language = language,
-            CatalogLibraryUrl = NormalizeCatalogLibraryUrl(preferences.CatalogLibraryUrl),
+            CatalogLibraryUrl = catalogLibraryUrl ?? (preferences.CatalogLibraryOptedOut ? null : AppPreferences.DefaultCatalogLibraryUrl),
             AiEndpoint = NormalizeAiEndpoint(preferences.AiEndpoint),
             AiModel = NormalizeAiModel(preferences.AiModel),
             AiApiKey = string.IsNullOrEmpty(preferences.AiApiKey) ? null : preferences.AiApiKey,

@@ -259,6 +259,109 @@ public sealed class DefaultAssetSelectionPolicyTests
         Assert.Same(matchingZip, Select(armZip, x64Exe, matchingZip));
     }
 
+    [Fact]
+    public void Select_PairsArchiveWithInstallerDespitePortableAndPlatformNameDifferences()
+    {
+        // 真实案例：dbx 的绿色包只写 portable，安装器只写 setup，两者都不带平台词。
+        var zip = Asset("DBX_0.6.51_x64-portable.zip");
+        var setup = Asset("DBX_0.6.51_x64-setup.exe");
+        var offline = Asset("DBX_0.6.51_x64-offline-setup.exe");
+        Assert.Same(zip, Select(setup, zip, offline));
+    }
+
+    [Fact]
+    public void Select_PairsArchiveWhoseNameOmitsTheWindowsWord()
+    {
+        // 真实案例：Recordly 绿色包是 Recordly-x64.zip，安装器是 Recordly-windows-x64.exe。
+        var zip = Asset("Recordly-x64.zip");
+        var exe = Asset("Recordly-windows-x64.exe");
+        Assert.Same(zip, Select(exe, zip));
+        // 真实案例：Lithe-IDEA 绿色包用 x86_64 写法，安装器用 windows-x64。
+        var litheZip = Asset("Lithe-0.6.4-x86_64.zip");
+        var litheExe = Asset("Lithe-0.6.4-windows-x64.exe");
+        Assert.Same(litheZip, Select(litheExe, litheZip));
+    }
+
+    [Fact]
+    public void Select_StillPrefersTheInstallerWhenTheOnlyArchiveWrapsIt()
+    {
+        // 配对放宽后，安装器压缩包仍不能被当成绿色版。
+        var nsisZip = Asset("Voicebox_0.5.0_x64-setup.nsis.zip");
+        var msiZip = Asset("Voicebox_0.5.0_x64_en-US.msi.zip");
+        var setup = Asset("Voicebox_0.5.0_x64-setup.exe");
+        Assert.DoesNotContain(DefaultAssetSelectionPolicy.Select([nsisZip, msiZip, setup], Arch.Amd64)!.Name, new[] { nsisZip.Name, msiZip.Name });
+    }
+
+    [Theory]
+    [InlineData("dail8859/NotepadNext", "NotepadNext-v0.15-win64.zip")]
+    [InlineData("winsiderss/systeminformer", "systeminformer-4.0.26241.138-release-bin.zip")]
+    [InlineData("winsiderss/systeminformer", "systeminformer-4.0.26241.138-bin.zip")]
+    [InlineData("qtgolang/SunnyNetTools", "Windows.SunnyNetTools.7z")]
+    [InlineData("oop7/YTSage", "YTSage-v5.6.0-portable.zip")]
+    [InlineData("oop7/YTSage", "YTSage-v5.6.0-ffmpeg-portable.zip")]
+    [InlineData("hrydgard/ppsspp", "PPSSPP-v1.20.4-Windows-x64.zip")]
+    [InlineData("esengine/DeepSeek-Reasonix", "reasonix-windows-amd64.zip")]
+    [InlineData("NaiboWang/EasySpider", "EasySpider_0.6.5_Windows_x64.7z")]
+    [InlineData("barry-ran/QtScrcpy", "QtScrcpy-win-x64-v4.2.1.zip")]
+    [InlineData("duan602728596/48tools", "48tools-4.19.4-win64.zip")]
+    [InlineData("perlh/Wavely", "Wavely-3.3.3-windows-amd64.zip")]
+    [InlineData("CuriousLearnerDev/Online_tools", "windows_x64_1.1.1.zip")]
+    [InlineData("jar-analyzer/jar-analyzer", "jar-analyzer-6.2-windows-full.zip")]
+    public void Select_RecognizesAdditionalCuratedGreenArchives(string repository, string filename)
+    {
+        var asset = Asset(filename);
+        Assert.True(DefaultAssetSelectionPolicy.IsRecognizedPortable(asset, repository));
+    }
+
+    [Fact]
+    public void Select_PrefersTheUserScopeInstallerOverTheMachineScopeOne()
+    {
+        // 真实案例：PowerToys 同时提供 PowerToysSetup（机器级，需管理员）
+        // 与 PowerToysUserSetup（用户级）；默认应按当前用户安装的那个。
+        var machine = Asset("PowerToysSetup-0.101.2362.0-x64.exe");
+        var user = Asset("PowerToysUserSetup-0.101.2362.0-x64.exe");
+        Assert.Same(user, Select(machine, user));
+        Assert.Same(user, Select(user, machine));
+        // 只有机器级安装器时仍然选它，不因缺少用户级版本而放弃推荐。
+        Assert.Same(machine, Select(machine));
+    }
+
+    [Fact]
+    public void Select_UserScopePreferenceDoesNotOverrideGreenArchivePriority()
+    {
+        // 绿色包仍优先于任何安装器，包括用户级安装器。
+        var userSetup = Asset("PowerToysUserSetup-0.101.2362.0-x64.exe");
+        var portable = Asset("PowerToys-0.101.2362.0-windows-x64-portable.zip");
+        Assert.Same(portable, Select(userSetup, portable));
+    }
+
+    [Fact]
+    public void Select_NewCuratedRulesStayNarrowToTheirRepositoryAndShape()
+    {
+        // 同一文件名换到别的仓库不得被当成绿色包。
+        var ppsspp = Asset("PPSSPP-v1.20.4-Windows-x64.zip");
+        Assert.Null(DefaultAssetSelectionPolicy.Select([ppsspp], Arch.Amd64, "someone/ppsspp"));
+        // Wavely 的 installer 压缩包属于安装器打包，不是绿色版。
+        Assert.False(DefaultAssetSelectionPolicy.IsRecognizedPortable(
+            Asset("Wavely-3.3.3-windows-installer-amd64.zip"), "perlh/Wavely"));
+        // jar-analyzer 只认定含运行环境的 windows-full，其余变体不推荐。
+        Assert.False(DefaultAssetSelectionPolicy.IsRecognizedPortable(
+            Asset("jar-analyzer-6.2-windows-25.zip"), "jar-analyzer/jar-analyzer"));
+        Assert.False(DefaultAssetSelectionPolicy.IsRecognizedPortable(
+            Asset("jar-analyzer-6.2-windows-system.zip"), "jar-analyzer/jar-analyzer"));
+    }
+
+    [Fact]
+    public void Select_CuratedGreenRulesStayNarrowToTheirRepository()
+    {
+        var sunny = Asset("Windows.SunnyNetTools.7z");
+        Assert.Null(DefaultAssetSelectionPolicy.Select([sunny], Arch.Amd64, "someone/sunnynettools"));
+        Assert.Null(DefaultAssetSelectionPolicy.Select([Asset("Other.7z")], Arch.Amd64, "qtgolang/sunnynettools"));
+        // 策展规则只认定绿色压缩包；安装器仍是普通安装器，不算绿色版。
+        Assert.False(DefaultAssetSelectionPolicy.IsRecognizedPortable(Asset("YTSage-v5.6.0-setup.exe"), "oop7/ytsage"));
+        Assert.False(DefaultAssetSelectionPolicy.IsRecognizedPortable(Asset("Windows.SunnyNetTools.zip"), "qtgolang/sunnynettools"));
+    }
+
     private static Asset? Select(params Asset[] assets)
         => DefaultAssetSelectionPolicy.Select(assets, Arch.Amd64);
 
