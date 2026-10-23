@@ -4,6 +4,28 @@ Windows GitHub 软件目录与管理客户端，使用 **C# / .NET 8 + WinUI 3**
 
 > 文档核对日期：2026-10-22。功能状态以当前源码的实际调用链和验证结果为准；“有接口、有服务或构建通过”不等于“用户已能使用”。
 
+## 应用截图
+
+### Star 排行榜
+
+浏览软件卡片，查看仓库介绍、Star 数、最近更新时间与最新版本，并按名称、仓库或标签搜索。
+
+![GitHubStore Star 排行榜与软件卡片](docs/screenshots/catalog.png)
+
+### 按分类浏览软件
+
+从侧栏进入系统工具等分类，查看软件功能与截图，选择需要的应用进行安装。
+
+![GitHubStore 系统工具分类，展示 PowerToys 与 Rufus 软件卡片](docs/screenshots/categories.png)
+
+### 应用启动器
+
+通过 GitHubStore 安装并登记的应用会显示在启动器中，可按分类查看、搜索并点击图标启动。
+
+![GitHubStore 应用启动器，展示已登记的 KeePassXC](docs/screenshots/launcher.png)
+
+截图为开发阶段的实际界面，软件版本、Star 数与目录内容以运行时为准。
+
 ## 当前能做什么
 
 - 浏览真实 GitHub 仓库元数据与 Release，按分类、名称或 Star 浏览、搜索；随包提供 70 款经核验的 Windows 软件，离线即可浏览。
