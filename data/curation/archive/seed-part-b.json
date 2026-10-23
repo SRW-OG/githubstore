@@ -1,0 +1,1100 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "categoryId": "system",
+      "fetchedAt": "2026-10-20T21:36:41.6170419+08:00",
+      "repository": {
+        "owner": {
+          "login": "microsoft",
+          "id": 6154722,
+          "type": "Organization",
+          "html_url": "https://github.com/microsoft"
+        },
+        "name": "PowerToys",
+        "description": "Microsoft PowerToys is a collection of utilities that supercharge productivity and customization on Windows",
+        "license": {
+          "key": "mit",
+          "name": "MIT License",
+          "spdx_id": "MIT",
+          "url": "https://api.github.com/licenses/mit",
+          "node_id": "MDc6TGljZW5zZTEz"
+        },
+        "language": "C",
+        "topics": [
+          "advanced-paste",
+          "color-picker",
+          "command-palette",
+          "desktop",
+          "fancyzones",
+          "keyboard-manager",
+          "microsoft-powertoys",
+          "powerrename",
+          "powertoys",
+          "windows",
+          "windows-10",
+          "windows-11"
+        ],
+        "stargazers_count": 139513,
+        "forks_count": 8670,
+        "open_issues_count": 7797,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "main",
+        "pushed_at": "2026-10-20T12:10:06Z",
+        "created_at": "2019-05-01T17:44:02Z",
+        "html_url": "https://github.com/microsoft/PowerToys",
+        "id": 184456251,
+        "node_id": "MDEwOlJlcG9zaXRvcnkxODQ0NTYyNTE=",
+        "full_name": "microsoft/PowerToys"
+      },
+      "release": {
+        "tag_name": "v0.101.2362.0",
+        "name": "Release v0.101.2362.0",
+        "published_at": "2026-08-25T08:34:52Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/microsoft/PowerToys/releases/tag/v0.101.2362.0",
+        "assets": [
+          {
+            "id": 528872290,
+            "name": "GroupPolicyObjectFiles-0.101.2362.0.zip",
+            "size": 9044,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/GroupPolicyObjectFiles-0.101.2362.0.zip",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528872290",
+            "digest": "sha256:237d35306899de77539d65d3a2084cd875429a19dfcd1e599edb83aaeebae43a",
+            "download_count": 1554
+          },
+          {
+            "id": 528873622,
+            "name": "PowerToysSetup-0.101.2362.0-arm64.exe",
+            "size": 287842320,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/PowerToysSetup-0.101.2362.0-arm64.exe",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528873622",
+            "digest": "sha256:bee299302c0cd59e282bdc92cc8aaf737713eabcca77bb8bf09f43745d43cd93",
+            "download_count": 22981
+          },
+          {
+            "id": 528873127,
+            "name": "PowerToysSetup-0.101.2362.0-x64.exe",
+            "size": 296399776,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/PowerToysSetup-0.101.2362.0-x64.exe",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528873127",
+            "digest": "sha256:f27e4b4b01bff1a74bfa0116c99f9205f7138db6f7dfcaa9223fb8b635fe6050",
+            "download_count": 671808
+          },
+          {
+            "id": 528872772,
+            "name": "PowerToysUserSetup-0.101.2362.0-arm64.exe",
+            "size": 287815872,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/PowerToysUserSetup-0.101.2362.0-arm64.exe",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528872772",
+            "digest": "sha256:4c2ae5156b7e4f1f5ba744ba6e1cf6bfe3d9614978356e6b00aa47cab86350db",
+            "download_count": 32541
+          },
+          {
+            "id": 528872352,
+            "name": "PowerToysUserSetup-0.101.2362.0-x64.exe",
+            "size": 296370216,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/PowerToysUserSetup-0.101.2362.0-x64.exe",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528872352",
+            "digest": "sha256:d56fa7130fa68afe553068c15a59a6b24c8dbcc9a0989a43ef0fc5a373230de3",
+            "download_count": 1134095
+          },
+          {
+            "id": 528874940,
+            "name": "symbols-arm64.zip",
+            "size": 470920290,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/symbols-arm64.zip",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528874940",
+            "digest": "sha256:26baaa1ab323aed0d694e0dac1d4e66b695151c255f91b3e0594c5aea7e47325",
+            "download_count": 617
+          },
+          {
+            "id": 528874181,
+            "name": "symbols-x64.zip",
+            "size": 482920225,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/microsoft/PowerToys/releases/download/v0.101.2362.0/symbols-x64.zip",
+            "url": "https://api.github.com/repos/microsoft/PowerToys/releases/assets/528874181",
+            "digest": "sha256:1eb189b6bb278d09215dd8688dc602d5c2da44c1f9dc839c0ad9fc6959b32ef1",
+            "download_count": 1346
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "Windows 增强工具集（窗口管理、批量重命名、快速启动等）",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "2026 Windows软件“天花板”清单｜装机必备的教科书级推荐",
+            "url": "https://www.zhihu.com/tardis/jm/art/2030662314953810341",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "Microsoft PowerToys：官方增强工具集（窗口管理、批量重命名、快速启动等）"
+          },
+          {
+            "platform": "zhihu",
+            "title": "Windows党狂喜！6款免费/开源工具，让你的电脑更好用（亲测有效）",
+            "url": "https://www.zhihu.com/tardis/jm/art/2005603460901524401",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "GitHub上120K星的开源神级工具，被称为「Windows的瑞士军刀」"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T21:36:41.6170419+08:00",
+          "repositoryUrl": "https://github.com/microsoft/PowerToys",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/microsoft/PowerToys",
+            "https://github.com/microsoft/PowerToys/releases/tag/v0.101.2362.0",
+            "https://github.com/microsoft/PowerToys/blob/main/LICENSE"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+            "许可证为 MIT：license.json 的 spdx_id 为 MIT，与仓库 LICENSE 文本一致。",
+            "Windows 证据：release v0.101.2362.0 提供 x64 与 arm64 的系统级和用户级 .exe 安装包。"
+          ]
+        }
+      }
+    },
+    {
+      "categoryId": "network",
+      "fetchedAt": "2026-10-20T21:36:50.348415+08:00",
+      "repository": {
+        "owner": {
+          "login": "localsend",
+          "id": 120677616,
+          "type": "Organization",
+          "html_url": "https://github.com/localsend"
+        },
+        "name": "localsend",
+        "description": "An open-source cross-platform alternative to AirDrop",
+        "homepage": "https://localsend.org",
+        "license": {
+          "key": "apache-2.0",
+          "name": "Apache License 2.0",
+          "spdx_id": "Apache-2.0",
+          "url": "https://api.github.com/licenses/apache-2.0",
+          "node_id": "MDc6TGljZW5zZTI="
+        },
+        "language": "Dart",
+        "topics": [
+          "dart",
+          "file-sharing",
+          "flutter",
+          "flutter-apps"
+        ],
+        "stargazers_count": 95019,
+        "forks_count": 5335,
+        "open_issues_count": 1021,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "main",
+        "pushed_at": "2026-10-17T20:26:37Z",
+        "created_at": "2022-12-16T00:46:07Z",
+        "html_url": "https://github.com/localsend/localsend",
+        "id": 578822531,
+        "node_id": "R_kgDOIoAhgw",
+        "full_name": "localsend/localsend"
+      },
+      "release": {
+        "tag_name": "v1.18.2",
+        "name": "v1.18.2",
+        "published_at": "2026-08-21T14:02:01Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/localsend/localsend/releases/tag/v1.18.2",
+        "assets": [
+          {
+            "id": 523783691,
+            "name": "LocalSend-1.18.2-android-arm32v7.apk",
+            "size": 39333444,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-android-arm32v7.apk",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523783691",
+            "digest": "sha256:222b02d2813578a574cd3fbcfa7b8ff317d4887edb9ca0fb7b292816d222dc63",
+            "download_count": 17198
+          },
+          {
+            "id": 523783717,
+            "name": "LocalSend-1.18.2-android-arm64v8.apk",
+            "size": 46558706,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-android-arm64v8.apk",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523783717",
+            "digest": "sha256:82ec3568fba2aa5295b9aae8b76f701d7a4703d86b9f8bad749472038fbaeab3",
+            "download_count": 166397
+          },
+          {
+            "id": 523808324,
+            "name": "LocalSend-1.18.2-android-google-play.apk",
+            "size": 128293112,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-android-google-play.apk",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523808324",
+            "digest": "sha256:ca08306fbedad33790efa02240bc530c3f248e69a1a1ea780fa553f68202f436",
+            "download_count": 18285
+          },
+          {
+            "id": 523783756,
+            "name": "LocalSend-1.18.2-android-x64.apk",
+            "size": 48939435,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-android-x64.apk",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523783756",
+            "digest": "sha256:93e30ddbf84121ad2048c5a61763f2b37738f593699a9f0cf39a8404177aa05b",
+            "download_count": 7254
+          },
+          {
+            "id": 523784037,
+            "name": "LocalSend-1.18.2-linux-arm-64.deb",
+            "size": 24662482,
+            "content_type": "application/vnd.debian.binary-package",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-arm-64.deb",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523784037",
+            "digest": "sha256:bbd8347b7979f936d3bae176a3f0d9b81431605707c585270d6240f7670feb1f",
+            "download_count": 5642
+          },
+          {
+            "id": 523783891,
+            "name": "LocalSend-1.18.2-linux-arm-64.tar.gz",
+            "size": 32354331,
+            "content_type": "application/gzip",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-arm-64.tar.gz",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523783891",
+            "digest": "sha256:dd61f74f1ce3f4e25aca41cd3ce650d6a99353d7baba81a8139807275b88e606",
+            "download_count": 2381
+          },
+          {
+            "id": 523784111,
+            "name": "LocalSend-1.18.2-linux-x86-64.AppImage",
+            "size": 66471104,
+            "content_type": "application/x-appimage",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-x86-64.AppImage",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523784111",
+            "digest": "sha256:19f21613d1834f6caa69517113670461a3f10b80a2a315f86548c0663d9c0aaf",
+            "download_count": 23845
+          },
+          {
+            "id": 523783947,
+            "name": "LocalSend-1.18.2-linux-x86-64.deb",
+            "size": 24665458,
+            "content_type": "application/vnd.debian.binary-package",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-x86-64.deb",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523783947",
+            "digest": "sha256:cc42a4f3eacdcb25ec31f0016b1272acb003145ab30484db8965450e20c72cd2",
+            "download_count": 84248
+          },
+          {
+            "id": 523783843,
+            "name": "LocalSend-1.18.2-linux-x86-64.tar.gz",
+            "size": 32011656,
+            "content_type": "application/gzip",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-linux-x86-64.tar.gz",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523783843",
+            "digest": "sha256:287690a9a8eb6da9c83cc97b3e3030ac67daf32a7331fcf307d0939300658d16",
+            "download_count": 13834
+          },
+          {
+            "id": 558449352,
+            "name": "LocalSend-1.18.2-windows-arm-64.zip",
+            "size": 24414965,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-windows-arm-64.zip",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/558449352",
+            "digest": "sha256:e441259257f24557e1b21f15783af106b70229e36e789a2525b6726841fb7bc1",
+            "download_count": 5474
+          },
+          {
+            "id": 527740028,
+            "name": "LocalSend-1.18.2-windows-x86-64-unsigned.exe",
+            "size": 18960550,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-windows-x86-64-unsigned.exe",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/527740028",
+            "digest": "sha256:f53856750ad087a17b996309171262fa7d89071c350e0dc5df6530f34dd8a2ae",
+            "download_count": 164683
+          },
+          {
+            "id": 558450807,
+            "name": "LocalSend-1.18.2-windows-x86-64.exe",
+            "size": 19901144,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-windows-x86-64.exe",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/558450807",
+            "digest": "sha256:122783e6abb4b0a1f1603d896f46a03aeda3004479ebd3175cab4ddac6b60919",
+            "download_count": 592904
+          },
+          {
+            "id": 558450374,
+            "name": "LocalSend-1.18.2-windows-x86-64.zip",
+            "size": 26113764,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2-windows-x86-64.zip",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/558450374",
+            "digest": "sha256:737aab1829d901e1d798cddd1e5fdc06ba9dfcc9ea50cfe3805e047005d5e71a",
+            "download_count": 113623
+          },
+          {
+            "id": 523804730,
+            "name": "LocalSend-1.18.2.dmg",
+            "size": 52700247,
+            "content_type": "application/x-diskcopy",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-1.18.2.dmg",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523804730",
+            "digest": "sha256:126860d56f6f49b11845f601aac51de27a49b16d2b48102415da91e0e37e5155",
+            "download_count": 568920
+          },
+          {
+            "id": 523784365,
+            "name": "LocalSend-CLI-1.18.2-linux-arm-64.tar.gz",
+            "size": 4639269,
+            "content_type": "application/gzip",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-CLI-1.18.2-linux-arm-64.tar.gz",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523784365",
+            "digest": "sha256:b003e9837743470f7a423ca1205e664031ce3d2e865acc692f3e47577ea93f6d",
+            "download_count": 1111
+          },
+          {
+            "id": 523784304,
+            "name": "LocalSend-CLI-1.18.2-linux-x86-64.tar.gz",
+            "size": 4762297,
+            "content_type": "application/gzip",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-CLI-1.18.2-linux-x86-64.tar.gz",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523784304",
+            "digest": "sha256:f5a986e0b4701b9aafeb9747225a2f3e314e97aba61b3dd7c9d076226f512b08",
+            "download_count": 2667
+          },
+          {
+            "id": 523813386,
+            "name": "LocalSend-CLI-1.18.2-macos-arm-64.tar.gz",
+            "size": 4105018,
+            "content_type": "application/x-gzip",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-CLI-1.18.2-macos-arm-64.tar.gz",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523813386",
+            "digest": "sha256:c375664d632a3065c135e712175fb336ceff1613e5e54ee3e04911db82e1b0fc",
+            "download_count": 1689
+          },
+          {
+            "id": 523813424,
+            "name": "LocalSend-CLI-1.18.2-macos-x86-64.tar.gz",
+            "size": 4397211,
+            "content_type": "application/x-gzip",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-CLI-1.18.2-macos-x86-64.tar.gz",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/523813424",
+            "digest": "sha256:bef783d8abce9e903a2e9bbb60471df206a22fc9840e831cc63e8221054488e6",
+            "download_count": 1140
+          },
+          {
+            "id": 558490107,
+            "name": "LocalSend-CLI-1.18.2-windows-arm-64.exe",
+            "size": 8355328,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-CLI-1.18.2-windows-arm-64.exe",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/558490107",
+            "digest": "sha256:0ff4c4c90ea68f0cc586b5a08c900f89bf71c02a454c78cd035bc3c4fc879bf7",
+            "download_count": 1034
+          },
+          {
+            "id": 558490043,
+            "name": "LocalSend-CLI-1.18.2-windows-x86-64.exe",
+            "size": 9725952,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/localsend/localsend/releases/download/v1.18.2/LocalSend-CLI-1.18.2-windows-x86-64.exe",
+            "url": "https://api.github.com/repos/localsend/localsend/releases/assets/558490043",
+            "digest": "sha256:ca0b267e7457324b3664a935de4e4956da701a7fa1045f6f99c72602f7f8dc38",
+            "download_count": 4735
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "局域网跨平台文件互传工具，AirDrop 的开源替代",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "2026 Windows软件“天花板”清单｜装机必备的教科书级推荐",
+            "url": "https://www.zhihu.com/tardis/jm/art/2030662314953810341",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "LocalSend：跨平台传输软件，实现像Mac生态的Airdrop无线传输功能。开源免费"
+          },
+          {
+            "platform": "zhihu",
+            "title": "有没有啥好用又不流氓的电脑软件推荐？",
+            "url": "https://www.zhihu.com/tardis/jm/ans/2067217094450623309",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "LocalSend | 文件传输 | 局域网直传，无需联网，全平台替代 AirDrop"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T21:36:50.348415+08:00",
+          "repositoryUrl": "https://github.com/localsend/localsend",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/localsend/localsend",
+            "https://github.com/localsend/localsend/releases/tag/v1.18.2",
+            "https://github.com/localsend/localsend/blob/main/LICENSE"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+            "许可证为 Apache-2.0：license.json 的 spdx_id 为 Apache-2.0，与 LICENSE 文本一致。",
+            "Windows 证据：release v1.18.2 提供 windows-x86-64 的 .exe 与 .zip、windows-arm-64 的 .zip，以及两个 LocalSend-CLI 的 Windows 可执行文件。",
+            "资产中含名称带 unsigned 的未签名 EXE（LocalSend-1.18.2-windows-x86-64-unsigned.exe）；本次未验证任何二进制的签名。"
+          ]
+        }
+      }
+    },
+    {
+      "categoryId": "network",
+      "fetchedAt": "2026-10-20T21:37:06.1639473+08:00",
+      "repository": {
+        "owner": {
+          "login": "rustdesk",
+          "id": 71636191,
+          "type": "User",
+          "html_url": "https://github.com/rustdesk"
+        },
+        "name": "rustdesk",
+        "description": "An open-source remote desktop application designed for self-hosting, as an alternative to TeamViewer.",
+        "homepage": "https://rustdesk.com",
+        "license": {
+          "key": "agpl-3.0",
+          "name": "GNU Affero General Public License v3.0",
+          "spdx_id": "AGPL-3.0",
+          "url": "https://api.github.com/licenses/agpl-3.0",
+          "node_id": "MDc6TGljZW5zZTE="
+        },
+        "language": "Rust",
+        "topics": [
+          "android",
+          "anydesk",
+          "dart",
+          "flatpak",
+          "flutter",
+          "flutter-apps",
+          "ios",
+          "linux",
+          "macos",
+          "p2p",
+          "rdp",
+          "remote-control",
+          "remote-desktop",
+          "rust",
+          "rust-lang",
+          "teamviewer",
+          "vnc",
+          "wayland",
+          "windows"
+        ],
+        "stargazers_count": 126415,
+        "forks_count": 19858,
+        "open_issues_count": 200,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "master",
+        "pushed_at": "2026-10-20T09:29:30Z",
+        "created_at": "2020-09-28T15:36:08Z",
+        "html_url": "https://github.com/rustdesk/rustdesk",
+        "id": 299354207,
+        "node_id": "MDEwOlJlcG9zaXRvcnkyOTkzNTQyMDc=",
+        "full_name": "rustdesk/rustdesk"
+      },
+      "release": {
+        "tag_name": "1.5.0",
+        "name": "1.5.0",
+        "published_at": "2026-09-30T16:11:03Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/rustdesk/rustdesk/releases/tag/1.5.0",
+        "assets": [
+          {
+            "id": 601424661,
+            "name": "rustdesk-1.5.0-0-x86_64.pkg.tar.zst",
+            "size": 26784015,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-0-x86_64.pkg.tar.zst",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601424661",
+            "digest": "sha256:e920621899aeaa18c6e7e23b2b565615e7dc957dc987494795ca7a94c3108d7d",
+            "download_count": 44347
+          },
+          {
+            "id": 601417315,
+            "name": "rustdesk-1.5.0-0.aarch64-suse.rpm",
+            "size": 32959275,
+            "content_type": "application/x-redhat-package-manager",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-0.aarch64-suse.rpm",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601417315",
+            "digest": "sha256:b7a9ca68aa3d80a0364c8ccf1b08ab8f6ad4f95e0dda9c435bbd8bec6ad2de1d",
+            "download_count": 1826
+          },
+          {
+            "id": 601417311,
+            "name": "rustdesk-1.5.0-0.aarch64.rpm",
+            "size": 32959223,
+            "content_type": "application/x-redhat-package-manager",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-0.aarch64.rpm",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601417311",
+            "digest": "sha256:1b436234e51ca59bfd3beba6ba81096be13a22a7e2f8b94bd45218b8c77e5e13",
+            "download_count": 1608
+          },
+          {
+            "id": 601423168,
+            "name": "rustdesk-1.5.0-0.x86_64-suse.rpm",
+            "size": 33732987,
+            "content_type": "application/x-redhat-package-manager",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-0.x86_64-suse.rpm",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601423168",
+            "digest": "sha256:4cd654cc01fc2543cb24cb373dcabfa750ad6b51d9ea90ff51f6a6cd096bc5ff",
+            "download_count": 2220
+          },
+          {
+            "id": 601423166,
+            "name": "rustdesk-1.5.0-0.x86_64.rpm",
+            "size": 33732946,
+            "content_type": "application/x-redhat-package-manager",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-0.x86_64.rpm",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601423166",
+            "digest": "sha256:96e4246d62a992630dacac3472f356ad517a5ef6d0cd8ea02b5648bc1cabff26",
+            "download_count": 10974
+          },
+          {
+            "id": 601408786,
+            "name": "rustdesk-1.5.0-aarch64-signed.apk",
+            "size": 28766338,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64-signed.apk",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601408786",
+            "digest": "sha256:dc37d05c0d382455e19cf9acc9dc89f7f8cf01264b2643fb4f71f6bb15bf9b4f",
+            "download_count": 119256
+          },
+          {
+            "id": 601427557,
+            "name": "rustdesk-1.5.0-aarch64.AppImage",
+            "size": 84883976,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64.AppImage",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601427557",
+            "digest": "sha256:7a5d56ffb9f90650d298b39f682b33f5ee55e8acd7360033c7027f37e69c069f",
+            "download_count": 1913
+          },
+          {
+            "id": 601417313,
+            "name": "rustdesk-1.5.0-aarch64.deb",
+            "size": 23194980,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64.deb",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601417313",
+            "digest": "sha256:1f2fc9be8321c10347aa33cb13198c6a956aec272c5e58ac81f4c0ef04037df3",
+            "download_count": 19613
+          },
+          {
+            "id": 601430627,
+            "name": "rustdesk-1.5.0-aarch64.dmg",
+            "size": 29874038,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64.dmg",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601430627",
+            "digest": "sha256:3929b0a4321e7d0f561a317059798be882d65decc59681eb77061f8efe56fbf4",
+            "download_count": 336459
+          },
+          {
+            "id": 601459263,
+            "name": "rustdesk-1.5.0-aarch64.exe",
+            "size": 23857008,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64.exe",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601459263",
+            "digest": "sha256:b660dbd7fd5ba4723447bb642dd95063f3a2abad76f5544d024f3b1c029dd87e",
+            "download_count": 19281
+          },
+          {
+            "id": 601502641,
+            "name": "rustdesk-1.5.0-aarch64.flatpak",
+            "size": 23141344,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64.flatpak",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601502641",
+            "digest": "sha256:29af72e4768c1bd86a9a5f2f022b9fd9804963c4243a6287fa8873d841bbb6b6",
+            "download_count": 2862
+          },
+          {
+            "id": 601459260,
+            "name": "rustdesk-1.5.0-aarch64.msi",
+            "size": 24428544,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-aarch64.msi",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601459260",
+            "digest": "sha256:ec4dc1afa5ae3d6a8ecceab1a681bfd17ed56400056c8fa1c182decf43eab1f7",
+            "download_count": 7905
+          },
+          {
+            "id": 601495014,
+            "name": "rustdesk-1.5.0-armv7-sciter.deb",
+            "size": 14913220,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-armv7-sciter.deb",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601495014",
+            "digest": "sha256:e98e4dba368dc17ff79c8b04dadf1028b6e3ebe0ba85312267c948cca1e67bc5",
+            "download_count": 7416
+          },
+          {
+            "id": 601419639,
+            "name": "rustdesk-1.5.0-armv7-signed.apk",
+            "size": 27213962,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-armv7-signed.apk",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601419639",
+            "digest": "sha256:14e0bbccfca1bce9ea03350ad95b763064bda2481a36312420403f6cb1e0f71a",
+            "download_count": 22986
+          },
+          {
+            "id": 601440436,
+            "name": "rustdesk-1.5.0-universal-signed.apk",
+            "size": 77451974,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-universal-signed.apk",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601440436",
+            "digest": "sha256:b7910dea1b6ec4a079aa753e0432c2269b843d89d900c7a3930b6ec13f3ba112",
+            "download_count": 125629
+          },
+          {
+            "id": 601463819,
+            "name": "rustdesk-1.5.0-unsigned.tar.gz",
+            "size": 201562177,
+            "content_type": "application/gzip",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-unsigned.tar.gz",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601463819",
+            "digest": "sha256:d006697cb522e79a25cfad489f7b45de32c778407b2887c4870280bf7a2308c2",
+            "download_count": 1151
+          },
+          {
+            "id": 601395783,
+            "name": "rustdesk-1.5.0-x86-sciter.exe",
+            "size": 13377392,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86-sciter.exe",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601395783",
+            "digest": "sha256:9f5e99ed33c08d3f61dd4e3d0dc06b927836bb518acd7047ffb0a68b9b138bf0",
+            "download_count": 58261
+          },
+          {
+            "id": 601396875,
+            "name": "rustdesk-1.5.0-x86_64-sciter.deb",
+            "size": 18004180,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64-sciter.deb",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601396875",
+            "digest": "sha256:28155784ba24d6f3a77eea129f8ca2b150f7d06945bbdc16ff41a0085a9f53b5",
+            "download_count": 3315
+          },
+          {
+            "id": 601503927,
+            "name": "rustdesk-1.5.0-x86_64-sciter.flatpak",
+            "size": 17870480,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64-sciter.flatpak",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601503927",
+            "digest": "sha256:0691b0abb3082550c4024684ca52d89dc8c522132399d616ee51b022e50b6d30",
+            "download_count": 386
+          },
+          {
+            "id": 601412823,
+            "name": "rustdesk-1.5.0-x86_64-signed.apk",
+            "size": 28237942,
+            "content_type": "application/vnd.android.package-archive",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64-signed.apk",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601412823",
+            "digest": "sha256:b6c41f81a0bbe99c8a95b01078866d72d285b7b732a2b94f5f5542a9c4bcadf6",
+            "download_count": 2877
+          },
+          {
+            "id": 601427431,
+            "name": "rustdesk-1.5.0-x86_64.AppImage",
+            "size": 87992824,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64.AppImage",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601427431",
+            "digest": "sha256:422ebb915b4c709f3511cfa2941abcefdcb1d3d60f673f5a20cf88a4ab2c9aa5",
+            "download_count": 9356
+          },
+          {
+            "id": 601423162,
+            "name": "rustdesk-1.5.0-x86_64.deb",
+            "size": 24940796,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64.deb",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601423162",
+            "digest": "sha256:4e2b9701d25a7ef373f3d09bda584a37d6902f97a6ab15f2e86d4a5783e2a0ec",
+            "download_count": 147160
+          },
+          {
+            "id": 601430944,
+            "name": "rustdesk-1.5.0-x86_64.dmg",
+            "size": 36878402,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64.dmg",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601430944",
+            "digest": "sha256:1ca3cbfbe7f2bd28b50c93fcd50d4a0b671dc76d18be27cea99d3a65767eb526",
+            "download_count": 113466
+          },
+          {
+            "id": 601427397,
+            "name": "rustdesk-1.5.0-x86_64.exe",
+            "size": 25887600,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64.exe",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601427397",
+            "digest": "sha256:8555777215510d83d2d61c9dc984e4fcc838bd7e79f9d18a42585431f5e8bb47",
+            "download_count": 1367922
+          },
+          {
+            "id": 601504140,
+            "name": "rustdesk-1.5.0-x86_64.flatpak",
+            "size": 24741448,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64.flatpak",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601504140",
+            "digest": "sha256:33b34138122ceaac4db1244a3420df104961d781c17f6cd865ece5764c034610",
+            "download_count": 15870
+          },
+          {
+            "id": 601427399,
+            "name": "rustdesk-1.5.0-x86_64.msi",
+            "size": 26345472,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-1.5.0-x86_64.msi",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601427399",
+            "digest": "sha256:624fe792ab1d76b35134dab84bff97a6bcd14043ffd090a2c6a2800f77580495",
+            "download_count": 575081
+          },
+          {
+            "id": 601437169,
+            "name": "rustdesk-unattended-wayland-1.5.0-x86_64.deb",
+            "size": 25161220,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk-unattended-wayland-1.5.0-x86_64.deb",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601437169",
+            "digest": "sha256:9eed5e9f4b47af8ed41585c399cb2c0d2870e801c99645330dea1063ad844e09",
+            "download_count": 6078
+          },
+          {
+            "id": 601350217,
+            "name": "rustdesk.sbom.json",
+            "size": 1850682,
+            "content_type": "application/json",
+            "browser_download_url": "https://github.com/rustdesk/rustdesk/releases/download/1.5.0/rustdesk.sbom.json",
+            "url": "https://api.github.com/repos/rustdesk/rustdesk/releases/assets/601350217",
+            "digest": "sha256:1002216ea9e991024bdb2d0ffe3c06bef013f6be227723adb371c358a19a47e8",
+            "download_count": 467
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "可自托管的开源远程桌面工具",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "23 个超棒的开源应用程序",
+            "url": "https://zhuanlan.zhihu.com/p/672918285",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "Rustdesk (Rust) — 远程桌面的安全卫士"
+          },
+          {
+            "platform": "xiaohongshu",
+            "title": "别再花冤枉钱！7个GitHub开源神器，个个都能",
+            "url": "https://www.xiaohongshu.com/explore/6aaa55ec000000001001e66a",
+            "discoveredAt": "2026-10-20T13:33:29.8395589Z",
+            "evidenceLevel": "platform-text",
+            "quote": "RustDesk"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T21:37:06.1639473+08:00",
+          "repositoryUrl": "https://github.com/rustdesk/rustdesk",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/rustdesk/rustdesk",
+            "https://github.com/rustdesk/rustdesk/releases/tag/1.5.0",
+            "https://github.com/rustdesk/rustdesk/blob/master/LICENCE"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+            "许可证为 AGPL-3.0：license.json 的 spdx_id 为 AGPL-3.0，与仓库根目录 LICENCE 文本一致。",
+            "Windows 证据：release 1.5.0 提供 x86_64 与 aarch64 的 .exe 与 .msi，另有 rustdesk-1.5.0-x86-sciter.exe。",
+            "AGPL-3.0 对通过网络向用户提供服务设有源码提供义务；若自建中继或二次分发，需自行评估合规。"
+          ]
+        }
+      }
+    },
+    {
+      "categoryId": "system",
+      "fetchedAt": "2026-10-20T21:38:06.3960218+08:00",
+      "repository": {
+        "owner": {
+          "login": "pbatard",
+          "id": 1206968,
+          "type": "User",
+          "html_url": "https://github.com/pbatard"
+        },
+        "name": "rufus",
+        "description": "The Reliable USB Formatting Utility",
+        "homepage": "https://rufus.ie",
+        "license": {
+          "key": "gpl-3.0",
+          "name": "GNU General Public License v3.0",
+          "spdx_id": "GPL-3.0",
+          "url": "https://api.github.com/licenses/gpl-3.0",
+          "node_id": "MDc6TGljZW5zZTk="
+        },
+        "language": "C",
+        "topics": [
+          "bios",
+          "boot",
+          "bootable-drives",
+          "freedos",
+          "gpt",
+          "grub",
+          "grub4dos",
+          "iso",
+          "mbr",
+          "md5",
+          "persistence",
+          "rufus",
+          "secure-boot",
+          "sha1",
+          "sha256",
+          "syslinux",
+          "uefi",
+          "usb",
+          "windows",
+          "windows-to-go"
+        ],
+        "stargazers_count": 38049,
+        "forks_count": 3180,
+        "open_issues_count": 9,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "master",
+        "pushed_at": "2026-10-15T19:09:46Z",
+        "created_at": "2011-11-19T19:12:05Z",
+        "html_url": "https://github.com/pbatard/rufus",
+        "id": 2810292,
+        "node_id": "MDEwOlJlcG9zaXRvcnkyODEwMjky",
+        "full_name": "pbatard/rufus"
+      },
+      "release": {
+        "tag_name": "v4.15",
+        "name": "Rufus 4.15",
+        "published_at": "2026-06-30T11:28:34Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/pbatard/rufus/releases/tag/v4.15",
+        "assets": [
+          {
+            "id": 462098597,
+            "name": "rufus-4.15.exe",
+            "size": 1989992,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15.exe",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462098597",
+            "digest": "sha256:84c8a437f8af89257524478489e5c85f1edf25f761d299e2bcde46ac0afbe106",
+            "download_count": 7534399
+          },
+          {
+            "id": 462098609,
+            "name": "rufus-4.15.exe.sig",
+            "size": 256,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15.exe.sig",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462098609",
+            "digest": "sha256:a907b26812124f7493dffe7ba57eb7631364108198f5a47749d1038da6a33106",
+            "download_count": 707024
+          },
+          {
+            "id": 462099295,
+            "name": "rufus-4.15p.exe",
+            "size": 1989992,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15p.exe",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462099295",
+            "digest": "sha256:84c8a437f8af89257524478489e5c85f1edf25f761d299e2bcde46ac0afbe106",
+            "download_count": 2925498
+          },
+          {
+            "id": 462098614,
+            "name": "rufus-4.15_arm64.exe",
+            "size": 5491048,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15_arm64.exe",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462098614",
+            "digest": "sha256:af01a2136db7391eb8a52de7001fd231f0731cd27e042318dc2743d87fa35c1c",
+            "download_count": 470621
+          },
+          {
+            "id": 462098636,
+            "name": "rufus-4.15_arm64.exe.sig",
+            "size": 256,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15_arm64.exe.sig",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462098636",
+            "digest": "sha256:886b20ead237f690dbc38a4ad724bdf0d4613421ea9e22289980eaa87ff0d69e",
+            "download_count": 4849
+          },
+          {
+            "id": 462098643,
+            "name": "rufus-4.15_x86.exe",
+            "size": 1933672,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15_x86.exe",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462098643",
+            "digest": "sha256:20e1345715aff4aebf016839f721390882201a2b5d00655424c4ca38cb919576",
+            "download_count": 653746
+          },
+          {
+            "id": 462098665,
+            "name": "rufus-4.15_x86.exe.sig",
+            "size": 256,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/pbatard/rufus/releases/download/v4.15/rufus-4.15_x86.exe.sig",
+            "url": "https://api.github.com/repos/pbatard/rufus/releases/assets/462098665",
+            "digest": "sha256:720c43355ffdc7bbabac99c7cd60402e1e6779ac4a8b635a15a17a8b0376fc8b",
+            "download_count": 4963
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "Windows 下制作可启动 U 盘的工具",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "有没有啥好用又不流氓的电脑软件推荐？",
+            "url": "https://www.zhihu.com/tardis/jm/ans/2067217094450623309",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "Rufus——Windows 装系统必备神器。"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T21:38:06.3960218+08:00",
+          "repositoryUrl": "https://github.com/pbatard/rufus",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/pbatard/rufus",
+            "https://github.com/pbatard/rufus/releases/tag/v4.15",
+            "https://github.com/pbatard/rufus/blob/master/LICENSE.txt"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+            "许可证为 GPL-3.0：license.json 的 spdx_id 为 GPL-3.0，与 LICENSE.txt 文本一致。",
+            "Windows 证据：release v4.15 提供 rufus-4.15.exe、rufus-4.15p.exe、rufus-4.15_x86.exe 与 rufus-4.15_arm64.exe。",
+            "release 同时附带 .sig 分离签名文件；本次未验证签名有效性与签名者身份。",
+            "该工具会写入磁盘与引导扇区，操作具有破坏性；本次未执行任何格式化或写盘测试。"
+          ]
+        }
+      }
+    },
+    {
+      "categoryId": "dev-tools",
+      "fetchedAt": "2026-10-20T21:38:43.3098226+08:00",
+      "repository": {
+        "owner": {
+          "login": "0x7c13",
+          "id": 1166162,
+          "type": "User",
+          "html_url": "https://github.com/0x7c13"
+        },
+        "name": "Notepads",
+        "description": "A modern, lightweight text editor with a minimalist design.",
+        "homepage": "https://www.NotepadsApp.com",
+        "license": {
+          "key": "mit",
+          "name": "MIT License",
+          "spdx_id": "MIT",
+          "url": "https://api.github.com/licenses/mit",
+          "node_id": "MDc6TGljZW5zZTEz"
+        },
+        "language": "C#",
+        "topics": [
+          "app",
+          "diff-viewer",
+          "fluent",
+          "markdown",
+          "notepad",
+          "texteditor",
+          "uwp",
+          "windows"
+        ],
+        "stargazers_count": 10283,
+        "forks_count": 559,
+        "open_issues_count": 474,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "master",
+        "pushed_at": "2026-10-17T23:38:27Z",
+        "created_at": "2019-06-01T01:20:33Z",
+        "html_url": "https://github.com/0x7c13/Notepads",
+        "id": 189676777,
+        "node_id": "MDEwOlJlcG9zaXRvcnkxODk2NzY3Nzc=",
+        "full_name": "0x7c13/Notepads"
+      },
+      "release": {
+        "tag_name": "v1.5.6.0",
+        "name": "Notepads v1.5.6.0",
+        "published_at": "2025-03-28T09:00:22Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/0x7c13/Notepads/releases/tag/v1.5.6.0",
+        "assets": [
+          {
+            "id": 241530486,
+            "name": "Notepads_1.5.6.0_x86_x64_arm64.msixbundle",
+            "size": 32556690,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/0x7c13/Notepads/releases/download/v1.5.6.0/Notepads_1.5.6.0_x86_x64_arm64.msixbundle",
+            "url": "https://api.github.com/repos/0x7c13/Notepads/releases/assets/241530486",
+            "download_count": 53992
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "现代轻量级文本编辑器",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "这15款免费开源神器，我真的后悔没早点知道！",
+            "url": "https://www.zhihu.com/tardis/jm/art/2011194557690316729",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "Notepads——文本编辑替代神器"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T21:38:43.3098226+08:00",
+          "repositoryUrl": "https://github.com/0x7c13/Notepads",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/0x7c13/Notepads",
+            "https://github.com/0x7c13/Notepads/releases/tag/v1.5.6.0",
+            "https://github.com/0x7c13/Notepads/blob/master/LICENSE.txt"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+            "许可证为 MIT：license.json 的 spdx_id 为 MIT，与 LICENSE.txt 文本一致。",
+            "Windows 证据：release v1.5.6.0 提供 Notepads_1.5.6.0_x86_x64_arm64.msixbundle（MSIX 安装需要相应的 Windows 版本与签名信任支持）。",
+            "该资产的 digest 字段在快照中为空，本次未做校验和核对。"
+          ]
+        }
+      }
+    }
+  ]
+}

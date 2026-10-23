@@ -1,0 +1,85 @@
+<UserControl
+    x:Class="GitHubStore.App.Views.LauncherView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GitHubStore.App.Views">
+    <Grid Padding="24" RowSpacing="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Spacing="4">
+            <TextBlock Text="{Binding Text[LauncherHeading]}" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="{Binding Text[LauncherDescription]}" TextWrapping="Wrap"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     PlaceholderText="{Binding Text[LauncherSearch]}" AutomationProperties.Name="{Binding Text[LauncherSearch]}"
+                     AutomationProperties.AutomationId="LauncherSearchInput" />
+            <Button Grid.Column="1" Content="{Binding Text[LauncherRefresh]}" Command="{Binding RefreshCommand}"
+                    AutomationProperties.AutomationId="LauncherRefreshButton" />
+            <Button Grid.Column="2" Content="{Binding Text[HomeExplore]}" Click="OnExploreRequested"
+                    AutomationProperties.AutomationId="HomeExploreButton" />
+        </Grid>
+        <Grid Grid.Row="2">
+            <!--
+                分类分组列表：每个分类一个标题与图标网格。
+                分组依据目录中的分类，未知或已下架应用归入“其他”，不按目录名猜测。
+            -->
+            <ScrollViewer x:Name="ApplicationScroller" VerticalScrollBarVisibility="Auto"
+                          AutomationProperties.AutomationId="LauncherApplicationGrid">
+                <ItemsControl ItemsSource="{Binding Groups}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Spacing="8" Margin="0,0,0,18">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock Text="{Binding CountText}" VerticalAlignment="Center" FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <GridView ItemsSource="{Binding Apps}" SelectionMode="None" IsItemClickEnabled="True"
+                                          ItemClick="OnApplicationClick" HorizontalAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch">
+                                    <GridView.ItemsPanel>
+                                        <ItemsPanelTemplate><ItemsWrapGrid Orientation="Horizontal" /></ItemsPanelTemplate>
+                                    </GridView.ItemsPanel>
+                                    <GridView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="156" MinHeight="164" Padding="12" Margin="4" CornerRadius="10"
+                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                                    ToolTipService.ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding DisplayName}">
+                                                <StackPanel Spacing="8" HorizontalAlignment="Stretch">
+                                                    <local:LauncherAppIcon Width="64" Height="64" ExecutablePath="{Binding ExecutablePath}" HorizontalAlignment="Center" />
+                                                    <TextBlock Text="{Binding DisplayName}" TextAlignment="Center" TextWrapping="Wrap"
+                                                               TextTrimming="CharacterEllipsis" MaxLines="2" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding AvailabilityText}" TextAlignment="Center" TextWrapping="Wrap" FontSize="12"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </GridView.ItemTemplate>
+                                </GridView>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <TextBlock Text="{Binding EmptyMessage}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="480"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibility}}"
+                       AutomationProperties.AutomationId="LauncherEmptyState" />
+        </Grid>
+        <StackPanel Grid.Row="3" Spacing="6">
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsRefreshing, Converter={StaticResource BooleanToVisibility}}" />
+            <TextBlock Text="{Binding CountText}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" AutomationProperties.AutomationId="LauncherCountText" />
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" AutomationProperties.AutomationId="LauncherStatusText" />
+            <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                       AutomationProperties.AutomationId="LauncherErrorText" />
+        </StackPanel>
+    </Grid>
+</UserControl>

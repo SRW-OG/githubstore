@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GitHubStore.Core\GitHubStore.Core.csproj" />
+    <ProjectReference Include="..\..\src\GitHubStore.Platform.Win32\GitHubStore.Platform.Win32.csproj" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\DiscoveryHomeViewModel.cs" Link="ViewModels\DiscoveryHomeViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\ShellViewModel.cs" Link="ViewModels\ShellViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Discovery\*.cs" Link="Services\Discovery\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\LauncherViewModel.cs" Link="ViewModels\LauncherViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Launcher\ManagedAppLauncher.cs" Link="Services\Launcher\ManagedAppLauncher.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.Cards.cs" Link="ViewModels\CatalogViewModel.Cards.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogCardViewModel.cs" Link="ViewModels\CatalogCardViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.ChineseReadme.cs" Link="ViewModels\CatalogViewModel.ChineseReadme.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.Assistant.cs" Link="ViewModels\CatalogViewModel.Assistant.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\InstalledViewModel.Ai.cs" Link="ViewModels\InstalledViewModel.Ai.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\InstallationViewModel.Ai.cs" Link="ViewModels\InstallationViewModel.Ai.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.Ai.cs" Link="ViewModels\CatalogViewModel.Ai.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Ai\*.cs" Link="Services\Ai\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.cs" Link="ViewModels\CatalogViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\AddRepositoryViewModel.cs" Link="ViewModels\AddRepositoryViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\SettingsViewModel.cs" Link="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\SettingsViewModel.CatalogLibrary.cs" Link="ViewModels\SettingsViewModel.CatalogLibrary.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Preferences\AppPreferences.cs" Link="Services\Preferences\AppPreferences.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Preferences\PreferencesService.cs" Link="Services\Preferences\PreferencesService.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Preferences\StorageLocations.cs" Link="Services\Preferences\StorageLocations.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\InstalledViewModel.cs" Link="ViewModels\InstalledViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Localization\LocalizationService.cs" Link="Services\Localization\LocalizationService.cs" />
+    <!-- Markdown 解析器是纯 BCL；渲染器依赖 WinUI，刻意不链接。 -->
+    <Compile Include="..\..\src\GitHubStore.App\Services\Markdown\MarkdownDocument.cs" Link="Services\Markdown\MarkdownDocument.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Markdown\MarkdownParser.cs" Link="Services\Markdown\MarkdownParser.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\InstallationViewModel.cs" Link="ViewModels\InstallationViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Installation\*.cs" Link="Services\Installation\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\DownloadsViewModel.cs" Link="ViewModels\DownloadsViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\SourcesViewModel.cs" Link="ViewModels\SourcesViewModel.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Download\*.cs" Link="Services\Download\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Acceleration\*.cs" Link="Services\Acceleration\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Winget\*.cs" Link="Services\Winget\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Processes\*.cs" Link="Services\Processes\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Inventory\*.cs" Link="Services\Inventory\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Tools\*.cs" Exclude="..\..\src\GitHubStore.App\Services\Tools\Windows*.cs" Link="Services\Tools\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\..\src\GitHubStore.App\Assets\Tools\tools.manifest.json" LogicalName="GitHubStore.Tools.tools.manifest.json" />
+    <EmbeddedResource Include="..\..\src\GitHubStore.App\Assets\Tools\aria2x64.zip" LogicalName="GitHubStore.Tools.aria2.x64.zip" />
+    <EmbeddedResource Include="..\..\src\GitHubStore.App\Assets\Tools\aria2x86.zip" LogicalName="GitHubStore.Tools.aria2.x86.zip" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.utility" Version="2.9.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+</Project>

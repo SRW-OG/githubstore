@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "method": "catbus 0.1.0 item search + item get",
+  "retrievedAt": "2026-10-20T21:44:41.5659536+08:00",
+  "sources": [
+    {
+      "platform": "xiaohongshu",
+      "title": "别再花冤枉钱！7个GitHub开源神器，个个都能",
+      "url": "https://www.xiaohongshu.com/explore/6aaa55ec000000001001e66a",
+      "retrievedAt": "2026-10-20T13:33:29.8395589Z",
+      "evidenceLevel": "platform-text",
+      "softwareMentions": [
+        {
+          "name": "ComfyUI",
+          "quote": "ComfyUI",
+          "repo": null
+        },
+        {
+          "name": "Ollama",
+          "quote": "Ollama",
+          "repo": null
+        },
+        {
+          "name": "Open WebUI",
+          "quote": "Open WebUI",
+          "repo": null
+        },
+        {
+          "name": "Excalidraw",
+          "quote": "Excalidraw",
+          "repo": null
+        },
+        {
+          "name": "RustDesk",
+          "quote": "RustDesk",
+          "repo": null
+        },
+        {
+          "name": "Godot",
+          "quote": "Godot",
+          "repo": null
+        },
+        {
+          "name": "Supabase",
+          "quote": "Supabase",
+          "repo": null
+        }
+      ],
+      "limitations": [
+        "证据为平台接口返回的笔记正文或视频简介；未观看视频或读取图片中的文字。",
+        "原帖的开源、性能、体积与完全替代宣传未当作事实；逐项另查官方仓库和许可证。"
+      ]
+    },
+    {
+      "platform": "xiaohongshu",
+      "title": "别给软件交月租了！5个GitHub开源神器",
+      "url": "https://www.xiaohongshu.com/explore/6aabb101000000000d0267be",
+      "retrievedAt": "2026-10-20T13:33:29.8395589Z",
+      "evidenceLevel": "platform-text",
+      "softwareMentions": [
+        {
+          "name": "HandBrake",
+          "quote": "HandBrake",
+          "repo": null
+        },
+        {
+          "name": "Everything Toolbar",
+          "quote": "Everything Toolbar",
+          "repo": null
+        },
+        {
+          "name": "SumatraPDF",
+          "quote": "SumatraPDF",
+          "repo": null
+        },
+        {
+          "name": "ScreenToGif",
+          "quote": "ScreenToGif",
+          "repo": null
+        },
+        {
+          "name": "Motrix",
+          "quote": "Motrix",
+          "repo": null
+        }
+      ],
+      "limitations": [
+        "证据为平台接口返回的笔记正文或视频简介；未观看视频或读取图片中的文字。",
+        "原帖的开源、性能、体积与完全替代宣传未当作事实；逐项另查官方仓库和许可证。"
+      ]
+    },
+    {
+      "platform": "bilibili",
+      "title": "5款免费开源软件替代Adobe全家桶（常用软件）",
+      "url": "https://www.bilibili.com/video/BV1tu4y1n7uX",
+      "retrievedAt": "2026-10-20T13:41:55.3676567Z",
+      "evidenceLevel": "platform-text",
+      "softwareMentions": [
+        {
+          "name": "GIMP",
+          "quote": "GIMP",
+          "repo": null
+        },
+        {
+          "name": "Natron",
+          "quote": "Natron",
+          "repo": null
+        },
+        {
+          "name": "OpenShot",
+          "quote": "OpenShot",
+          "repo": null
+        },
+        {
+          "name": "Inkscape",
+          "quote": "Inkscape",
+          "repo": null
+        },
+        {
+          "name": "digiKam",
+          "quote": "digiKam",
+          "repo": null
+        }
+      ],
+      "limitations": [
+        "证据为平台接口返回的笔记正文或视频简介；未观看视频或读取图片中的文字。",
+        "原帖的开源、性能、体积与完全替代宣传未当作事实；逐项另查官方仓库和许可证。"
+      ]
+    },
+    {
+      "platform": "bilibili",
+      "title": "好看又好用！这也许是电脑端最强阅读软件 | Windows 电子书阅读软件推荐",
+      "url": "https://www.bilibili.com/video/BV1URruYHEut",
+      "retrievedAt": "2026-10-20T13:41:55.3676567Z",
+      "evidenceLevel": "platform-text",
+      "softwareMentions": [
+        {
+          "name": "小幻阅读",
+          "quote": "小幻阅读",
+          "repo": null
+        },
+        {
+          "name": "Reader Desktop",
+          "quote": "Reader Desktop",
+          "repo": null
+        },
+        {
+          "name": "Koodo Reader",
+          "quote": "Koodo Reader",
+          "repo": null
+        },
+        {
+          "name": "Readest",
+          "quote": "Readest",
+          "repo": null
+        },
+        {
+          "name": "Calibre",
+          "quote": "Calibre",
+          "repo": null
+        }
+      ],
+      "limitations": [
+        "证据为平台接口返回的笔记正文或视频简介；未观看视频或读取图片中的文字。",
+        "原帖的开源、性能、体积与完全替代宣传未当作事实；逐项另查官方仓库和许可证。"
+      ]
+    },
+    {
+      "platform": "bilibili",
+      "title": "免费替代付费软件：40个开源神器，每年省下4000美元！",
+      "url": "https://www.bilibili.com/video/BV1vWg36QExc",
+      "retrievedAt": "2026-10-20T13:41:55.3676567Z",
+      "evidenceLevel": "platform-text",
+      "softwareMentions": [
+        {
+          "name": "LibreOffice",
+          "quote": "LibreOffice",
+          "repo": null
+        },
+        {
+          "name": "VLC",
+          "quote": "VLC",
+          "repo": null
+        },
+        {
+          "name": "DaVinci Resolve",
+          "quote": "DaVinci Resolve",
+          "repo": null
+        },
+        {
+          "name": "OBS Studio",
+          "quote": "OBS Studio",
+          "repo": null
+        },
+        {
+          "name": "GIMP",
+          "quote": "GIMP",
+          "repo": null
+        },
+        {
+          "name": "Audacity",
+          "quote": "Audacity",
+          "repo": null
+        },
+        {
+          "name": "Blender",
+          "quote": "Blender",
+          "repo": null
+        },
+        {
+          "name": "Obsidian",
+          "quote": "Obsidian",
+          "repo": null
+        },
+        {
+          "name": "Scratch",
+          "quote": "Scratch",
+          "repo": null
+        },
+        {
+          "name": "Godot",
+          "quote": "Godot",
+          "repo": null
+        }
+      ],
+      "limitations": [
+        "证据为平台接口返回的笔记正文或视频简介；未观看视频或读取图片中的文字。",
+        "原帖的开源、性能、体积与完全替代宣传未当作事实；逐项另查官方仓库和许可证。"
+      ]
+    }
+  ],
+  "insufficientText": [
+    {
+      "platform": "xiaohongshu",
+      "title": "5款免费开源软件，良心好用。",
+      "url": "https://www.xiaohongshu.com/explore/6a58192e000000001602753b",
+      "reason": "正文只有话题或没有可核对的软件名称，未将图片标题推断为具体软件推荐。"
+    },
+    {
+      "platform": "xiaohongshu",
+      "title": "12款免费开源Windows 小工具",
+      "url": "https://www.xiaohongshu.com/explore/6a4e251d000000000702ebea",
+      "reason": "正文只有话题或没有可核对的软件名称，未将图片标题推断为具体软件推荐。"
+    }
+  ],
+  "globalLimitations": [
+    "只读采集，未执行点赞/收藏/评论/关注/发布。",
+    "小红书访问令牌未写入交付文件；来源为去查询参数的公开笔记链接。",
+    "来源混入免费闭源和非桌面工具；这些候选只进入审查表，不自动进入开源种子库。"
+  ]
+}

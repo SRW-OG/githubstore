@@ -1,0 +1,936 @@
+{
+  "checkedAt": "2026-10-20T22:16:12.4413962+08:00",
+  "source": "local snapshots of dsh-TydO7D",
+  "entries": [
+    {
+      "name": "Microsoft PowerToys",
+      "requestedRepo": "microsoft/PowerToys",
+      "canonicalRepo": "microsoft/PowerToys",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/microsoft/PowerToys/blob/main/LICENSE",
+        "notes": "许可证 API 与仓库 LICENSE 均为 MIT。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/microsoft/PowerToys/releases/tag/v0.101.2362.0",
+          "https://github.com/microsoft/PowerToys"
+        ],
+        "assetNames": [
+          "PowerToysSetup-0.101.2362.0-arm64.exe",
+          "PowerToysSetup-0.101.2362.0-x64.exe",
+          "PowerToysUserSetup-0.101.2362.0-arm64.exe",
+          "PowerToysUserSetup-0.101.2362.0-x64.exe"
+        ],
+        "notes": "release v0.101.2362.0 提供 x64/arm64 的系统级与用户级 .exe 安装包。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "QuickLook",
+      "requestedRepo": "QL-Win/QuickLook",
+      "canonicalRepo": "QL-Win/QuickLook",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/QL-Win/QuickLook/blob/master/LICENSE-GPL.txt",
+        "notes": "许可证 API 与 LICENSE-GPL.txt 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/QL-Win/QuickLook/releases/tag/4.5.0",
+          "https://github.com/QL-Win/QuickLook"
+        ],
+        "assetNames": [
+          "QuickLook-4.5.0.appx",
+          "QuickLook-4.5.0.exe",
+          "QuickLook-4.5.0.msi"
+        ],
+        "notes": "release 4.5.0 提供 .exe、.msi、.appx。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "LocalSend",
+      "requestedRepo": "localsend/localsend",
+      "canonicalRepo": "localsend/localsend",
+      "status": "verified",
+      "license": {
+        "spdxId": "Apache-2.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/localsend/localsend/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 Apache-2.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/localsend/localsend/releases/tag/v1.18.2",
+          "https://github.com/localsend/localsend"
+        ],
+        "assetNames": [
+          "LocalSend-1.18.2-windows-arm-64.zip",
+          "LocalSend-1.18.2-windows-x86-64-unsigned.exe",
+          "LocalSend-1.18.2-windows-x86-64.exe",
+          "LocalSend-1.18.2-windows-x86-64.zip",
+          "LocalSend-CLI-1.18.2-windows-arm-64.exe",
+          "LocalSend-CLI-1.18.2-windows-x86-64.exe"
+        ],
+        "notes": "release v1.18.2 提供 windows-x86-64 的 .exe/.zip 与 windows-arm-64 的 .zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "资产中包含名称带 unsigned 的未签名 EXE；签名状态未核验。"
+      ]
+    },
+    {
+      "name": "7-Zip",
+      "requestedRepo": "ip7z/7zip",
+      "canonicalRepo": "ip7z/7zip",
+      "status": "verified",
+      "license": {
+        "spdxId": null,
+        "resolved": true,
+        "evidenceUrl": "https://github.com/ip7z/7zip",
+        "notes": "API 的 license 字段为 null、许可证 API 返回 404，故依据仓库随附许可说明判定为混合许可：多数文件 LGPL，含 BSD 3-clause 与 BSD 2-clause 及公有领域文件，并含 unRAR 限制。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/ip7z/7zip/releases/tag/26.04",
+          "https://github.com/ip7z/7zip"
+        ],
+        "assetNames": [
+          "7z2604-arm.exe",
+          "7z2604-arm64.exe",
+          "7z2604-x64.exe",
+          "7z2604-x64.msi",
+          "7z2604.exe",
+          "7z2604.msi",
+          "7zr.exe"
+        ],
+        "notes": "release 26.04 提供 x64/x86/arm64 的 .exe 与 .msi。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "混合许可与 unRAR 限制已在种子库 notes 中写明。"
+      ]
+    },
+    {
+      "name": "ShareX",
+      "requestedRepo": "ShareX/ShareX",
+      "canonicalRepo": "ShareX/ShareX",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/ShareX/ShareX/blob/develop/LICENSE.txt",
+        "notes": "许可证 API 与 LICENSE.txt 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/ShareX/ShareX/releases/tag/v21.0.0",
+          "https://github.com/ShareX/ShareX"
+        ],
+        "assetNames": [
+          "ShareX-21.0.0-setup-x64.exe"
+        ],
+        "notes": "release v21.0.0 提供 ShareX-21.0.0-setup-x64.exe。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Safing Portmaster",
+      "requestedRepo": "safing/portmaster",
+      "canonicalRepo": "safing/portmaster",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/safing/portmaster/blob/development/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/safing/portmaster/releases/tag/v2.2.3",
+          "https://github.com/safing/portmaster"
+        ],
+        "assetNames": [],
+        "notes": "release v2.2.3 不含资产；Windows 支持依据 README 的明确声明（Windows/Linux 桌面、WFP 内核驱动接入）。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "Windows 版会加载内核驱动，属改动较大的软件形态。"
+      ]
+    },
+    {
+      "name": "RustDesk",
+      "requestedRepo": "rustdesk/rustdesk",
+      "canonicalRepo": "rustdesk/rustdesk",
+      "status": "verified",
+      "license": {
+        "spdxId": "AGPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/rustdesk/rustdesk/blob/master/LICENCE",
+        "notes": "许可证 API 与仓库 LICENCE 均为 AGPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/rustdesk/rustdesk/releases/tag/1.5.0",
+          "https://github.com/rustdesk/rustdesk"
+        ],
+        "assetNames": [
+          "rustdesk-1.5.0-aarch64.exe",
+          "rustdesk-1.5.0-aarch64.msi",
+          "rustdesk-1.5.0-x86-sciter.exe",
+          "rustdesk-1.5.0-x86_64.exe",
+          "rustdesk-1.5.0-x86_64.msi"
+        ],
+        "notes": "release 1.5.0 提供 x86_64/aarch64 的 .exe 与 .msi。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "AGPL-3.0 对通过网络提供服务设有源码提供义务。"
+      ]
+    },
+    {
+      "name": "Hitomi Downloader",
+      "requestedRepo": "KurtBestor/Hitomi-Downloader",
+      "canonicalRepo": null,
+      "status": "excluded",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": null,
+        "notes": "无法核验：仓库 API、release、license、README 全部返回 HTTP 451（DMCA 阻断）。"
+      },
+      "windows": {
+        "supported": null,
+        "evidenceUrls": [],
+        "assetNames": [],
+        "notes": "无可用快照。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "被 DMCA 阻断，无法建立官方仓库与许可证证据；来源中有知乎推荐，但不能进入种子库。"
+      ]
+    },
+    {
+      "name": "Chatbox",
+      "requestedRepo": "chatboxai/chatbox",
+      "canonicalRepo": "chatboxai/chatbox",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/chatboxai/chatbox/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/chatboxai/chatbox/releases/tag/v1.23.5",
+          "https://github.com/chatboxai/chatbox"
+        ],
+        "assetNames": [],
+        "notes": "release v1.23.5 不含资产；Windows 支持依据 README 的支持矩阵（Windows 10 x64）与 Windows 下载入口。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "需用户自行配置第三方模型服务密钥。"
+      ]
+    },
+    {
+      "name": "Wox",
+      "requestedRepo": "Wox-launcher/Wox",
+      "canonicalRepo": "Wox-launcher/Wox",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/Wox-launcher/Wox/blob/master/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/Wox-launcher/Wox/releases/tag/v2.4.7",
+          "https://github.com/Wox-launcher/Wox"
+        ],
+        "assetNames": [
+          "wox-windows-amd64.exe"
+        ],
+        "notes": "release v2.4.7 提供 wox-windows-amd64.exe。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "VSCodium",
+      "requestedRepo": "VSCodium/vscodium",
+      "canonicalRepo": "VSCodium/vscodium",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/VSCodium/vscodium/blob/master/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 MIT（仓库发布构建脚本与二进制产物）。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/VSCodium/vscodium/releases/tag/1.140.06880",
+          "https://github.com/VSCodium/vscodium"
+        ],
+        "assetNames": [
+          "vscodium-cli-win32-arm64-1.140.06880.tar.gz",
+          "vscodium-cli-win32-x64-1.140.06880.tar.gz",
+          "vscodium-reh-web-win32-x64-1.140.06880.tar.gz",
+          "vscodium-reh-win32-x64-1.140.06880.tar.gz",
+          "VSCodium-win32-arm64-1.140.06880.zip",
+          "VSCodium-win32-x64-1.140.06880.zip",
+          "VSCodium-x64-1.140.06880.msi",
+          "VSCodium-x64-updates-disabled-1.140.06880.msi",
+          "VSCodiumSetup-arm64-1.140.06880.exe",
+          "VSCodiumSetup-x64-1.140.06880.exe",
+          "VSCodiumUserSetup-arm64-1.140.06880.exe",
+          "VSCodiumUserSetup-x64-1.140.06880.exe"
+        ],
+        "notes": "release 1.140.06880 提供 win32-x64/arm64 的 .zip/.msi/Setup .exe。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Espanso",
+      "requestedRepo": "espanso/espanso",
+      "canonicalRepo": "espanso/espanso",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/espanso/espanso/blob/dev/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/espanso/espanso/releases/tag/v2.4.1",
+          "https://github.com/espanso/espanso"
+        ],
+        "assetNames": [
+          "Espanso-Win-Installer-x86_64.exe"
+        ],
+        "notes": "release v2.4.1 提供 Win Installer .exe 与 Win Portable .zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Ventoy",
+      "requestedRepo": "ventoy/Ventoy",
+      "canonicalRepo": "ventoy/Ventoy",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/ventoy/Ventoy/blob/master/COPYING",
+        "notes": "许可证 API 与仓库 COPYING 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/ventoy/Ventoy/releases/tag/v1.1.18",
+          "https://github.com/ventoy/Ventoy"
+        ],
+        "assetNames": [
+          "ventoy-1.1.18-windows.zip"
+        ],
+        "notes": "release v1.1.18 提供 ventoy-1.1.18-windows.zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Barrier",
+      "requestedRepo": "debauchee/barrier",
+      "canonicalRepo": null,
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/debauchee/barrier/blob/master/LICENSE",
+        "notes": "仓库 API 返回 404，无法确认官方仓库身份；license.json 的 spdx_id 为 NOASSERTION，LICENSE 文本为 GPL 加附加豁免，属自定义条款。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/debauchee/barrier/releases/tag/v2.4.0"
+        ],
+        "assetNames": [
+          "BarrierSetup-2.4.0-release.exe"
+        ],
+        "notes": "release v2.4.0（2021-11-01）提供 BarrierSetup-2.4.0-release.exe，但该 release 已明显过期。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "仓库 API 404，可能已迁移或删除；需人工确认当前官方地址后再判断。"
+      ]
+    },
+    {
+      "name": "Sandboxie Plus",
+      "requestedRepo": "sandboxie-plus/Sandboxie",
+      "canonicalRepo": "sandboxie-plus/Sandboxie",
+      "status": "review",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": false,
+        "evidenceUrl": "https://github.com/sandboxie-plus/Sandboxie/blob/master/LICENSE.Classic",
+        "notes": "仓库 API 与 license.json 的 spdx_id 为 GPL-3.0（对应 LICENSE.Classic），但仓库 LICENSE.Plus 为自定义非商业条款，整体不可当作纯 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/sandboxie-plus/Sandboxie/releases/tag/v1.18.8",
+          "https://github.com/sandboxie-plus/Sandboxie"
+        ],
+        "assetNames": [
+          "Sandboxie-Classic-x64-v5.73.8.exe",
+          "Sandboxie-Plus-ARM64-v1.18.8.exe",
+          "Sandboxie-Plus-x64-v1.18.8.exe"
+        ],
+        "notes": "release v1.18.8 提供 Sandboxie-Plus-x64/ARM64 与 Sandboxie-Classic-x64 的 .exe。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "Plus 版含非商业使用限制条款；需人工确认可分发范围。"
+      ]
+    },
+    {
+      "name": "Bitwarden Clients",
+      "requestedRepo": "bitwarden/clients",
+      "canonicalRepo": "bitwarden/clients",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/bitwarden/clients/blob/main/LICENSE.txt",
+        "notes": "许可证 API 为 NOASSERTION；仓库 LICENSE.txt 说明默认 GPL-3.0，但 /bitwarden_license 目录为 Bitwarden License v1.0（商业模块）。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/bitwarden/clients/releases/tag/desktop-v2026.10.0",
+          "https://github.com/bitwarden/clients"
+        ],
+        "assetNames": [
+          "Bitwarden-2026.10.0-arm64-store.appx",
+          "Bitwarden-2026.10.0-arm64.appx",
+          "Bitwarden-2026.10.0-ia32-store.appx",
+          "Bitwarden-2026.10.0-ia32.appx",
+          "Bitwarden-2026.10.0-x64-store.appx",
+          "Bitwarden-2026.10.0-x64.appx",
+          "Bitwarden-Installer-2026.10.0.exe",
+          "Bitwarden-Portable-2026.10.0.exe",
+          "commercial-Bitwarden-2026.10.0-arm64-store.appx",
+          "commercial-Bitwarden-2026.10.0-arm64.appx",
+          "commercial-Bitwarden-2026.10.0-ia32-store.appx",
+          "commercial-Bitwarden-2026.10.0-ia32.appx",
+          "commercial-Bitwarden-2026.10.0-x64-store.appx",
+          "commercial-Bitwarden-2026.10.0-x64.appx",
+          "commercial-Bitwarden-Installer-2026.10.0.exe",
+          "commercial-Bitwarden-Portable-2026.10.0.exe"
+        ],
+        "notes": "release desktop-v2026.10.0 提供 Windows 的 .exe/.appx/.7z 等安装资产。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "双许可混合且含商业条款；不得整体当作 GPL-3.0。"
+      ]
+    },
+    {
+      "name": "SumatraPDF",
+      "requestedRepo": "sumatrapdfreader/sumatrapdf",
+      "canonicalRepo": "sumatrapdfreader/sumatrapdf",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/sumatrapdfreader/sumatrapdf/blob/master/COPYING",
+        "notes": "许可证 API 与仓库 COPYING 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/sumatrapdfreader/sumatrapdf/releases/tag/3.6.1rel",
+          "https://github.com/sumatrapdfreader/sumatrapdf"
+        ],
+        "assetNames": [],
+        "notes": "release 3.6.1rel 不含资产；Windows 支持依据 README 的明确声明。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "README 披露存在 BSD 许可代码，属混合许可但非排除条款；已在种子库 notes 写明。",
+        "仓库快照的 homepage 为 http://（非 https），按\"所有 URL 必须为绝对 https\"的要求，种子库中省略了该字段而未改写原值。"
+      ]
+    },
+    {
+      "name": "mpv",
+      "requestedRepo": "mpv-player/mpv",
+      "canonicalRepo": "mpv-player/mpv",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/mpv-player/mpv/blob/master/LICENSE.GPL",
+        "notes": "仓库 API 与 license.json 的 spdx_id 为 NOASSERTION；仓库 LICENSE.GPL 为 GPLv2 全文，mpv-copyright.txt 说明默认 GPLv2+，在不使用 GPL-only 文件时可构建为 LGPLv2.1+，属混合许可。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/mpv-player/mpv/releases/tag/v0.41.0",
+          "https://github.com/mpv-player/mpv"
+        ],
+        "assetNames": [
+          "mpv-v0.41.0-aarch64-pc-windows-msvc.zip",
+          "mpv-v0.41.0-i686-w64-mingw32.zip",
+          "mpv-v0.41.0-x86_64-pc-windows-msvc.zip",
+          "mpv-v0.41.0-x86_64-w64-mingw32.zip"
+        ],
+        "notes": "release v0.41.0 提供 x86_64/aarch64/i686 的 pc-windows-msvc 与 w64-mingw32 的 Windows .zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "实际带 Windows 资产，不存在\"官方无 Windows 包\"的情况；因 API 判定为 NOASSERTION，按规则转入 review，人工确认后可提升为 verified。"
+      ]
+    },
+    {
+      "name": "Rufus",
+      "requestedRepo": "pbatard/rufus",
+      "canonicalRepo": "pbatard/rufus",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/pbatard/rufus/blob/master/LICENSE.txt",
+        "notes": "许可证 API 与 LICENSE.txt 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/pbatard/rufus/releases/tag/v4.15",
+          "https://github.com/pbatard/rufus"
+        ],
+        "assetNames": [
+          "rufus-4.15.exe",
+          "rufus-4.15p.exe",
+          "rufus-4.15_arm64.exe",
+          "rufus-4.15_x86.exe"
+        ],
+        "notes": "release v4.15 提供 rufus-4.15.exe / _x86.exe / _arm64.exe。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "附 .sig 分离签名，未验证签名有效性；该工具会写盘，未执行写入测试。"
+      ]
+    },
+    {
+      "name": "Notepad++",
+      "requestedRepo": "notepad-plus-plus/notepad-plus-plus",
+      "canonicalRepo": "notepad-plus-plus/notepad-plus-plus",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/notepad-plus-plus/notepad-plus-plus/blob/master/LICENSE",
+        "notes": "仓库 API 与 license.json 的 spdx_id 为 NOASSERTION；LICENSE 文本为 GPLv3 加 clarifications and exceptions，属含附加条款的自定义许可。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/tag/v8.9.8.1",
+          "https://github.com/notepad-plus-plus/notepad-plus-plus"
+        ],
+        "assetNames": [
+          "npp.8.9.8.1.Installer.arm64.exe",
+          "npp.8.9.8.1.Installer.exe",
+          "npp.8.9.8.1.Installer.x64.exe",
+          "npp.8.9.8.1.Installer.x64.msi"
+        ],
+        "notes": "release v8.9.8.1 提供 x64/arm64 的 Installer .exe/.msi 与 portable .zip/.7z。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "注意 Notepad-- 是另一个软件，与本条不同。"
+      ]
+    },
+    {
+      "name": "智绘教 Inkeys",
+      "requestedRepo": "Alan-CRL/Inkeys",
+      "canonicalRepo": "Alan-CRL/Inkeys",
+      "status": "review",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": false,
+        "evidenceUrl": "https://github.com/Alan-CRL/Inkeys/blob/main/LICENSE",
+        "notes": "仓库 API 与 license.json 的 spdx_id 为 GPL-3.0，LICENSE 为 GPLv3 全文；但仓库 TOS（inkeys-terms.md）声明核心源码为 GPLv3，并列出第三方组件中含按 EasyX 官方授权条款使用的非开源组件。"
+      },
+      "windows": {
+        "supported": false,
+        "evidenceUrls": [
+          "https://github.com/Alan-CRL/Inkeys/releases/tag/20261019a",
+          "https://github.com/Alan-CRL/Inkeys"
+        ],
+        "assetNames": [],
+        "notes": "release 20261019a 提供 x64/x86/arm64 的 .zip 发行包（Windows 屏幕批注工具）。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "含非开源组件，整体不可当作纯开源；商业使用需另行评估。"
+      ]
+    },
+    {
+      "name": "Readest",
+      "requestedRepo": "readest/readest",
+      "canonicalRepo": "readest/readest",
+      "status": "verified",
+      "license": {
+        "spdxId": "AGPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/readest/readest/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 AGPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/readest/readest/releases/tag/v0.12.16",
+          "https://github.com/readest/readest"
+        ],
+        "assetNames": [
+          "Readest_0.12.16_arm64-portable.exe",
+          "Readest_0.12.16_arm64-setup.exe",
+          "Readest_0.12.16_x64-portable.exe",
+          "Readest_0.12.16_x64-setup.exe"
+        ],
+        "notes": "release v0.12.16 提供 x64/arm64 的 setup.exe 与 portable.exe（附 .sig）。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "AGPL-3.0 对通过网络提供服务设有源码提供义务。"
+      ]
+    },
+    {
+      "name": "VidBee",
+      "requestedRepo": "nexmoe/VidBee",
+      "canonicalRepo": "nexmoe/VidBee",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/nexmoe/VidBee/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 MIT。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/nexmoe/VidBee/releases/tag/v2.2.3",
+          "https://github.com/nexmoe/VidBee"
+        ],
+        "assetNames": [
+          "vidbee-2.2.3-portable.exe",
+          "vidbee-2.2.3-setup.exe",
+          "vidbee-2.2.3-windows-portable.zip"
+        ],
+        "notes": "release v2.2.3 提供 setup.exe、portable.exe 与 windows-portable.zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "下载类工具，使用需自行确认目标站点条款。"
+      ]
+    },
+    {
+      "name": "Battery Mode",
+      "requestedRepo": "tarcode-apps/BatteryMode",
+      "canonicalRepo": "tarcode-apps/BatteryMode",
+      "status": "excluded",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/tarcode-apps/BatteryMode/blob/main/LICENSE.txt",
+        "notes": "LICENSE.txt 为自定义最终用户许可协议（EULA），禁止分发修改后的源码与二进制，属 source-available 而非开源。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/tarcode-apps/BatteryMode/releases/tag/v4.3.3.206",
+          "https://github.com/tarcode-apps/BatteryMode"
+        ],
+        "assetNames": [
+          "BatteryMode32.exe",
+          "BatteryMode64.exe",
+          "BatteryModeInstaller32.exe",
+          "BatteryModeInstaller64.exe"
+        ],
+        "notes": "release v4.3.3.206 提供 32/64 位 .exe 与安装器。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "自定义 EULA，不满足开源许可要求，故排除。"
+      ]
+    },
+    {
+      "name": "Nilesoft Shell",
+      "requestedRepo": "moudey/Shell",
+      "canonicalRepo": "moudey/Shell",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/moudey/Shell/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 MIT。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/moudey/Shell/releases/tag/v1.9.15",
+          "https://github.com/moudey/Shell"
+        ],
+        "assetNames": [],
+        "notes": "release v1.9.15 不含资产；Windows 支持依据 README 明确列出的 Windows 7/8/10/11。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "以外壳扩展方式注入右键菜单。"
+      ]
+    },
+    {
+      "name": "Flow Launcher",
+      "requestedRepo": "Flow-Launcher/Flow.Launcher",
+      "canonicalRepo": "Flow-Launcher/Flow.Launcher",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/Flow-Launcher/Flow.Launcher/blob/dev/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 MIT（LICENSE 同时保留 Wox 版权声明）。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/Flow-Launcher/Flow.Launcher/releases/tag/v2.1.4",
+          "https://github.com/Flow-Launcher/Flow.Launcher"
+        ],
+        "assetNames": [
+          "Flow-Launcher-Setup.exe"
+        ],
+        "notes": "release v2.1.4 提供 Flow-Launcher-Setup.exe 与 Portable .zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Keyviz",
+      "requestedRepo": "mulaRahul/keyviz",
+      "canonicalRepo": "mulaRahul/keyviz",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/mulaRahul/keyviz/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 GPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/mulaRahul/keyviz/releases/tag/v2.1.1",
+          "https://github.com/mulaRahul/keyviz"
+        ],
+        "assetNames": [
+          "keyviz_2.1.1_windows.msi"
+        ],
+        "notes": "release v2.1.1 提供 keyviz_2.1.1_windows.msi。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "release name 为 v2.1.1-beta 但 prerelease=false，名称与预发布标记不一致。"
+      ]
+    },
+    {
+      "name": "EarTrumpet",
+      "requestedRepo": "File-New-Project/EarTrumpet",
+      "canonicalRepo": "File-New-Project/EarTrumpet",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/File-New-Project/EarTrumpet/blob/master/LICENSE",
+        "notes": "仓库 API 与 license.json 的 spdx_id 为 NOASSERTION；LICENSE 开头明确将若干公司列为 Excluded Entities 并排除其复制/分发/演绎权利，属含排除条款的自定义许可。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/File-New-Project/EarTrumpet/releases/tag/1.3.2.0",
+          "https://github.com/File-New-Project/EarTrumpet"
+        ],
+        "assetNames": [],
+        "notes": "release 1.3.2.0（2016）不含资产；Windows 支持依据 README（面向 Windows 的音量控制工具）。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "含排除条款且 release 长期未更新（以商店分发为主）。"
+      ]
+    },
+    {
+      "name": "Audacity",
+      "requestedRepo": "audacity/audacity",
+      "canonicalRepo": "audacity/audacity",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": "https://github.com/audacity/audacity/blob/master/LICENSE.txt",
+        "notes": "仓库 API 与 license.json 的 spdx_id 为 NOASSERTION；LICENSE.txt 说明主体为 GPLv3、部分文件为 GPLv2 或更高、文档为 CC-BY 3.0，属混合且 API 未判定。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/audacity/audacity/releases/tag/Audacity-4.0.1",
+          "https://github.com/audacity/audacity"
+        ],
+        "assetNames": [
+          "audacity-win-4.0.1-arm64.msi",
+          "audacity-win-4.0.1-x86_64.msi"
+        ],
+        "notes": "release Audacity-4.0.1 提供 audacity-win-4.0.1-x86_64.msi/.7z 与 arm64 对应资产。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "因 API 判定为 NOASSERTION，按统一规则转入 review；实际许可文本明确，人工确认后可提升为 verified。"
+      ]
+    },
+    {
+      "name": "Notepads",
+      "requestedRepo": "0x7c13/Notepads",
+      "canonicalRepo": "0x7c13/Notepads",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/0x7c13/Notepads/blob/master/LICENSE.txt",
+        "notes": "许可证 API 与 LICENSE.txt 均为 MIT。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/0x7c13/Notepads/releases/tag/v1.5.6.0",
+          "https://github.com/0x7c13/Notepads"
+        ],
+        "assetNames": [
+          "Notepads_1.5.6.0_x86_x64_arm64.msixbundle"
+        ],
+        "notes": "release v1.5.6.0 提供 Notepads_1.5.6.0_x86_x64_arm64.msixbundle。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "该资产 digest 为空，未做校验和核对。"
+      ]
+    },
+    {
+      "name": "FxSound",
+      "requestedRepo": "fxsound2/fxsound-app",
+      "canonicalRepo": "fxsound2/fxsound-app",
+      "status": "verified",
+      "license": {
+        "spdxId": "AGPL-3.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/fxsound2/fxsound-app/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 AGPL-3.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/fxsound2/fxsound-app/releases/tag/latest",
+          "https://github.com/fxsound2/fxsound-app"
+        ],
+        "assetNames": [
+          "fxsound_setup.arm64.exe",
+          "fxsound_setup.exe"
+        ],
+        "notes": "release（tag=latest）提供 fxsound_setup.exe 与 fxsound_setup.arm64.exe。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "使用滚动标签 latest，版本号仅在 release name 中。"
+      ]
+    },
+    {
+      "name": "Syncthing",
+      "requestedRepo": "syncthing/syncthing",
+      "canonicalRepo": "syncthing/syncthing",
+      "status": "verified",
+      "license": {
+        "spdxId": "MPL-2.0",
+        "resolved": true,
+        "evidenceUrl": "https://github.com/syncthing/syncthing/blob/main/LICENSE",
+        "notes": "许可证 API 与 LICENSE 均为 MPL-2.0。"
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/syncthing/syncthing/releases/tag/v2.1.6",
+          "https://github.com/syncthing/syncthing"
+        ],
+        "assetNames": [
+          "syncthing-windows-386-v2.1.6.zip",
+          "syncthing-windows-amd64-v2.1.6.zip",
+          "syncthing-windows-arm64-v2.1.6.zip"
+        ],
+        "notes": "release v2.1.6 提供 syncthing-windows-amd64/386/arm64 的 .zip。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "以后台程序运行、界面为 localhost Web UI 的形态已在种子库 notes 写明。"
+      ]
+    },
+    {
+      "name": "FreeFileSync",
+      "requestedRepo": null,
+      "canonicalRepo": null,
+      "status": "excluded",
+      "license": {
+        "spdxId": null,
+        "resolved": false,
+        "evidenceUrl": null,
+        "notes": "无官方 GitHub 仓库，仅有第三方镜像；对 freefilesync.org 的三次抓取均失败（TLS 握手超时 / EOF），HTML 文件为空，无任何许可证证据可取。"
+      },
+      "windows": {
+        "supported": null,
+        "evidenceUrls": [],
+        "assetNames": [],
+        "notes": "未建立任何 Windows 证据。"
+      },
+      "notes": [
+        "核验范围仅限官方仓库、许可证与 Windows 元数据，未执行安装或安全审计。",
+        "知乎来源提到 FreeFileSync，但不得以镜像仓库充当官方源，故排除。"
+      ]
+    }
+  ]
+}

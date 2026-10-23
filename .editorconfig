@@ -1,0 +1,18 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{csproj,props,xaml,json}]
+indent_size = 2
+
+[*.cs]
+# docs/02 的线程纪律：禁止同步等待、非事件 async void、未观察任务。
+dotnet_diagnostic.VSTHRD002.severity = error
+dotnet_diagnostic.VSTHRD100.severity = error
+dotnet_diagnostic.VSTHRD110.severity = error

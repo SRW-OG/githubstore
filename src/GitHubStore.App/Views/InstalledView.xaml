@@ -1,0 +1,120 @@
+<UserControl x:Class="GitHubStore.App.Views.InstalledView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Text[InstalledTitle]}" Style="{StaticResource TitleTextBlockStyle}" />
+            <Button Grid.Column="1" Content="{Binding Text[InstalledScan]}" Command="{Binding RescanCommand}"
+                    AutomationProperties.AutomationId="RescanInstalledButton" />
+        </Grid>
+
+        <!-- 当前仅管理成功安装登记；AI 说明不执行卸载、升级或清理。 -->
+        <InfoBar Grid.Row="1" IsOpen="True" IsClosable="False" Severity="Informational"
+                 Message="{Binding Text[InstalledExternalNote]}" />
+
+        <AutoSuggestBox Grid.Row="2" PlaceholderText="{Binding Text[InstalledFilter]}"
+                        Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        QueryIcon="Find" AutomationProperties.Name="{Binding Text[InstalledFilter]}" />
+
+        <Grid Grid.Row="3" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="280" />
+                <ColumnDefinition Width="380" MinWidth="260" />
+            </Grid.ColumnDefinitions>
+            <ListView x:Name="ProgramList" ItemsSource="{Binding Programs}" SelectionMode="Single"
+                      SelectedItem="{Binding SelectedProgram, Mode=TwoWay}" HorizontalContentAlignment="Stretch"
+                      AutomationProperties.Name="{Binding Text[InstalledTitle]}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12" ColumnSpacing="16">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Publisher}" FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding DisplayVersion}" FontSize="12"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Border Grid.Column="1" Padding="20" CornerRadius="8"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[InstalledTitle]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="{Binding SelectedName}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Text[InstalledPublisher]}" FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{Binding SelectedPublisher}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Text[InstalledVersion]}" FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{Binding SelectedVersion}" />
+                        </StackPanel>
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Text[InstalledLocation]}" FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{Binding SelectedLocation}" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                        </StackPanel>
+                        <!-- 点击后先二次确认，再由 ViewModel 调用服务层启动卸载器。 -->
+                        <Button x:Name="UninstallButton" Content="{Binding Text[InstalledUninstall]}"
+                                Click="OnUninstallClick"
+                                IsEnabled="{Binding CanUninstall}" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="UninstallButton" />
+                        <TextBlock Text="{Binding Text[InstalledManagedHint]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                        <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,8" />
+                        <TextBlock Text="{Binding AiHeading}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding AiScopeNote}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" IsTextSelectionEnabled="True" />
+                        <TextBlock Text="{Binding AiConfigurationNote}" TextWrapping="Wrap" FontSize="12" />
+                        <TextBox Text="{Binding AiQuestion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="{Binding AiQuestionHint}" AutomationProperties.Name="{Binding AiQuestionHint}"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" MaxLength="2000"
+                                 AutomationProperties.AutomationId="InstalledAiQuestion" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="{Binding AiAskLabel}" Command="{Binding AskInstalledAiCommand}"
+                                    AutomationProperties.AutomationId="AskInstalledAiButton" />
+                            <Button Content="{Binding AiCancelLabel}" Command="{Binding CancelInstalledAiCommand}"
+                                    Visibility="{Binding IsAiBusy, Converter={StaticResource BooleanToVisibility}}"
+                                    AutomationProperties.AutomationId="CancelInstalledAiButton" />
+                        </StackPanel>
+                        <Button Content="{Binding AiCompareLabel}" Command="{Binding CompareInstalledAiCommand}"
+                                HorizontalAlignment="Stretch" AutomationProperties.AutomationId="CompareInstalledAiButton" />
+                        <Button Content="{Binding AiUninstallLabel}" Command="{Binding ExplainUninstallAiCommand}"
+                                HorizontalAlignment="Stretch" AutomationProperties.AutomationId="ExplainInstalledUninstallAiButton" />
+                        <ProgressBar IsIndeterminate="True"
+                                     Visibility="{Binding IsAiBusy, Converter={StaticResource BooleanToVisibility}}" />
+                        <TextBlock Text="{Binding AiStatus}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding AiErrorMessage}" TextWrapping="Wrap" IsTextSelectionEnabled="True"
+                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <TextBlock Text="{Binding AiResultSubject}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding AiResponse}" TextWrapping="Wrap" IsTextSelectionEnabled="True"
+                                   AutomationProperties.AutomationId="InstalledAiResponse" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="4" Spacing="8">
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+        </StackPanel>
+    </Grid>
+</UserControl>

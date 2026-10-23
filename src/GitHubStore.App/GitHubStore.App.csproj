@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>false</SelfContained>
+    <DefaultLanguage>zh-CN</DefaultLanguage>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <AssemblyName>githubstore-ui</AssemblyName>
+    <RootNamespace>GitHubStore.App</RootNamespace>
+    <Platforms>x64;ARM64</Platforms>
+    <Platform Condition="'$(Platform)' == '' Or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <RuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.3916" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" PrivateAssets="all" />
+    <ProjectReference Include="..\GitHubStore.Core\GitHubStore.Core.csproj" />
+    <ProjectReference Include="..\GitHubStore.Platform.Win32\GitHubStore.Platform.Win32.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Discovery\trendshift-daily.json" LogicalName="GitHubStore.Discovery.trendshift-daily.json" />
+    <EmbeddedResource Include="Assets\Discovery\star-history-weekly.json" LogicalName="GitHubStore.Discovery.star-history-weekly.json" />
+    <EmbeddedResource Include="Assets\Tools\tools.manifest.json" LogicalName="GitHubStore.Tools.tools.manifest.json" />
+    <EmbeddedResource Include="Assets\Tools\aria2x64.zip" LogicalName="GitHubStore.Tools.aria2.x64.zip" />
+    <EmbeddedResource Include="Assets\Tools\aria2x86.zip" LogicalName="GitHubStore.Tools.aria2.x86.zip" />
+    <Content Include="Assets\Tools\THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets\Tools\licenses\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

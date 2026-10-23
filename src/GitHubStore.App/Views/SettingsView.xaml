@@ -1,0 +1,201 @@
+<UserControl
+    x:Class="GitHubStore.App.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GitHubStore.App.Views">
+    <UserControl.Resources>
+        <local:SettingsMessageVisibilityConverter x:Key="MessageVisibility" />
+        <local:SettingsMessageOpenConverter x:Key="MessageOpen" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="24" Spacing="20" MaxWidth="900" HorizontalAlignment="Left">
+                <TextBlock Text="{Binding Text[SettingsTitle]}" Style="{StaticResource TitleTextBlockStyle}" />
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[SettingsCatalogLibrary]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBox Header="{Binding Text[SettingsCatalogLibraryUrl]}"
+                                 Text="{Binding CatalogLibraryUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="2048" IsEnabled="{Binding CanApply}"
+                                 AutomationProperties.AutomationId="CatalogLibraryUrlInput" />
+                        <TextBlock Text="{Binding Text[SettingsCatalogLibraryHint]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <CheckBox Content="{Binding Text[SettingsCatalogLibraryAuto]}" IsChecked="{Binding SyncCatalogLibraryOnStartup, Mode=TwoWay}"
+                                  IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="CatalogLibraryStartupCheckBox" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[SettingsCatalogLibrarySave]}" Command="{Binding SaveCatalogLibraryCommand}"
+                                    IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="SaveCatalogLibrarySettingsButton" />
+                            <Button Content="{Binding Text[SettingsCatalogLibrarySync]}" Command="{Binding SynchronizeCatalogLibraryCommand}"
+                                    IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="SyncCatalogLibraryButton" />
+                            <Button Content="{Binding Text[Cancel]}" Command="{Binding CancelCatalogLibrarySyncCommand}"
+                                    Visibility="{Binding IsSynchronizingCatalogLibrary, Converter={StaticResource BooleanToVisibility}}"
+                                    AutomationProperties.AutomationId="CancelCatalogLibrarySyncButton" />
+                        </StackPanel>
+                        <ProgressBar IsIndeterminate="True" Visibility="{Binding IsSynchronizingCatalogLibrary, Converter={StaticResource BooleanToVisibility}}" />
+                        <TextBlock Text="{Binding CatalogLibraryStatus}" TextWrapping="Wrap" AutomationProperties.AutomationId="CatalogLibraryStatusText" />
+                        <TextBlock Text="{Binding CatalogLibraryError}" TextWrapping="Wrap" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                   AutomationProperties.AutomationId="CatalogLibraryErrorText" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="{Binding Text[SettingsAppearance]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <!-- Selector items are localized in code; indices map to stable enum values. -->
+                        <ComboBox x:Name="ThemeSelector" Header="{Binding Text[SettingsTheme]}" MinWidth="240"
+                                  IsEnabled="{Binding CanApply}" SelectionChanged="OnThemeSelectionChanged"
+                                  AutomationProperties.Name="{Binding Text[SettingsTheme]}" />
+                        <ComboBox x:Name="LanguageSelector" Header="{Binding Text[SettingsLanguage]}" MinWidth="240"
+                                  IsEnabled="{Binding CanApply}" SelectionChanged="OnLanguageSelectionChanged"
+                                  AutomationProperties.Name="{Binding Text[SettingsLanguage]}" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[SettingsSaveAppearance]}" IsEnabled="{Binding CanApply}"
+                                    Click="OnApplyAppearanceClick" AutomationProperties.AutomationId="SaveAppearanceSettingsButton" />
+                            <ProgressBar IsIndeterminate="True" Width="160" VerticalAlignment="Center"
+                                         Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Text[SettingsInstructions]}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="{Binding Text[SettingsPaths]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <StackPanel Spacing="4">
+                            <TextBox Header="{Binding Text[SettingsDownloadCache]}" Text="{Binding DownloadCacheDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="DownloadCacheDirectoryInput" />
+                            <TextBlock Text="{Binding DefaultCacheHint}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <StackPanel Spacing="4">
+                            <TextBox Header="{Binding Text[SettingsInstallRoot]}" Text="{Binding InstallRootDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="InstallRootDirectoryInput" />
+                            <TextBlock Text="{Binding DefaultInstallHint}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[SettingsSavePaths]}" IsEnabled="{Binding CanApply}" Click="OnApplyPathsClick"
+                                    AutomationProperties.AutomationId="SavePathSettingsButton" />
+                            <Button Content="{Binding Text[SettingsUseDefault]}" IsEnabled="{Binding CanApply}" Click="OnUseDefaultPathsClick"
+                                    AutomationProperties.AutomationId="UseDefaultPathsButton" />
+                        </StackPanel>
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding CacheUsageText}" TextWrapping="Wrap"
+                                       AutomationProperties.AutomationId="DownloadCacheUsageText" />
+                            <TextBlock Text="{Binding Text[SettingsCacheHint]}" TextWrapping="Wrap" FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Button Content="{Binding Text[SettingsCacheClear]}" IsEnabled="{Binding CanClearCache}"
+                                        Click="OnClearDownloadCacheClick" AutomationProperties.AutomationId="ClearDownloadCacheButton" />
+                                <Button Content="{Binding Text[SettingsCacheRefresh]}" IsEnabled="{Binding CanClearCache}"
+                                        Click="OnRefreshCacheUsageClick" AutomationProperties.AutomationId="RefreshDownloadCacheUsageButton" />
+                            </StackPanel>
+                            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsCacheBusy, Converter={StaticResource BooleanToVisibility}}" />
+                            <TextBlock Text="{Binding CacheStatus}" TextWrapping="Wrap" AutomationProperties.AutomationId="DownloadCacheStatusText" />
+                            <TextBlock Text="{Binding CacheError}" TextWrapping="Wrap" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                       AutomationProperties.AutomationId="DownloadCacheErrorText" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Text[SettingsPathsHint]}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="{Binding Text[SettingsNetwork]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <StackPanel Spacing="4">
+                            <ComboBox x:Name="EngineSelector" Header="{Binding Text[SettingsDownloadEngine]}" MinWidth="260"
+                                      IsEnabled="{Binding CanApply}" SelectionChanged="OnEngineSelectionChanged"
+                                      AutomationProperties.AutomationId="DownloadEngineSelector" />
+                            <TextBlock Text="{Binding Aria2Status}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Text[SettingsIntegratedToolsHint]}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <CheckBox Content="{Binding Text[SettingsAccelerator]}" IsChecked="{Binding UseAccelerator, Mode=TwoWay}"
+                                  IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="UseAcceleratorCheckBox" />
+                        <TextBlock Text="{Binding Text[SettingsAcceleratorHint]}" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <CheckBox Content="{Binding Text[SettingsP2P]}" IsChecked="False" IsEnabled="False" />
+                        <TextBlock Text="{Binding Text[DownloadPeerPending]}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Text[SettingsProxy]}" FontWeight="SemiBold" />
+                        <ComboBox x:Name="ProxyKindSelector" MinWidth="260" SelectionChanged="OnProxyKindSelectionChanged"
+                                  IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="ProxyKindSelector" />
+                        <StackPanel Spacing="8">
+                            <TextBox Header="{Binding Text[ProxyHost]}" Text="{Binding ProxyHost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding CanEditProxy}" AutomationProperties.AutomationId="ProxyHostInput" />
+                            <TextBox Header="{Binding Text[ProxyPort]}" Text="{Binding ProxyPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding CanEditProxy}" AutomationProperties.AutomationId="ProxyPortInput" />
+                            <TextBox Header="{Binding Text[ProxyUser]}" Text="{Binding ProxyUserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding CanEditProxy}" AutomationProperties.AutomationId="ProxyUserInput" />
+                            <TextBlock Text="{Binding Text[ProxyPassword]}" />
+                            <PasswordBox x:Name="ProxyPasswordBox" IsEnabled="{Binding CanEditProxy}" PasswordChanged="OnProxyPasswordChanged" />
+                            <TextBlock Text="{Binding Text[ProxyPasswordHint]}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <Button Content="{Binding Text[SettingsSaveNetwork]}" IsEnabled="{Binding CanApply}" Click="OnApplyNetworkClick"
+                                AutomationProperties.AutomationId="SaveNetworkSettingsButton" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[DownloadTest]}" IsEnabled="{Binding CanApply}" Click="OnProbeEngineClick"
+                                    AutomationProperties.AutomationId="ProbeDownloadEngineButton" />
+                            <ProgressBar IsIndeterminate="True" Width="120" VerticalAlignment="Center"
+                                         Visibility="{Binding IsProbing, Converter={StaticResource BooleanToVisibility}}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[SettingsAi]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="{Binding Text[SettingsAiNotice]}" TextWrapping="Wrap" />
+                        <TextBox Header="{Binding Text[SettingsAiEndpoint]}" Text="{Binding AiEndpoint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="2048" IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="AiEndpointInput" />
+                        <TextBlock Text="{Binding Text[SettingsAiEndpointHint]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBox Header="{Binding Text[SettingsAiModel]}" Text="{Binding AiModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="200" IsEnabled="{Binding CanApply}" AutomationProperties.AutomationId="AiModelInput" />
+                        <TextBlock Text="{Binding Text[SettingsAiApiKey]}" />
+                        <PasswordBox x:Name="AiApiKeyBox" IsEnabled="{Binding CanApply}" PasswordChanged="OnAiApiKeyChanged"
+                                     AutomationProperties.Name="{Binding Text[SettingsAiApiKey]}" AutomationProperties.AutomationId="AiApiKeyInput" />
+                        <TextBlock Text="{Binding Text[SettingsAiKeyHint]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <Button Content="{Binding Text[SettingsSaveAi]}" IsEnabled="{Binding CanApply}" Click="OnApplyAiClick"
+                                AutomationProperties.AutomationId="SaveAiSettingsButton" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[AboutTitle]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="{Binding Text[AppDescription]}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding RuntimeDescription}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[CurrentBehavior]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="{Binding Text[CurrentBehaviorDescription]}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        <!-- Feedback stays visible while the settings form scrolls. -->
+        <StackPanel Grid.Row="1" Margin="24,0,24,16" Spacing="8" MaxWidth="900" HorizontalAlignment="Left"
+                    Visibility="{Binding HasFeedback, Converter={StaticResource BooleanToVisibility}}">
+            <InfoBar IsOpen="{Binding ErrorMessage, Converter={StaticResource MessageOpen}}" IsClosable="False"
+                     Severity="Error" Message="{Binding ErrorMessage}" AutomationProperties.Name="{Binding ErrorMessage}"
+                     AutomationProperties.AutomationId="SettingsErrorFeedback" />
+            <InfoBar IsOpen="{Binding StatusMessage, Converter={StaticResource MessageOpen}}" IsClosable="False"
+                     Severity="Success" Message="{Binding StatusMessage}" AutomationProperties.Name="{Binding StatusMessage}"
+                     AutomationProperties.AutomationId="SettingsSuccessFeedback" />
+        </StackPanel>
+    </Grid>
+</UserControl>

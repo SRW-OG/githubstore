@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "platform": "zhihu",
+  "retrievedAt": "2026-10-20T21:31:08+08:00",
+  "timeZone": "Asia/Shanghai",
+  "method": "agent-reach skill: mcporter call exa.web_search_exa; quotes copied only from returned Highlights/indexed excerpts",
+  "globalLimitations": [
+    "All sources are indexed-excerpt evidence. No Zhihu full text was successfully retrieved in this session; excerpt completeness and search index freshness are unknown.",
+    "Jina Reader was attempted for https://zhuanlan.zhihu.com/p/672918285. curl.exe failed with Schannel SEC_E_NO_CREDENTIALS, Invoke-WebRequest failed TLS authentication, and Python urllib HTTPS handshake timed out. web_fetch could not run because its provider lacked DEEPSEEK_API_KEY. These are local retrieval limitations, not proof of a Zhihu login wall or source deletion.",
+    "URLs are preserved exactly as returned by Exa, including Zhihu tardis article/answer routes; no canonical URL was guessed.",
+    "This file records third-party recommendation evidence, not independent repository, license, security, Windows compatibility, or current release validation. Lead is responsible for repository verification before software inclusion.",
+    "A null repo means the observed excerpt did not provide an unambiguous project repository. Repository URLs were reconstructed only by removing display whitespace from explicit excerpt URLs, or from an explicit owner/repository string in the Syncthing guide.",
+    "No browser cookies, login, catbus, or contact with people was used. Research temporary files were not created in the workspace. This JSON is the authorized final evidence dataset."
+  ],
+  "sources": [
+    {
+      "id": "zhihu-2026-windows-ceiling",
+      "title": "2026 Windows软件“天花板”清单｜装机必备的教科书级推荐",
+      "url": "https://www.zhihu.com/tardis/jm/art/2030662314953810341",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "7-Zip", "quote": "7-Zip：开源免费，最强压缩软件，没有之一，界面清爽无广告", "repo": null},
+        {"name": "QuickLook", "quote": "QuickLook：实现像Mac一样，按空格进行预览文件", "repo": null},
+        {"name": "LocalSend", "quote": "LocalSend：跨平台传输软件，实现像Mac生态的Airdrop无线传输功能。开源免费", "repo": null},
+        {"name": "Cryptomator", "quote": "Cryptomator：一款免费开源的客户端加密工具", "repo": null},
+        {"name": "PowerToys", "quote": "Microsoft PowerToys：官方增强工具集（窗口管理、批量重命名、快速启动等）", "repo": null},
+        {"name": "TranslucentTB", "quote": "TranslucentTB：一款轻量级实用工具，可使 Windows 任务栏变为半透明/透明状态。开源免费", "repo": null},
+        {"name": "松鼠日历", "quote": "松鼠日历：开源免费的日历工具，点击桌面右下角任务栏时间区域，直接替换系统日历", "repo": "https://github.com/CrankZ/li-calendar"},
+        {"name": "Notepad--", "quote": "Notepad--：国产开源免费的纯文本编辑器，可以替代系统的notepad", "repo": null},
+        {"name": "VLC", "quote": "VLC Media Player：几乎全格式视频播放器。", "repo": null},
+        {"name": "OBS Studio", "quote": "OBS Studio：开源免费的直播软件，录屏只是顺手的事。", "repo": null},
+        {"name": "HandBrake", "quote": "HandBrake：开源免费的视频格式转换软件。", "repo": null}
+      ],
+      "limitations": ["Only Exa indexed Highlights were read; original page retrieval was not attempted for this URL.", "The source mixes free/open-source and proprietary products and discusses piracy websites; no piracy link or unrelated commercial product was included as a candidate.", "Windows scope follows the article title/context; software licenses and current platform availability require Lead verification."]
+    },
+    {
+      "id": "zhihu-23-open-source-apps",
+      "title": "23 个超棒的开源应用程序",
+      "url": "https://zhuanlan.zhihu.com/p/672918285",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "Portmaster", "quote": "由 Safing 开发的 Portmaster 是一款开源软件，能帮你保护在线隐私", "repo": "https://github.com/safing/portmaster"},
+        {"name": "RustDesk", "quote": "Rustdesk (Rust) — 远程桌面的安全卫士", "repo": "https://github.com/rustdesk/rustdesk"},
+        {"name": "Hitomi Downloader", "quote": "Hitomi Downloader — 下载任何文件", "repo": "https://github.com/KurtBestor/Hitomi-Downloader"},
+        {"name": "Chatbox", "quote": "Chatbox 是一个支持 Windows、Mac 和 Linux 的 GPT/LLM 的桌面应用程序。", "repo": "https://github.com/Bin-Huang/chatbox"}
+      ],
+      "limitations": ["Jina Reader original-text retrieval failed locally: curl Schannel SEC_E_NO_CREDENTIALS, PowerShell TLS authentication failure, Python TLS handshake timeout; web_fetch provider lacked an API key. Only indexed excerpts substantiate these mentions.", "Exa reports publication 2023-12-18; repository ownership, licensing and software behavior may have changed since publication.", "The collection also contains server/web projects, which were omitted from this desktop candidate subset.", "The RustDesk and Hitomi excerpts do not explicitly enumerate Windows support; Lead must validate it."]
+    },
+    {
+      "id": "zhihu-eight-kept-tools",
+      "title": "用过才敢推荐！8款舍不得卸载的宝藏软件",
+      "url": "https://www.zhihu.com/tardis/jm/art/2028138396476818468",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "Wox", "quote": "Wox（快速启动器工具）", "repo": null},
+        {"name": "FreeFileSync", "quote": "FreeFileSync（文件同步工具）", "repo": null},
+        {"name": "VSCodium", "quote": "VSCodium（代码编辑器）", "repo": null}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "The excerpts explicitly describe all three as open-source projects and list Windows/macOS/Linux support, but no project repository URL is visible.", "Other list entries include non-open-source or mobile-only tools and were omitted.", "Feature claims and license statements are source claims awaiting repository verification."]
+    },
+    {
+      "id": "zhihu-seven-niche-tools",
+      "title": "真正好用的效率工具都藏在小众圈，这 7 个工具装完很难再卸",
+      "url": "https://www.zhihu.com/tardis/jm/art/1994433303026111876",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "Espanso", "quote": "Espanso 是一款跨平台的文本扩展工具，可以把短关键词自动扩展成完整内容。", "repo": null},
+        {"name": "Ventoy", "quote": "Ventoy 完全开源免费，而且一直在更新，支持最新的系统镜像。", "repo": null},
+        {"name": "Barrier", "quote": "Barrier 支持 Windows、macOS 和 Linux，跨平台使用没问题。完全开源免费", "repo": null},
+        {"name": "Sandboxie-Plus", "quote": "Sandboxie-Plus 是经典沙盒软件 Sandboxie 的开源增强版，界面更现代，功能更强大。", "repo": null}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "The list mixes desktop projects with a commercial web platform. Fluent Search's open-source claim is not independently verified and it was omitted from this candidate subset.", "Source claims that all formerly commercial Sandboxie features are now free require checking against current licenses/features.", "Espanso Windows support is explicit elsewhere in the returned excerpt; Ventoy/Sandboxie platform scope is inferred from article context and requires Lead verification."]
+    },
+    {
+      "id": "zhihu-clean-computer-software",
+      "title": "有没有啥好用又不流氓的电脑软件推荐？",
+      "url": "https://www.zhihu.com/tardis/jm/ans/2067217094450623309",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "Bitwarden", "quote": "Bitwarden | 密码管理 | 开源免费，端到端加密，全平台同步", "repo": null},
+        {"name": "LocalSend", "quote": "LocalSend | 文件传输 | 局域网直传，无需联网，全平台替代 AirDrop", "repo": null},
+        {"name": "SumatraPDF", "quote": "SumatraPDF | PDF 阅读 | 几 MB 体积，秒开，完爆 Adobe", "repo": null},
+        {"name": "mpv", "quote": "MPV——一个几乎没有界面的播放器。", "repo": null},
+        {"name": "Rufus", "quote": "Rufus——Windows 装系统必备神器。", "repo": null},
+        {"name": "ShareX", "quote": "ShareX | 截图录屏 | 一个顶五个，开源免费无限制", "repo": null}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "The author discloses operating the FreeShelf software curation site; this recommendation has a promotional interest and is not independent product testing.", "Superlatives, security assertions, no-advertisement promises and performance numbers are unverified author claims.", "No repository URLs appear in the observed excerpts."]
+    },
+    {
+      "id": "zhihu-nine-windows-tools",
+      "title": "9 款电脑必备的Windows宝藏软件，免费又强大，工作效率提升10倍！",
+      "url": "https://www.zhihu.com/tardis/jm/art/2004126384373638199",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "7-Zip", "quote": "7-Zip 免费、开源、干净、纯净", "repo": null},
+        {"name": "ShareX", "quote": "ShareX 是纯免费的专业级录屏神器。", "repo": null},
+        {"name": "Notepad++", "quote": "Notepad++ —— 文本处理小利器", "repo": null}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "The returned excerpt says edited 2026-02-18; this is an indexed source date, not independently checked.", "Notepad++ is explicitly mentioned and recommended but its open-source license is not stated in the visible excerpt; Lead must verify it.", "The '10倍' productivity assertion is a title claim with no observed measurement evidence."]
+    },
+    {
+      "id": "zhihu-five-treasure-tools",
+      "title": "有哪些值得推荐的好用宝藏网站/软件？",
+      "url": "https://www.zhihu.com/tardis/jm/ans/1995115004060513350",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "智绘教 Inkeys", "quote": "智绘教 Inkeys（全能型屏幕批注工具）", "repo": null},
+        {"name": "Readest", "quote": "Readest（沉浸式开源电子书阅读器）", "repo": null},
+        {"name": "VidBee", "quote": "VidBee（开源视频与音频下载工具）", "repo": "https://github.com/nexmoe/VidBee"}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "Visible descriptions explicitly call these three open source and list Windows support; Inkeys and Readest links are official websites rather than repositories.", "Office Tool Plus and IrfanView occur in the source but are omitted because the task targets independently verifiable open-source desktop candidates; the excerpt does not establish their qualifying license status.", "Author claims of safety and personal testing have not been independently validated."]
+    },
+    {
+      "id": "zhihu-fifteen-free-tools",
+      "title": "这15款免费开源神器，我真的后悔没早点知道！",
+      "url": "https://www.zhihu.com/tardis/jm/art/2011194557690316729",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "Battery Mode", "quote": "battery mode——高级电源管理大师", "repo": null},
+        {"name": "Nilesoft Shell", "quote": "Nilesoft Shell——文件资源管理器小助手", "repo": null},
+        {"name": "Flow Launcher", "quote": "Flow Launcher，它是实用的快速文件搜索和应用程序启动器", "repo": null},
+        {"name": "Keyviz", "quote": "Keyviz——可视化按键神器", "repo": null},
+        {"name": "EarTrumpet", "quote": "EarTrumpet——声音多通控制器", "repo": null},
+        {"name": "Audacity", "quote": "Audacity是目前最好用且完全免费开源的音频录制及编辑工具", "repo": null},
+        {"name": "Notepads", "quote": "Notepads——文本编辑替代神器", "repo": null},
+        {"name": "FxSound", "quote": "FxSound能一键快速提高音频音质，支持多种配置，适合音频发烧友，也是免费程序。", "repo": null},
+        {"name": "VLC", "quote": "第十款是支持跨平台使用的音视频播放器VLC", "repo": null},
+        {"name": "ShareX", "quote": "第十一款是强大的屏幕截图工具shareX，支持活动窗口、自定义区域、自动捕捉", "repo": null}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "Nilesoft Shell, Keyviz and EarTrumpet are visible only as section headings in the returned excerpt; these are weaker mention evidence within an indexed-excerpt page, with no observed detailed feature or license support.", "The collection mixes free software with purported open-source projects; Everything, PotPlayer, Geek Uninstaller, Unlocker and Fan Control were excluded from this candidate subset pending license verification.", "FxSound and several other entries are not individually established as open source by the excerpt. Lead must verify all candidate licenses and Windows desktop packaging.", "The author directs readers to a comment/pinned download pack; no such pack, comment contact, or download was accessed.", "Returned excerpt says edited 2026-02-28; no full-text or date verification was possible."]
+    },
+    {
+      "id": "zhihu-syncthing-windows-guide",
+      "title": "Obsidian 手机 + 电脑免费同步：Syncthing 零成本方案（含全部避坑指南）",
+      "url": "https://www.zhihu.com/tardis/jm/art/2069004878907715687",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "Syncthing", "quote": "今天这套方案的主角是 Syncthing：开源、免费、无容量限制", "repo": "https://github.com/syncthing/syncthing"}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "The excerpt explicitly gives GitHub owner/repository syncthing/syncthing and a Windows archive filename. The repo URL is normalized from that literal owner/repository text.", "The source discusses a background executable managed through a localhost web UI rather than a conventional native GUI application; Lead should decide whether this matches the software catalog scope.", "The author's Android/iOS availability claims and firewall/autostart advice are unverified and may be outdated or inaccurate; they are not recommendations from this evidence collection.", "Obsidian is context for the synchronization workflow and is not counted as an open-source candidate."]
+    },
+    {
+      "id": "zhihu-six-windows-tools",
+      "title": "Windows党狂喜！6款免费/开源工具，让你的电脑更好用（亲测有效）",
+      "url": "https://www.zhihu.com/tardis/jm/art/2005603460901524401",
+      "platform": "zhihu",
+      "retrievedAt": "2026-10-20T21:31:08+08:00",
+      "evidenceLevel": "indexed-excerpt",
+      "softwareMentions": [
+        {"name": "QuickLook", "quote": "秒开文件预览：QuickLook", "repo": "https://github.com/QL-Win/QuickLook"},
+        {"name": "PowerToys", "quote": "GitHub上120K星的开源神级工具，被称为「Windows的瑞士军刀」", "repo": "https://github.com/microsoft/PowerToys"}
+      ],
+      "limitations": ["Only indexed excerpts were read; original page retrieval was not attempted.", "The source inaccurately labels BandZip/Bandizip as open source and also includes Everything, Snipaste and Microsoft Rewards; these entries were excluded from the candidate subset.", "Repository URLs are normalized from explicit excerpt links containing display whitespace. The PowerToys excerpt links to its releases path; repo records its root.", "Star counts, OCR features and personal testing assertions are unverified source claims."]
+    }
+  ]
+}

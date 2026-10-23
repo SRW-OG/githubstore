@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-22T15:18:18.0419911+08:00",
+  "account": "SRW-OG",
+  "criteria": [
+    "来源：当前账号 GitHub 收藏（Star）的公开仓库。",
+    "更新：仓库在 2026 年仍有推送，且最近一年内发布了正式 Release（published_at 在窗口内）。",
+    "程序包：该 Release 含 Windows 图形程序包（exe/msi/msix/zip/7z 等），且非纯命令行产物。",
+    "界面：项目说明（README）提供桌面图形界面证据，而非本地 Web 界面或服务端程序。"
+  ],
+  "funnel": {
+    "starredTotal": 2131,
+    "activeNotArchived": 2020,
+    "pushedIn2026": 959,
+    "releaseSnapshot": 937,
+    "windowsPkgCandidates": 198,
+    "candidatesIn2026": 187,
+    "guiClassified": 80,
+    "kept": 77,
+    "newlyAdded": 76,
+    "skippedExisting": 1
+  },
+  "excluded": [
+    {
+      "repository": "GeiserX/akou",
+      "reason": "官方说明为 macOS 桌面应用；本版本唯一的 Windows 资产是 akou-cli-*.zip，属命令行工具。",
+      "windowsAssets": "akou-cli-1.2.2-windows-x64.zip"
+    },
+    {
+      "repository": "IvyYang1999/swob",
+      "reason": "本版本仅提供 macOS 安装包；README 说明 Windows 安装包自 v1.4.0 起才预计提供。",
+      "windowsAssets": "swob-1.3.1-arm64.zip | swob-1.3.1-x64.zip"
+    },
+    {
+      "repository": "suifei/fridare",
+      "reason": "本版本 Windows 资产为 frida server 与 wheels，未提供 GUI 程序包；GUI 版本在其它标签下。",
+      "windowsAssets": "frida-kxmwp-16.7.19-host-wheels.zip | frida-kxmwp-16.7.19-windows-x86-server.zip | frida-kxmwp-16.7.19-windows-x86_64-server.zip"
+    }
+  ],
+  "addedEntries": [
+    {
+      "categoryId": "ai",
+      "count": 12
+    },
+    {
+      "categoryId": "dev-tools",
+      "count": 20
+    },
+    {
+      "categoryId": "media",
+      "count": 5
+    },
+    {
+      "categoryId": "network",
+      "count": 7
+    },
+    {
+      "categoryId": "office",
+      "count": 7
+    },
+    {
+      "categoryId": "security",
+      "count": 18
+    },
+    {
+      "categoryId": "system",
+      "count": 5
+    },
+    {
+      "categoryId": "terminal",
+      "count": 2
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<Page
+    x:Class="GitHubStore.App.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:GitHubStore.App.Views"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!-- 设置项放在 FooterMenuItems 而不是用内置设置项，否则无法跟随应用语言。 -->
+    <NavigationView x:Name="Navigation" IsEnabled="False" PaneDisplayMode="Left" IsBackButtonVisible="Collapsed"
+                    OpenPaneLength="248" CompactPaneLength="56" IsSettingsVisible="False" SelectionChanged="OnNavigationChanged"
+                    ItemInvoked="OnNavigationItemInvoked"
+                    Loaded="OnLoaded">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="{Binding Text[NavHome]}" Tag="home" Icon="Home" AutomationProperties.AutomationId="HomeNavigationItem" />
+            <NavigationViewItem Content="{Binding Text[NavLauncher]}" Tag="launcher" Icon="AllApps" AutomationProperties.AutomationId="LauncherNavigationItem" />
+            <NavigationViewItem Content="{Binding Text[NavRanking]}" Tag="ranking" Icon="Favorite" AutomationProperties.AutomationId="RankingNavigationItem" />
+            <NavigationViewItem Content="{Binding Text[NavInstalled]}" Tag="installed" Icon="Download" />
+            <NavigationViewItem Content="{Binding Text[NavSources]}" Tag="sources" Icon="World" />
+            <NavigationViewItemSeparator />
+            <NavigationViewItemHeader Content="{Binding Text[Categories]}" />
+        </NavigationView.MenuItems>
+        <NavigationView.FooterMenuItems>
+            <NavigationViewItem Content="{Binding Text[NavSettings]}" Tag="settings" Icon="Setting" AutomationProperties.AutomationId="SettingsNavigationItem" />
+        </NavigationView.FooterMenuItems>
+        <!--
+            可见性必须绑定在保留 Shell 上下文的容器上；若直接放在视图元素上，
+            设置 DataContext 后 Visibility 会改到子上下文求值，导致多页同时显示。
+        -->
+        <Grid>
+            <Grid Visibility="{Binding IsHome, Converter={StaticResource BooleanToVisibility}}">
+                <views:DiscoveryHomeView x:Name="DiscoveryHome" DataContext="{Binding Home}" />
+            </Grid>
+            <Grid Visibility="{Binding IsCatalog, Converter={StaticResource BooleanToVisibility}}">
+                <views:CatalogView x:Name="Catalog" DataContext="{Binding Catalog}" />
+            </Grid>
+            <Grid Visibility="{Binding IsLauncher, Converter={StaticResource BooleanToVisibility}}">
+                <views:LauncherView x:Name="Launcher" DataContext="{Binding Launcher}" ExploreRequested="OnExploreRequested" />
+            </Grid>
+            <Grid Visibility="{Binding IsInstalled, Converter={StaticResource BooleanToVisibility}}">
+                <views:InstalledView DataContext="{Binding Installed}" />
+            </Grid>
+            <Grid Visibility="{Binding IsSources, Converter={StaticResource BooleanToVisibility}}">
+                <views:SourcesView DataContext="{Binding Sources}" AddRepositoryRequested="OnAddRepositoryRequested" />
+            </Grid>
+            <Grid Visibility="{Binding IsSettings, Converter={StaticResource BooleanToVisibility}}">
+                <views:SettingsView x:Name="PreferencesView" DataContext="{Binding Settings}" />
+            </Grid>
+        </Grid>
+    </NavigationView>
+</Page>

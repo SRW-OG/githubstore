@@ -1,0 +1,48 @@
+# .NET / Visual Studio build output
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# Local builds, installer output, logs and test data
+/artifacts/
+/dist/
+/test-temp/
+/TestResults/
+**/TestResults/
+*.binlog
+*.log
+*.dmp
+*.tmp
+*.temp
+
+# Local configuration and credentials (never share user profiles)
+.env
+.env.*
+!.env.example
+*.local.json
+**/settings.json
+**/managed-apps.json
+**/github-catalog.json
+**/ai-cache/
+*.pfx
+*.p12
+*.pem
+*.key
+
+# Editor / OS generated state
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+__pycache__/
+*.py[cod]
+*.bak
+
+# Do not ignore all ZIP/EXE files: Assets/Tools contains versioned runtime dependencies.

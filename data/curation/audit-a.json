@@ -1,0 +1,736 @@
+{
+  "checkedAt": "2026-10-20T22:14:41+08:00",
+  "source": "local snapshots of dsh-Z3LVKh",
+  "entries": [
+    {
+      "name": "VLC",
+      "requestedRepo": "videolan/vlc",
+      "canonicalRepo": "videolan/vlc",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-2.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/videolan/vlc/blob/master/COPYING",
+        "notes": [
+          ".license.json 的 license.spdx_id 为 GPL-2.0；COPYING 正文为标准 GNU GPL v2，仓库另有 COPYING.LIB 对应 LGPL 引擎部分。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/videolan/vlc/blob/master/README.md",
+          "https://github.com/videolan/vlc"
+        ],
+        "assetNames": [],
+        "notes": [
+          "release 为 null：releases/latest 返回 404；Windows 支持证据来自 README 的 Platforms 段落（Windows 7 及以后）。官方 Windows 安装包在官网发布，GitHub release 无 Windows 包。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "GitHub 仓库为官方镜像，description 指向 code.videolan.org 主仓库。"
+      ]
+    },
+    {
+      "name": "Cryptomator",
+      "requestedRepo": "cryptomator/cryptomator",
+      "canonicalRepo": "cryptomator/cryptomator",
+      "status": "review",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": "dual-license",
+        "evidenceUrl": "https://github.com/cryptomator/cryptomator/blob/develop/LICENSE.txt",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-3.0，但 README 明示 dual-licensed under the GPLv3 for FOSS projects as well as a commercial license for independent software vendors and resellers，属双许可。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/cryptomator/cryptomator/releases/tag/1.19.3"
+        ],
+        "assetNames": [
+          "Cryptomator-1.19.3-x64.exe",
+          "Cryptomator-1.19.3-x64.msi"
+        ],
+        "notes": [
+          "release 1.19.3 资产含 Windows .exe 与 .msi，Windows 支持成立。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "因双许可（GPLv3 + 商业许可）不满足种子许可条件，仅进入审查表。"
+      ]
+    },
+    {
+      "name": "TranslucentTB",
+      "requestedRepo": "TranslucentTB/TranslucentTB",
+      "canonicalRepo": "TranslucentTB/TranslucentTB",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/TranslucentTB/TranslucentTB/blob/release/LICENSE.md",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-3.0，LICENSE.md 为完整 GPLv3 正文。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/TranslucentTB/TranslucentTB/releases/tag/2026.2"
+        ],
+        "assetNames": [
+          "bundle.msixbundle",
+          "TranslucentTB-portable-x64.zip",
+          "TranslucentTB-portable-arm64.zip",
+          "TranslucentTB.appinstaller"
+        ],
+        "notes": [
+          "release 2026.2 资产含 msixbundle 与便携 zip；README 明确面向 Windows 10/11。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "松鼠日历",
+      "requestedRepo": "CrankZ/li-calendar",
+      "canonicalRepo": "CrankZ/li-calendar",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": "not-granted",
+        "evidenceUrl": null,
+        "notes": [
+          ".license.json 返回 404（Not Found），.repository.json 的 license 为 null，根目录 .contents.json 无 LICENSE/COPYING 文件：仓库未授予任何许可。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/CrankZ/li-calendar/releases/tag/v1.0.0"
+        ],
+        "assetNames": [
+          "liCalendar_1.0.0_x64-setup.exe"
+        ],
+        "notes": [
+          "release v1.0.0 含 Windows x64-setup.exe，Windows 侧确有发布物，但许可缺失。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "许可未授予，无法合规收录。"
+      ]
+    },
+    {
+      "name": "Notepad--",
+      "requestedRepo": "cxasm/notepad--",
+      "canonicalRepo": "cxasm/notepad--",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/cxasm/notepad--/blob/main/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-3.0，LICENSE 为完整 GPLv3 正文。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/cxasm/notepad--/releases/tag/notepad-v3.9.1",
+          "https://github.com/cxasm/notepad--/blob/main/README.md"
+        ],
+        "assetNames": [
+          "Notepad--v3.9.1-win10-portable.zip",
+          "Notepad--v3.9.1-windows-arm64-portable.zip",
+          "Notepad--v3.9.1-plugin-Installer.exe"
+        ],
+        "notes": [
+          "release notepad-v3.9.1 资产含 Windows 便携包与 .exe 安装器。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "与 Notepad++ 为不同软件，勿混用。"
+      ]
+    },
+    {
+      "name": "OBS Studio",
+      "requestedRepo": "obsproject/obs-studio",
+      "canonicalRepo": "obsproject/obs-studio",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-2.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/obsproject/obs-studio/blob/master/COPYING",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-2.0。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/obsproject/obs-studio/releases/tag/32.2.2"
+        ],
+        "assetNames": [
+          "OBS-Studio-32.2.2-Windows-x64-Installer.exe",
+          "OBS-Studio-32.2.2-Windows-x64.zip",
+          "OBS-Studio-32.2.2-Windows-arm64.zip"
+        ],
+        "notes": [
+          "release 32.2.2 资产含 Windows x64 安装器与 x64/arm64 压缩包。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "HandBrake",
+      "requestedRepo": "HandBrake/HandBrake",
+      "canonicalRepo": "HandBrake/HandBrake",
+      "status": "review",
+      "license": {
+        "spdxId": "NOASSERTION",
+        "resolved": "mixed-custom",
+        "evidenceUrl": "https://github.com/HandBrake/HandBrake/blob/master/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 NOASSERTION（Other）；LICENSE 正文说明多数文件为 GPLv2，部分文件为 GPLv2+/LGPLv2.1+/BSD/MIT/X11 等混合许可，图形资产另有 graphics/LICENSE，属自定义复合许可。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/HandBrake/HandBrake/releases/tag/1.11.2"
+        ],
+        "assetNames": [
+          "HandBrake-1.11.2-x86_64-Win_GUI.exe",
+          "HandBrake-1.11.2-arm64-Win_GUI.zip",
+          "HandBrakeCLI-1.11.2-win-x86_64.zip"
+        ],
+        "notes": [
+          "release 1.11.2 资产含 Windows GUI 安装器与压缩包。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "仓库许可证被 GitHub 判为 NOASSERTION 且为多许可混合，按规定进入审查。"
+      ]
+    },
+    {
+      "name": "ScreenToGif",
+      "requestedRepo": "NickeManarin/ScreenToGif",
+      "canonicalRepo": "NickeManarin/ScreenToGif",
+      "status": "verified",
+      "license": {
+        "spdxId": "MS-PL",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/NickeManarin/ScreenToGif/blob/master/LICENSE.txt",
+        "notes": [
+          ".license.json 的 spdx_id 为 MS-PL，LICENSE.txt 正文为 Microsoft Public License，属 OSI 认可许可证。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/NickeManarin/ScreenToGif/releases/tag/2.43.2"
+        ],
+        "assetNames": [
+          "ScreenToGif.2.43.2.Setup.x64.msi",
+          "ScreenToGif.2.43.2.Package.x64.msix",
+          "ScreenToGif.2.43.2.Portable.x64.zip"
+        ],
+        "notes": [
+          "release 2.43.2 资产含 .msi、.msix 与便携 zip（含 x64/x86/Arm64）。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Motrix",
+      "requestedRepo": "agalwood/Motrix",
+      "canonicalRepo": "agalwood/Motrix",
+      "status": "review",
+      "license": {
+        "spdxId": "NOASSERTION",
+        "resolved": "mixed-custom",
+        "evidenceUrl": "https://github.com/agalwood/Motrix/blob/main/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 NOASSERTION；LICENSE 正文主许可为 MIT，但明确声明 contains third-party assets that are NOT covered by the MIT license，并指向 THIRD_PARTY_NOTICES.md，属含排除条款的复合许可。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/agalwood/Motrix/releases/tag/v1.8.19"
+        ],
+        "assetNames": [
+          "Motrix-Setup-1.8.19.exe",
+          "Motrix-1.8.19-x64.exe",
+          "Motrix-1.8.19-win.zip"
+        ],
+        "notes": [
+          "release v1.8.19 资产含 Windows 安装器与压缩包；该 release 发布于 2023-05-03，之后无新 release。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "排除第三方资产的许可条款不满足种子许可条件，进入审查。"
+      ]
+    },
+    {
+      "name": "Everything Toolbar",
+      "requestedRepo": "srwi/EverythingToolbar",
+      "canonicalRepo": "srwi/EverythingToolbar",
+      "status": "review",
+      "license": {
+        "spdxId": "NOASSERTION",
+        "resolved": "mixed-custom",
+        "evidenceUrl": "https://github.com/srwi/EverythingToolbar/blob/develop/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 NOASSERTION；LICENSE 正文同时包含 MIT License 段落与 Apache License 段落（复合/随附第三方许可），与单一 OSI 许可不符。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/srwi/EverythingToolbar/releases/tag/3.5.0"
+        ],
+        "assetNames": [
+          "EverythingToolbar-3.5.0-x64.exe",
+          "EverythingToolbar-3.5.0-arm64.exe"
+        ],
+        "notes": [
+          "release 3.5.0 资产为 Windows .exe；README 要求已安装并运行闭源的 Everything（voidtools）。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "依赖闭源 Everything 核心，且许可证为 NOASSERTION 复合文本，进入审查。"
+      ]
+    },
+    {
+      "name": "ComfyUI",
+      "requestedRepo": "comfyanonymous/ComfyUI",
+      "canonicalRepo": "Comfy-Org/ComfyUI",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/Comfy-Org/ComfyUI/blob/master/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-3.0，正文为完整 GPLv3。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/Comfy-Org/ComfyUI/releases/tag/v0.42.1"
+        ],
+        "assetNames": [
+          "ComfyUI_windows_portable_nvidia.7z",
+          "ComfyUI_windows_portable_amd.7z",
+          "ComfyUI_windows_portable_intel.7z",
+          "ComfyUI_windows_portable_nvidia_arm64.7z"
+        ],
+        "notes": [
+          "release v0.42.1 资产为 Windows 便携 .7z；README 说明提供 Windows 便携安装。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "仓库由 comfyanonymous/ComfyUI 重定向到 Comfy-Org/ComfyUI，条目以重定向后的真实 full_name 为准。"
+      ]
+    },
+    {
+      "name": "Ollama",
+      "requestedRepo": "ollama/ollama",
+      "canonicalRepo": "ollama/ollama",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/ollama/ollama/blob/main/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 MIT，LICENSE 正文为标准 MIT 文本。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/ollama/ollama/releases/tag/v0.40.6"
+        ],
+        "assetNames": [
+          "OllamaSetup.exe",
+          "ollama-windows-amd64.zip",
+          "ollama-windows-arm64.zip",
+          "install.ps1"
+        ],
+        "notes": [
+          "release v0.40.6 资产含 OllamaSetup.exe 与 Windows amd64/arm64 压缩包；README 含 Windows 安装章节。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Godot",
+      "requestedRepo": "godotengine/godot",
+      "canonicalRepo": "godotengine/godot",
+      "status": "verified",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/godotengine/godot/blob/master/LICENSE.txt",
+        "notes": [
+          ".license.json 的 spdx_id 为 MIT，LICENSE.txt 正文为标准 MIT 文本。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/godotengine/godot/releases/tag/4.7.2-stable",
+          "https://github.com/godotengine/godot/blob/master/README.md"
+        ],
+        "assetNames": [
+          "Godot_v4.7.2-stable_win64.exe.zip",
+          "Godot_v4.7.2-stable_win32.exe.zip",
+          "Godot_v4.7.2-stable_windows_arm64.exe.zip",
+          "Godot_v4.7.2-stable_mono_win64.zip"
+        ],
+        "notes": [
+          "Windows 证据来自 godotengine/godot 自身 release（id 372486926）的 win64/win32/windows_arm64 资产；二进制仓库 godotengine/godot-builds（release id 372477026）单独发布同名资产，未用作本条证据。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "README 列出 Windows 平台支持；官方二进制发布同时存在于 godotengine/godot-builds，归属说明见 windows.notes。"
+      ]
+    },
+    {
+      "name": "Open WebUI",
+      "requestedRepo": "open-webui/open-webui",
+      "canonicalRepo": "open-webui/open-webui",
+      "status": "review",
+      "license": {
+        "spdxId": "NOASSERTION",
+        "resolved": "branding-clause",
+        "evidenceUrl": "https://github.com/open-webui/open-webui/blob/main/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 NOASSERTION；LICENSE 为自有 Open WebUI License，正文禁止删改或替换 Open WebUI 品牌（名称、logo 及视觉标识），并称改动品牌构成实质性违约，非 OSI 标准开源许可。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/open-webui/open-webui/blob/main/README.md"
+        ],
+        "assetNames": [],
+        "notes": [
+          "release v0.12.3 资产数为 0；README 称原生桌面应用在独立仓库 open-webui/desktop，本快照中无 Windows 安装包证据。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "品牌保留条款不符合种子许可条件，进入审查。"
+      ]
+    },
+    {
+      "name": "Excalidraw",
+      "requestedRepo": "excalidraw/excalidraw",
+      "canonicalRepo": "excalidraw/excalidraw",
+      "status": "review",
+      "license": {
+        "spdxId": "MIT",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/excalidraw/excalidraw/blob/master/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 MIT，LICENSE 正文为标准 MIT 文本。"
+        ]
+      },
+      "windows": {
+        "supported": false,
+        "evidenceUrls": [
+          "https://github.com/excalidraw/excalidraw/blob/master/README.md"
+        ],
+        "assetNames": [],
+        "notes": [
+          "release v0.18.1 资产数为 0；README 无 Windows 桌面安装包说明，项目为 Web 白板应用。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "许可合规，但无 Windows 桌面软件证据（Web 应用），不满足 Windows 支持条件，进入审查。"
+      ]
+    },
+    {
+      "name": "Supabase",
+      "requestedRepo": "supabase/supabase",
+      "canonicalRepo": "supabase/supabase",
+      "status": "review",
+      "license": {
+        "spdxId": "Apache-2.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/supabase/supabase/blob/master/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 Apache-2.0，属 OSI 认可许可。"
+        ]
+      },
+      "windows": {
+        "supported": false,
+        "evidenceUrls": [
+          "https://github.com/supabase/supabase/blob/master/README.md"
+        ],
+        "assetNames": [],
+        "notes": [
+          "release v1.26.08 资产数为 0；README 无 Windows 桌面安装包说明，项目为服务端平台。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "许可合规，但属服务端平台而非 Windows 桌面软件，进入审查。"
+      ]
+    },
+    {
+      "name": "GIMP",
+      "requestedRepo": "GNOME/gimp",
+      "canonicalRepo": "GNOME/gimp",
+      "status": "review",
+      "license": {
+        "spdxId": "NOASSERTION",
+        "resolved": "mixed-custom",
+        "evidenceUrl": "https://github.com/GNOME/gimp/blob/master/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 NOASSERTION；LICENSE 为项目自定义声明：应用核心为 GPL，libgimp 等库为 LGPL，图标主题为 CC BY-SA，data/ 目录多为 CC0，属含例外说明的复合许可。"
+        ]
+      },
+      "windows": {
+        "supported": false,
+        "evidenceUrls": [
+          "https://github.com/GNOME/gimp/blob/master/README.md"
+        ],
+        "assetNames": [],
+        "notes": [
+          "releases/latest 返回 404，release 为 null；README 只指向官网下载页（gimp.org/downloads），未明确声明 Windows 支持，快照内无 Windows 安装包证据。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "许可为 NOASSERTION 复合声明且缺 Windows 证据，进入审查。"
+      ]
+    },
+    {
+      "name": "Natron",
+      "requestedRepo": "NatronGitHub/Natron",
+      "canonicalRepo": "NatronGitHub/Natron",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-2.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/NatronGitHub/Natron/blob/RB-2.6/LICENSE.txt",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-2.0，LICENSE.txt 为完整 GPLv2 正文。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/NatronGitHub/Natron/releases/tag/v2.5.0",
+          "https://github.com/NatronGitHub/Natron/blob/RB-2.6/README.md"
+        ],
+        "assetNames": [
+          "Natron-2.5.0-Windows-x86_64.zip"
+        ],
+        "notes": [
+          "release v2.5.0 资产含 Natron-2.5.0-Windows-x86_64.zip；README 列明支持 Microsoft Windows。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "OpenShot",
+      "requestedRepo": "OpenShot/openshot-qt",
+      "canonicalRepo": "OpenShot/openshot-qt",
+      "status": "review",
+      "license": {
+        "spdxId": "NOASSERTION",
+        "resolved": "gpl-with-exceptions",
+        "evidenceUrl": "https://github.com/OpenShot/openshot-qt/blob/develop/COPYING",
+        "notes": [
+          ".license.json 的 spdx_id 为 NOASSERTION；COPYING 正文为 GPLv3，但第 18 节 Exceptions 追加了对非 GPL 兼容的 GStreamer/FFMPEG/libopenshot 的例外授权，属含排除/附加条款的许可。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/OpenShot/openshot-qt/releases/tag/v4.0.1"
+        ],
+        "assetNames": [
+          "OpenShot-v4.0.1-x86_64.exe",
+          "OpenShot-v4.0.1-x86.exe"
+        ],
+        "notes": [
+          "release v4.0.1 资产含 Windows x86_64 与 x86 安装器，Windows 支持成立。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "GPLv3 附加例外条款导致 GitHub 判为 NOASSERTION，进入审查。"
+      ]
+    },
+    {
+      "name": "Inkscape",
+      "requestedRepo": "inkscape/inkscape",
+      "canonicalRepo": "inkscape/inkscape",
+      "status": "review",
+      "license": {
+        "spdxId": null,
+        "resolved": "no-license-file",
+        "evidenceUrl": null,
+        "notes": [
+          ".license.json 返回 404，.repository.json 的 license 为 null，language 为空，根目录仅含 README.md 与一张图片，快照内无许可证证据。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/inkscape/inkscape/blob/master/README.md"
+        ],
+        "assetNames": [],
+        "notes": [
+          "README 明确写明软件运行于 Windows、Mac OS X 与 Linux；但本仓库 releases/latest 返回 404（release 为 null），且仓库最后推送为 2022-03-03，开发已迁至 GitLab。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "缺许可证据且 GitHub 仓库为旧镜像（开发在 gitlab.com/inkscape/inkscape），进入审查。"
+      ]
+    },
+    {
+      "name": "digiKam",
+      "requestedRepo": "KDE/digikam",
+      "canonicalRepo": "KDE/digikam",
+      "status": "review",
+      "license": {
+        "spdxId": "GPL-2.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/KDE/digikam/blob/master/COPYING",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-2.0，仓库含 COPYING / COPYING.LIB / COPYING-CMAKE-SCRIPTS。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/KDE/digikam/blob/master/README.md"
+        ],
+        "assetNames": [],
+        "notes": [
+          "README 写明运行于 Linux、Windows 与 MacOS；但 releases/latest 返回 404，release 为 null，且仓库 archived=true、最后推送 2019-12-21。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "仓库已归档（archived=true，2019 年后无推送），无法据此确认当前有效官方仓库，进入审查。"
+      ]
+    },
+    {
+      "name": "Koodo Reader",
+      "requestedRepo": "koodo-reader/koodo-reader",
+      "canonicalRepo": "koodo-reader/koodo-reader",
+      "status": "verified",
+      "license": {
+        "spdxId": "AGPL-3.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/koodo-reader/koodo-reader/blob/dev/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 AGPL-3.0，LICENSE 为完整 AGPLv3 正文。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/koodo-reader/koodo-reader/releases/tag/v2.4.6",
+          "https://github.com/koodo-reader/koodo-reader/blob/dev/README.md"
+        ],
+        "assetNames": [
+          "Koodo-Reader-2.4.6-x64.exe",
+          "Koodo-Reader-2.4.6-x64-Portable.exe",
+          "Koodo-Reader-2.4.6-x64-Win.zip"
+        ],
+        "notes": [
+          "release v2.4.6 资产含 Windows 安装器、便携版与 zip；README 明确列出 Windows 平台支持。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。"
+      ]
+    },
+    {
+      "name": "Calibre",
+      "requestedRepo": "kovidgoyal/calibre",
+      "canonicalRepo": "kovidgoyal/calibre",
+      "status": "verified",
+      "license": {
+        "spdxId": "GPL-3.0",
+        "resolved": "osi-approved",
+        "evidenceUrl": "https://github.com/kovidgoyal/calibre/blob/master/LICENSE",
+        "notes": [
+          ".license.json 的 spdx_id 为 GPL-3.0，LICENSE 为完整 GPLv3 正文。"
+        ]
+      },
+      "windows": {
+        "supported": true,
+        "evidenceUrls": [
+          "https://github.com/kovidgoyal/calibre/releases/tag/v9.16.0",
+          "https://github.com/kovidgoyal/calibre/blob/master/README.md"
+        ],
+        "assetNames": [
+          "calibre-64bit-9.16.0.msi",
+          "calibre-portable-installer-9.16.0.exe"
+        ],
+        "notes": [
+          "release v9.16.0 资产实际包含 Windows .msi 与便携安装器 .exe（与 GitHub release 无 Windows 包的先验说明不符，以快照为准）；README 亦明确支持 Windows。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "官方安装包同时也在官网 calibre-ebook.com 发布，此处以快照中 GitHub release 实际资产为准。"
+      ]
+    },
+    {
+      "name": "Godot builds (二进制发布仓库)",
+      "requestedRepo": "godotengine/godot-builds",
+      "canonicalRepo": "godotengine/godot-builds",
+      "status": "excluded",
+      "license": {
+        "spdxId": null,
+        "resolved": "no-license-file",
+        "evidenceUrl": null,
+        "notes": [
+          "该仓库 .repository.json 的 license 为 null，快照中不存在 godot-builds.license.json / readme.txt / contents.json，无任何许可证据。"
+        ]
+      },
+      "windows": {
+        "supported": false,
+        "evidenceUrls": [],
+        "assetNames": [],
+        "notes": [
+          "仓库为 Godot 官方二进制与开发快照发布仓库（description 自述），本身不是可安装的桌面软件条目。"
+        ]
+      },
+      "notes": [
+        "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+        "作为软件库条目不成立：既无许可证证据也不是软件本体；其作用仅在于说明 Godot 二进制发布归属，已写入 godotengine/godot 条目说明。"
+      ]
+    }
+  ]
+}

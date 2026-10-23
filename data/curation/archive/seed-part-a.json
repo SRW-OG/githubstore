@@ -1,0 +1,563 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "categoryId": "dev-tools",
+      "fetchedAt": "2026-10-20T13:39:57Z",
+      "repository": {
+        "owner": {
+          "login": "cxasm",
+          "html_url": "https://github.com/cxasm"
+        },
+        "name": "notepad--",
+        "full_name": "cxasm/notepad--",
+        "description": "一个支持windows/linux/mac的文本编辑器，目标是做中国人自己的编辑器，来自中国。",
+        "license": {
+          "key": "gpl-3.0",
+          "name": "GNU General Public License v3.0",
+          "spdx_id": "GPL-3.0",
+          "url": "https://api.github.com/licenses/gpl-3.0"
+        },
+        "language": "C++",
+        "stargazers_count": 10486,
+        "forks_count": 397,
+        "open_issues_count": 279,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "main",
+        "pushed_at": "2026-10-11T05:34:16Z",
+        "created_at": "2022-06-15T02:50:15Z",
+        "html_url": "https://github.com/cxasm/notepad--",
+        "id": 503592660,
+        "node_id": "R_kgDOHgQ21A"
+      },
+      "release": {
+        "tag_name": "notepad-v3.9.1",
+        "name": "notepad--v3.9.1",
+        "published_at": "2026-10-11T05:34:16Z",
+        "prerelease": false,
+        "draft": false,
+        "assets": [
+          {
+            "id": 629864106,
+            "name": "Notepad--v3.9.1-plugin-Installer.exe",
+            "size": 19800675,
+            "content_type": "application/x-msdownload",
+            "browser_download_url": "https://github.com/cxasm/notepad--/releases/download/notepad-v3.9.1/Notepad--v3.9.1-plugin-Installer.exe",
+            "url": "https://api.github.com/repos/cxasm/notepad--/releases/assets/629864106",
+            "digest": "sha256:5bf43beed09c0cecf96a873ca9480f56354130d7e29fe0a48b42ca5e4c9b4d57",
+            "download_count": 1432
+          },
+          {
+            "id": 629891750,
+            "name": "Notepad--v3.9.1-win10-portable.zip",
+            "size": 25436219,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/cxasm/notepad--/releases/download/notepad-v3.9.1/Notepad--v3.9.1-win10-portable.zip",
+            "url": "https://api.github.com/repos/cxasm/notepad--/releases/assets/629891750",
+            "digest": "sha256:58affc3e9587f4bb437a85b6f24bf0e6f044cd827eb6e16ed61a5f74fd8aff9e",
+            "download_count": 1166
+          },
+          {
+            "id": 655057109,
+            "name": "Notepad--v3.9.1-windows-arm64-portable.zip",
+            "size": 18628246,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/cxasm/notepad--/releases/download/notepad-v3.9.1/Notepad--v3.9.1-windows-arm64-portable.zip",
+            "url": "https://api.github.com/repos/cxasm/notepad--/releases/assets/655057109",
+            "digest": "sha256:be65f3ac7e427131dbd672543d58e6c832486bfba505801adc5fbfda35f9939c",
+            "download_count": 34
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "国产开源纯文本编辑器，支持 Windows/Linux/macOS。",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "2026 Windows软件“天花板”清单｜装机必备的教科书级推荐",
+            "url": "https://www.zhihu.com/tardis/jm/art/2030662314953810341",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "Notepad--：国产开源免费的纯文本编辑器，可以替代系统的notepad"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T22:14:41+08:00",
+          "repositoryUrl": "https://github.com/cxasm/notepad--",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/cxasm/notepad--",
+            "https://github.com/cxasm/notepad--/blob/main/README.md",
+            "https://github.com/cxasm/notepad--/blob/main/LICENSE",
+            "https://github.com/cxasm/notepad--/releases/tag/notepad-v3.9.1"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+            "release tag 为 notepad-v3.9.1，资产含 win10 便携包、windows-arm64 便携包与插件安装器 .exe。",
+            "与另一款名称相近的 Notepad++ 不是同一软件，本条仅对应 cxasm/notepad--。"
+          ]
+        }
+      }
+    },
+    {
+      "categoryId": "media",
+      "fetchedAt": "2026-10-20T13:40:05Z",
+      "repository": {
+        "owner": {
+          "login": "obsproject",
+          "html_url": "https://github.com/obsproject"
+        },
+        "name": "obs-studio",
+        "full_name": "obsproject/obs-studio",
+        "description": "OBS Studio - Free and open source software for live streaming and screen recording",
+        "homepage": "https://obsproject.com",
+        "license": {
+          "key": "gpl-2.0",
+          "name": "GNU General Public License v2.0",
+          "spdx_id": "GPL-2.0",
+          "url": "https://api.github.com/licenses/gpl-2.0"
+        },
+        "language": "C",
+        "topics": [
+          "c",
+          "c-plus-plus",
+          "directshow",
+          "facebook-live",
+          "ffmpeg",
+          "game-capture",
+          "live-streaming",
+          "screen-capture",
+          "twitch-tv",
+          "video-recording",
+          "youtube-live"
+        ],
+        "stargazers_count": 77820,
+        "forks_count": 10758,
+        "open_issues_count": 1168,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "master",
+        "pushed_at": "2026-10-16T22:36:24Z",
+        "created_at": "2013-10-01T02:40:31Z",
+        "html_url": "https://github.com/obsproject/obs-studio",
+        "id": 13233158,
+        "node_id": "MDEwOlJlcG9zaXRvcnkxMzIzMzE1OA=="
+      },
+      "release": {
+        "tag_name": "32.2.2",
+        "name": "OBS Studio 32.2.2",
+        "published_at": "2026-08-14T22:43:31Z",
+        "prerelease": false,
+        "draft": false,
+        "assets": [
+          {
+            "id": 515013676,
+            "name": "OBS-Studio-32.2.2-macOS-Apple-dSYMs.tar.xz",
+            "size": 38569688,
+            "content_type": "application/x-xz",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-macOS-Apple-dSYMs.tar.xz",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013676",
+            "digest": "sha256:5d5d839a9c0376ad4393eb5d84f74e3c0a52aa2dffd54523c33e2c60dc3a7fdc",
+            "download_count": 3781
+          },
+          {
+            "id": 515013679,
+            "name": "OBS-Studio-32.2.2-macOS-Apple.dmg",
+            "size": 187703709,
+            "content_type": "application/x-apple-diskimage",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-macOS-Apple.dmg",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013679",
+            "digest": "sha256:920d6f26703d2df6e4085bd3c1cbed30488325084136c7a6e9e37021fbd6aaf7",
+            "download_count": 43111
+          },
+          {
+            "id": 515013673,
+            "name": "OBS-Studio-32.2.2-macOS-Intel-dSYMs.tar.xz",
+            "size": 39260752,
+            "content_type": "application/x-xz",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-macOS-Intel-dSYMs.tar.xz",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013673",
+            "digest": "sha256:774bd980cb8d095fb9539f480d9663a349ba0956106134e25b173a8b7d7bae42",
+            "download_count": 1684
+          },
+          {
+            "id": 515013672,
+            "name": "OBS-Studio-32.2.2-macOS-Intel.dmg",
+            "size": 198863134,
+            "content_type": "application/x-apple-diskimage",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-macOS-Intel.dmg",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013672",
+            "digest": "sha256:f8d8afe3dffdc86efa0698c02ff0c997866bac3e6208ddaf56d37108baacf197",
+            "download_count": 18294
+          },
+          {
+            "id": 515013680,
+            "name": "OBS-Studio-32.2.2-Sources.tar.gz",
+            "size": 16660601,
+            "content_type": "application/gzip",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Sources.tar.gz",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013680",
+            "digest": "sha256:ec81fb66b03e75ddb3076b576f62679c39262e0e9960cef3e17a40dc5d68e6b4",
+            "download_count": 7295
+          },
+          {
+            "id": 515013678,
+            "name": "OBS-Studio-32.2.2-Ubuntu-24.04-x86_64-dbsym.ddeb",
+            "size": 452157426,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Ubuntu-24.04-x86_64-dbsym.ddeb",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013678",
+            "digest": "sha256:c658adb3e99d2a46f44c61e884e0c78e481167fc663b5b533e5d3bf6ca401568",
+            "download_count": 2405
+          },
+          {
+            "id": 515013674,
+            "name": "OBS-Studio-32.2.2-Ubuntu-24.04-x86_64.deb",
+            "size": 134324516,
+            "content_type": "application/x-debian-package",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Ubuntu-24.04-x86_64.deb",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013674",
+            "digest": "sha256:b6557ca2059287210332accc94c267094050489cffffc5c832e746e3a418dab0",
+            "download_count": 7091
+          },
+          {
+            "id": 515013683,
+            "name": "OBS-Studio-32.2.2-Ubuntu-26.04-x86_64-dbsym.ddeb",
+            "size": 455678022,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Ubuntu-26.04-x86_64-dbsym.ddeb",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013683",
+            "digest": "sha256:e0c95ffa9f2cbecb8828f9d5ea578892795ff5672172717a92c60dfcc8321c4e",
+            "download_count": 2079
+          },
+          {
+            "id": 515013675,
+            "name": "OBS-Studio-32.2.2-Ubuntu-26.04-x86_64.deb",
+            "size": 134438766,
+            "content_type": "application/x-debian-package",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Ubuntu-26.04-x86_64.deb",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013675",
+            "digest": "sha256:f256927aeba7b8d2ce64815402e723d1dd8332d1e6535939b03572f2adcc2849",
+            "download_count": 3183
+          },
+          {
+            "id": 515013684,
+            "name": "OBS-Studio-32.2.2-Windows-arm64-PDBs.zip",
+            "size": 57317650,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-arm64-PDBs.zip",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013684",
+            "digest": "sha256:1d1a352b33d7eb96e5133b8bbe3108cbcc9bcaee3dbbd8987bb9f36d1ad6c18e",
+            "download_count": 6381
+          },
+          {
+            "id": 515013682,
+            "name": "OBS-Studio-32.2.2-Windows-arm64.zip",
+            "size": 167128219,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-arm64.zip",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013682",
+            "digest": "sha256:b16b41c3cf89b8a919738359a46acb25d207ec1e488563139d7c276cfffb0906",
+            "download_count": 6181
+          },
+          {
+            "id": 515013677,
+            "name": "OBS-Studio-32.2.2-Windows-x64-Installer.exe",
+            "size": 159809104,
+            "content_type": "application/x-msdos-program",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64-Installer.exe",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013677",
+            "digest": "sha256:c3a0b880adbe64dc4bcb68f93016916ab5b55ae43fd227115287bf80257d92dc",
+            "download_count": 508932
+          },
+          {
+            "id": 515013685,
+            "name": "OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+            "size": 64011684,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64-PDBs.zip",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013685",
+            "digest": "sha256:a2d2c16859ea3c2508f49c2b9a48b8ec630578334d301fbdf42718f6e473662a",
+            "download_count": 1401
+          },
+          {
+            "id": 515013681,
+            "name": "OBS-Studio-32.2.2-Windows-x64.zip",
+            "size": 187851583,
+            "content_type": "application/zip",
+            "browser_download_url": "https://github.com/obsproject/obs-studio/releases/download/32.2.2/OBS-Studio-32.2.2-Windows-x64.zip",
+            "url": "https://api.github.com/repos/obsproject/obs-studio/releases/assets/515013681",
+            "digest": "sha256:4d6e40e3ab155f56b30de517380566a206d74b63cdf5ad49aa596924768f97e1",
+            "download_count": 42208
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "开源免费的视频直播与录屏软件。",
+        "recommendationSources": [
+          {
+            "platform": "zhihu",
+            "title": "2026 Windows软件“天花板”清单｜装机必备的教科书级推荐",
+            "url": "https://www.zhihu.com/tardis/jm/art/2030662314953810341",
+            "discoveredAt": "2026-10-20T21:31:08+08:00",
+            "evidenceLevel": "indexed-excerpt",
+            "quote": "OBS Studio：开源免费的直播软件，录屏只是顺手的事。"
+          },
+          {
+            "platform": "bilibili",
+            "title": "免费替代付费软件：40个开源神器，每年省下4000美元！",
+            "url": "https://www.bilibili.com/video/BV1vWg36QExc",
+            "discoveredAt": "2026-10-20T13:41:55.3676567Z",
+            "evidenceLevel": "platform-text",
+            "quote": "OBS Studio"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T22:14:41+08:00",
+          "repositoryUrl": "https://github.com/obsproject/obs-studio",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/obsproject/obs-studio",
+            "https://github.com/obsproject/obs-studio/blob/master/README.rst",
+            "https://github.com/obsproject/obs-studio/blob/master/COPYING",
+            "https://github.com/obsproject/obs-studio/releases/tag/32.2.2"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+            "release 资产含 OBS-Studio-32.2.2-Windows-x64-Installer.exe 以及 Windows x64/arm64 压缩包。"
+          ]
+        }
+      }
+    },
+    {
+      "categoryId": "graphics",
+      "fetchedAt": "2026-10-20T13:40:20Z",
+      "repository": {
+        "owner": {
+          "login": "NickeManarin",
+          "html_url": "https://github.com/NickeManarin"
+        },
+        "name": "ScreenToGif",
+        "full_name": "NickeManarin/ScreenToGif",
+        "description": "🎬 ScreenToGif allows you to record a selected area of your screen, edit and save it as a gif or video.",
+        "homepage": "http://www.screentogif.com",
+        "license": {
+          "key": "ms-pl",
+          "name": "Microsoft Public License",
+          "spdx_id": "MS-PL",
+          "url": "https://api.github.com/licenses/ms-pl"
+        },
+        "language": "C#",
+        "topics": [
+          "editor",
+          "gif",
+          "recorder",
+          "sketchboard",
+          "video",
+          "webcam",
+          "wpf"
+        ],
+        "stargazers_count": 27820,
+        "forks_count": 2377,
+        "open_issues_count": 338,
+        "archived": false,
+        "is_template": false,
+        "default_branch": "master",
+        "pushed_at": "2026-10-14T15:04:38Z",
+        "created_at": "2016-08-02T01:28:59Z",
+        "html_url": "https://github.com/NickeManarin/ScreenToGif",
+        "id": 64713769,
+        "node_id": "MDEwOlJlcG9zaXRvcnk2NDcxMzc2OQ=="
+      },
+      "release": {
+        "tag_name": "2.43.2",
+        "name": "ScreenToGif 2.43.2",
+        "published_at": "2026-07-28T17:52:48Z",
+        "prerelease": false,
+        "draft": false,
+        "assets": [
+          {
+            "id": 492968474,
+            "name": "ScreenToGif.2.43.2.Light.Portable.Arm64.zip",
+            "size": 5283363,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Light.Portable.Arm64.zip",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492968474",
+            "digest": "sha256:3d07dca04ea75200f2e5e9df4532e483c76438d211b6834ee1b7e21d432c0302",
+            "download_count": 4073
+          },
+          {
+            "id": 492966896,
+            "name": "ScreenToGif.2.43.2.Light.Portable.x64.zip",
+            "size": 5296103,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Light.Portable.x64.zip",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492966896",
+            "digest": "sha256:455999ae2672728ee7da6438896207193e7586ad7370000f0e2cdbdc8df822a2",
+            "download_count": 49332
+          },
+          {
+            "id": 492967772,
+            "name": "ScreenToGif.2.43.2.Light.Portable.x86.zip",
+            "size": 5279766,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Light.Portable.x86.zip",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492967772",
+            "digest": "sha256:ae0357ec4e380b03dd0fd990db3362620365fa46ad6a990ae6c4790b4a1177b6",
+            "download_count": 2958
+          },
+          {
+            "id": 492972663,
+            "name": "ScreenToGif.2.43.2.Light.Setup.Arm64.msi",
+            "size": 7372800,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Light.Setup.Arm64.msi",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492972663",
+            "digest": "sha256:c6d99544964bb22480fc82958677c4fce74f426dfdd7ed1697d95e12b5b7e6c2",
+            "download_count": 2355
+          },
+          {
+            "id": 492970992,
+            "name": "ScreenToGif.2.43.2.Light.Setup.x64.msi",
+            "size": 7426048,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Light.Setup.x64.msi",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492970992",
+            "digest": "sha256:37aa0a58daeafbb068ed5039d93892399a25568610b63b7d1e6c3f007d10b8cc",
+            "download_count": 56287
+          },
+          {
+            "id": 492971815,
+            "name": "ScreenToGif.2.43.2.Light.Setup.x86.msi",
+            "size": 7372800,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Light.Setup.x86.msi",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492971815",
+            "digest": "sha256:66075008f8dda74775ed530e7d12af6d47894861fcc9c723965833760f43019a",
+            "download_count": 2700
+          },
+          {
+            "id": 492928038,
+            "name": "ScreenToGif.2.43.2.Package.arm64.msix",
+            "size": 69423961,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Package.arm64.msix",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/492928038",
+            "digest": "sha256:c189aeb16ec3a4ae474e4b98cbe06799ce4983d8cd3d14526a15051184028403",
+            "download_count": 2582
+          },
+          {
+            "id": 493009624,
+            "name": "ScreenToGif.2.43.2.Package.x64.msix",
+            "size": 73717762,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Package.x64.msix",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493009624",
+            "digest": "sha256:8216469d4bc01243da88188f186396001393d13a8d8d9d2804853c6c6c3ab166",
+            "download_count": 48109
+          },
+          {
+            "id": 493009731,
+            "name": "ScreenToGif.2.43.2.Package.x86.msix",
+            "size": 67744097,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Package.x86.msix",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493009731",
+            "digest": "sha256:71fe973b23095fb8220f96b5877b445644561c41c47896006c7326f498c866e0",
+            "download_count": 2529
+          },
+          {
+            "id": 493010080,
+            "name": "ScreenToGif.2.43.2.Portable.Arm64.zip",
+            "size": 68648455,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Portable.Arm64.zip",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493010080",
+            "digest": "sha256:ab92de243ebb18a7571cc7d2ae518339bfe022af0d2f09c044c53ccfb9a65cc2",
+            "download_count": 3195
+          },
+          {
+            "id": 493010283,
+            "name": "ScreenToGif.2.43.2.Portable.x64.zip",
+            "size": 73035883,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Portable.x64.zip",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493010283",
+            "digest": "sha256:42a0b53d67ecae22698b4881ffb2c9c7a9049663f5fbdd2edb779e1971000664",
+            "download_count": 10596
+          },
+          {
+            "id": 493010410,
+            "name": "ScreenToGif.2.43.2.Portable.x86.zip",
+            "size": 67680368,
+            "content_type": "application/x-zip-compressed",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Portable.x86.zip",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493010410",
+            "digest": "sha256:f378cd84065fa5f24af266213bfb5dad66e661374967586b8374203b970b445e",
+            "download_count": 2805
+          },
+          {
+            "id": 493010483,
+            "name": "ScreenToGif.2.43.2.Setup.Arm64.msi",
+            "size": 70791168,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Setup.Arm64.msi",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493010483",
+            "digest": "sha256:6e5f16cafdcdb6c83096ad8aec647fae60e53734ebd1884ccf39e7008cdf81df",
+            "download_count": 3677
+          },
+          {
+            "id": 493009884,
+            "name": "ScreenToGif.2.43.2.Setup.x64.msi",
+            "size": 75137024,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Setup.x64.msi",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493009884",
+            "digest": "sha256:b494e929ac250d0e09cf2803cd172cc5580d9c35df179b022b451304a06df4a7",
+            "download_count": 337351
+          },
+          {
+            "id": 493009973,
+            "name": "ScreenToGif.2.43.2.Setup.x86.msi",
+            "size": 69849088,
+            "content_type": "application/octet-stream",
+            "browser_download_url": "https://github.com/NickeManarin/ScreenToGif/releases/download/2.43.2/ScreenToGif.2.43.2.Setup.x86.msi",
+            "url": "https://api.github.com/repos/NickeManarin/ScreenToGif/releases/assets/493009973",
+            "digest": "sha256:216c90afa47cc6ef91c4c10f7c2d5519797b5172cd0fc3dd93b1901b6dd258fe",
+            "download_count": 4987
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "屏幕录制与 GIF/视频编辑工具。",
+        "recommendationSources": [
+          {
+            "platform": "xiaohongshu",
+            "title": "别给软件交月租了！5个GitHub开源神器",
+            "url": "https://www.xiaohongshu.com/explore/6aabb101000000000d0267be",
+            "discoveredAt": "2026-10-20T13:33:29.8395589Z",
+            "evidenceLevel": "platform-text",
+            "quote": "ScreenToGif"
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-20T22:14:41+08:00",
+          "repositoryUrl": "https://github.com/NickeManarin/ScreenToGif",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/NickeManarin/ScreenToGif",
+            "https://github.com/NickeManarin/ScreenToGif/blob/master/README.md",
+            "https://github.com/NickeManarin/ScreenToGif/blob/master/LICENSE.txt",
+            "https://github.com/NickeManarin/ScreenToGif/releases/tag/2.43.2"
+          ],
+          "notes": [
+            "核验范围仅限官方仓库/许可证/Windows 元数据，未执行安装或安全审计。",
+            "许可证为 Microsoft Public License（MS-PL），是 OSI 认可的开源许可证。",
+            "release 资产含 .msi 安装包、.msix 应用包与便携 zip。"
+          ]
+        }
+      }
+    }
+  ]
+}

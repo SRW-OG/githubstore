@@ -1,0 +1,20 @@
+{
+  "packages": [
+    {
+      "version": "1.37.0",
+      "architecture": "x64",
+      "archiveResourceName": "GitHubStore.Tools.aria2.x64.zip",
+      "archiveSha256": "67D015301EEF0B612191212D564C5BB0A14B5B9C4796B76454276A4D28D9B288",
+      "executableEntry": "aria2-1.37.0-win-64bit-build1/aria2c.exe",
+      "executableSha256": "BE2099C214F63A3CB4954B09A0BECD6E2E34660B886D4C898D260FEBFE9D70C2"
+    },
+    {
+      "version": "1.37.0",
+      "architecture": "x86",
+      "archiveResourceName": "GitHubStore.Tools.aria2.x86.zip",
+      "archiveSha256": "35F6514CC5DD7E98A87B3C4C2D25A0754B9B063DBE59BC0F22D483464F61E5B6",
+      "executableEntry": "aria2-1.37.0-win-32bit-build1/aria2c.exe",
+      "executableSha256": "B9CD71B275AF11B63C33457B0F43F2F2675937070C563E195F223EFD7FA4C74B"
+    }
+  ]
+}
