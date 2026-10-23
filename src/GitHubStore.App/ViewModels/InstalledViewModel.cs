@@ -30,13 +30,13 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     public ObservableCollection<InstalledProgram> Programs { get; } = [];
     [ObservableProperty] private string _filter = string.Empty;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanUninstall))]
+    [NotifyPropertyChangedFor(nameof(CanUninstall), nameof(CanRemoveRegistration))]
     private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection), nameof(SelectedName), nameof(SelectedPublisher),
-        nameof(SelectedVersion), nameof(SelectedLocation), nameof(CanUninstall))]
+        nameof(SelectedVersion), nameof(SelectedLocation), nameof(CanUninstall), nameof(CanRemoveRegistration))]
     private InstalledProgram? _selectedProgram;
 
     public bool HasSelection => SelectedProgram is not null;
@@ -44,6 +44,7 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     public string SelectedPublisher => SelectedProgram?.Publisher ?? "—";
     public string SelectedVersion => SelectedProgram?.DisplayVersion ?? "—";
     public string SelectedLocation => SelectedProgram?.InstallLocation ?? "—";
+    public bool CanRemoveRegistration => !_disposed && !IsBusy && SelectedProgram?.CanRemoveRegistration == true;
     public bool CanUninstall => !_disposed && !IsBusy && SelectedProgram?.CanUninstall == true;
     private IReadOnlyList<InstalledProgram> _all = [];
 
@@ -168,6 +169,39 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
         {
             if (!_disposed && !cancellation.IsCancellationRequested)
                 ErrorMessage = Text.Format("InstalledUninstallFailed", ex.Message);
+        }
+        finally
+        {
+            _uninstallInProgress = false;
+            if (!_disposed) IsBusy = false;
+        }
+    }
+
+    public async Task RemoveRegistrationConfirmedAsync(InstalledProgram program, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        if (_disposed || IsBusy || _uninstallInProgress || !program.CanRemoveRegistration) return;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _lifetime.Token);
+        _uninstallInProgress = true;
+        IsBusy = true;
+        try
+        {
+            ErrorMessage = string.Empty;
+            StatusMessage = string.Empty;
+            var result = await _service.RemoveRegistrationAsync(program, cancellation.Token);
+            if (_disposed || cancellation.IsCancellationRequested) return;
+            if (result.Started && result.Kind == UninstallRemovalKind.RegistrationRemoved)
+            {
+                _all = _all.Where(item => item.Id != program.Id).ToArray();
+                ApplyFilter();
+                StatusMessage = Text.Format("InstalledRegistrationRemoved", program.DisplayName);
+            }
+            else ErrorMessage = Text["InstalledRegistrationRemovalFailed"];
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception)
+        {
+            if (!_disposed) ErrorMessage = Text["InstalledRegistrationRemovalFailed"];
         }
         finally
         {

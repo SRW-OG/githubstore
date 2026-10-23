@@ -26,12 +26,17 @@ public sealed class ManagedInstalledProgramService : IInstalledProgramService
         {
             ct.ThrowIfCancellationRequested();
             RegisteredUninstaller? registration = null;
+            var canRemoveRegistration = false;
             if (!entry.StoreManagedRemoval)
             {
                 try
                 {
                     var receipt = await _launcher.GetAsync(entry.InstallId, ct).ConfigureAwait(false);
-                    if (receipt is not null) registration = _registered.Find(receipt, entry.DisplayName);
+                    if (receipt is not null)
+                    {
+                        canRemoveRegistration = CanForget(receipt);
+                        registration = _registered.Find(receipt, entry.DisplayName);
+                    }
                 }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
                 catch (Exception) { /* An unverified uninstall entry must remain unavailable. */ }
@@ -41,12 +46,41 @@ public sealed class ManagedInstalledProgramService : IInstalledProgramService
                 DisplayName = entry.DisplayName, DisplayVersion = entry.DisplayVersion,
                 InstallLocation = entry.InstallDirectory, Origin = RegistryOrigin.StoreInstall,
                 SourceKeyPath = entry.InstallId, StoreManagedRemoval = entry.StoreManagedRemoval,
+                CanRemoveRegistration = canRemoveRegistration,
                 ProductCode = registration?.ProductCode,
                 UninstallString = registration?.CommandLine,
             });
         }
         return programs.OrderBy(program => program.DisplayName, StringComparer.CurrentCultureIgnoreCase)
             .ThenBy(program => program.Id, StringComparer.Ordinal).ToArray();
+    }
+
+    private static bool CanForget(InstallRecord receipt) => receipt.Origin == Origin.Store
+        && receipt.State == InstallState.Done
+        && receipt.Installer is InstallerKind.Unknown or InstallerKind.Nsis or InstallerKind.Inno
+            or InstallerKind.Squirrel or InstallerKind.Burn or InstallerKind.Msi
+        && !StoreOwnedInstallation.OwnsExtractedFiles(receipt);
+
+    public async Task<UninstallLaunchResult> RemoveRegistrationAsync(InstalledProgram program, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        ct.ThrowIfCancellationRequested();
+        if (program.Origin != RegistryOrigin.StoreInstall || string.IsNullOrWhiteSpace(program.SourceKeyPath)
+            || program.SourceKeyPath.Length > 256)
+            return UninstallLaunchResult.Failure(UninstallErrorCodes.InstallationNotFound);
+        try
+        {
+            // Explicit user intent to forget a receipt is independent of Windows registration availability.
+            // Re-read ownership by ID. Never infer uninstall or delete application/user files here.
+            var receipt = await _launcher.GetAsync(program.SourceKeyPath, ct).ConfigureAwait(false);
+            if (receipt is null) return UninstallLaunchResult.Failure(UninstallErrorCodes.InstallationNotFound);
+            if (!CanForget(receipt))
+                return UninstallLaunchResult.Failure(UninstallErrorCodes.NotStoreOwned);
+            await _launcher.UnregisterAsync(receipt.InstallId, ct).ConfigureAwait(false);
+            return new UninstallLaunchResult { Started = true, Kind = UninstallRemovalKind.RegistrationRemoved };
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+        catch (Exception) { return UninstallLaunchResult.Failure(UninstallErrorCodes.RemovalFailed); }
     }
 
     public async Task<UninstallLaunchResult> LaunchUninstallAsync(InstalledProgram program, CancellationToken ct = default)

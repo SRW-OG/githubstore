@@ -75,6 +75,9 @@
                                 Click="OnUninstallClick"
                                 IsEnabled="{Binding CanUninstall}" HorizontalAlignment="Stretch"
                                 AutomationProperties.AutomationId="UninstallButton" />
+                        <Button Content="{Binding Text[InstalledRemoveRegistration]}"
+                                Click="OnRemoveRegistrationClick" IsEnabled="{Binding CanRemoveRegistration}"
+                                HorizontalAlignment="Stretch" AutomationProperties.AutomationId="RemoveRegistrationButton" />
                         <TextBlock Text="{Binding Text[InstalledManagedHint]}" TextWrapping="Wrap" FontSize="12"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 

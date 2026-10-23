@@ -9,6 +9,11 @@ public sealed class LocalizationService : INotifyPropertyChanged
     private static readonly IReadOnlyDictionary<string, (string Chinese, string English)> Entries =
         new Dictionary<string, (string, string)>(StringComparer.Ordinal)
         {
+            ["InstalledRemoveRegistration"] = ("仅移除安装登记", "Remove registration only"),
+            ["InstalledRemoveRegistrationConfirm"] = ("移除 {0} 在 GitHubStore 中的安装登记？", "Remove the GitHubStore registration for {0}?"),
+            ["InstalledRemoveRegistrationHint"] = ("此操作只从已安装页和启动器移除登记，不会卸载应用、删除程序或用户文件，也不会更改 Windows 卸载登记。请先核对 Windows 设置中的卸载结果。", "This only removes the receipt from Installed and the launcher. It does not uninstall the application, delete application or user files, or change Windows uninstall registration. Check the uninstall result in Windows Settings first."),
+            ["InstalledRegistrationRemoved"] = ("已移除 {0} 的安装登记；程序和用户文件未改动。", "Removed the registration for {0}. Application and user files were preserved."),
+            ["InstalledRegistrationRemovalFailed"] = ("无法移除安装登记，请刷新后重试。", "Could not remove the registration. Refresh and try again."),
             ["SettingsInstallRootLocked"] = ("已有安装登记或安装任务正在进行，暂不支持更改安装根目录或迁移现有应用。其他设置仍可保存。", "Registered applications or an active installation prevent changing the installation root. Moving existing applications is not supported yet. Other settings can still be saved."),
             ["InstallIncompatible"] = ("所选文件不是当前 Windows/架构适用的完整安装包，请重新选择。", "The selected file is not a complete package for this Windows architecture. Choose another package."),
             ["InstallUnsafePath"] = ("安装请求或路径不符合规则，已停止安装。请检查目录设置和所选包。", "The installation request or path does not meet the requirements. Check directory settings and the selected package."),

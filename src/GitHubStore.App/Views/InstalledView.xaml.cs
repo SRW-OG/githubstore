@@ -54,6 +54,28 @@ public sealed partial class InstalledView : UserControl
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
+    private async void OnRemoveRegistrationClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { CanRemoveRegistration: true } program) return;
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = viewModel.Text["InstalledRemoveRegistration"],
+                Content = viewModel.Text.Format("InstalledRemoveRegistrationConfirm", program.DisplayName)
+                    + "\n\n" + viewModel.Text["InstalledRemoveRegistrationHint"],
+                PrimaryButtonText = viewModel.Text["InstalledRemoveRegistration"],
+                CloseButtonText = viewModel.Text["Cancel"],
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                await viewModel.RemoveRegistrationConfirmedAsync(program);
+        }
+        catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledRegistrationRemovalFailed"]; }
+    }
+
     /// <summary>
     /// 卸载前二次确认：卸载是不可撤销的系统写操作，必须先让用户看到会发生什么。
     /// 对话框文案来自本地化服务，卸载命令由 ViewModel 调用服务层执行。

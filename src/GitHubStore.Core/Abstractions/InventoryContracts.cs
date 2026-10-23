@@ -41,6 +41,9 @@ public sealed record InstalledProgram
     /// </summary>
     public bool StorePerformedMsiRemoval { get; init; }
 
+    /// <summary>Explicit receipt-only removal; this does not assert the application was uninstalled.</summary>
+    public bool CanRemoveRegistration { get; init; }
+
     public bool CanUninstall => StoreManagedRemoval || StorePerformedMsiRemoval
         || !string.IsNullOrWhiteSpace(EffectiveUninstallString);
 }
@@ -61,6 +64,9 @@ public enum UninstallRemovalKind
 
     /// <summary>本程序用登记的产品码驱动 Windows Installer 卸载，并已核验产品与目录消失。</summary>
     RemovedByProductCode,
+
+    /// <summary>Only the Store receipt was removed; application and user files were preserved.</summary>
+    RegistrationRemoved,
 }
 
 /// <summary>启动卸载器的结果；失败用稳定错误码表达，不抛异常给 UI。</summary>
@@ -119,6 +125,10 @@ public interface IInstalledProgramService
     /// 因此不删除任何文件，返回 <see cref="UninstallErrorCodes.NoUninstallString"/>。
     /// </summary>
     Task<UninstallLaunchResult> LaunchUninstallAsync(InstalledProgram program, CancellationToken ct = default);
+
+    /// <summary>Explicitly forget a Store installer receipt without uninstalling or deleting files.</summary>
+    Task<UninstallLaunchResult> RemoveRegistrationAsync(InstalledProgram program, CancellationToken ct = default) =>
+        Task.FromResult(UninstallLaunchResult.Failure(UninstallErrorCodes.NotStoreOwned));
 }
 
 /// <summary>稳定错误码。</summary>

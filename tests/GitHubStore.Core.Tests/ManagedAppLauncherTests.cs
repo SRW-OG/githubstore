@@ -9,6 +9,33 @@ namespace GitHubStore.Core.Tests;
 public sealed class ManagedAppLauncherTests
 {
     [Fact]
+    public async Task ExplicitInstallerReceiptRemovalPersistsAndPreservesAllApplicationFiles()
+    {
+        using var fixture = new Fixture();
+        var installation = fixture.Installation("installer") with { Installer = InstallerKind.Inno, Strategy = Strategy.Custom };
+        var other = fixture.Installation("other");
+        var launcher = fixture.Launcher();
+        await launcher.RegisterCompletedInstallAsync(installation, "Installer");
+        await launcher.RegisterCompletedInstallAsync(other, "Other");
+        var userFile = Path.Combine(installation.TargetDir!, "user-settings.json");
+        await File.WriteAllTextAsync(userFile, "user data");
+        var changed = 0;
+        launcher.Changed += (_, _) => changed++;
+        var registered = new GitHubStore.App.Services.Inventory.RegisteredUninstallService(launcher,
+            () => [], (_, _, _) => throw new Exception("must not run"));
+        var inventory = new GitHubStore.App.Services.Inventory.ManagedInstalledProgramService(launcher, registered: registered);
+        var snapshot = (await inventory.ScanAsync()).Single(item => item.SourceKeyPath == installation.InstallId);
+        Assert.Equal(2, (await fixture.Launcher().ListAsync()).Count);
+        var result = await inventory.RemoveRegistrationAsync(snapshot);
+        Assert.Equal(UninstallRemovalKind.RegistrationRemoved, result.Kind);
+        Assert.Equal(other.InstallId, Assert.Single(await fixture.Launcher().ListAsync()).InstallId);
+        Assert.True(File.Exists(installation.ExePath));
+        Assert.True(File.Exists(other.ExePath));
+        Assert.Equal("user data", await File.ReadAllTextAsync(userFile));
+        Assert.Equal(1, changed);
+    }
+
+    [Fact]
     public async Task EmptyLauncherDoesNotCreateAFileOrDiscoverExistingExecutables()
     {
         using var fixture = new Fixture();
