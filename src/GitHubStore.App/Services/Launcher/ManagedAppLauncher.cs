@@ -28,7 +28,7 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
     private readonly string _manifestPath;
     private readonly string _dataDirectory;
     private readonly SemaphoreSlim _gate;
-    private readonly Func<string, string, bool> _processStarter;
+    private readonly Func<string, string, bool>? _processStarter;
 
     public ManagedAppLauncher(string dataDirectory, string? installRoot = null,
         Func<string, string, bool>? processStarter = null, Func<string>? installRootProvider = null)
@@ -39,7 +39,7 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         _dataDirectory = Path.GetFullPath(dataDirectory);
         _manifestPath = Path.Combine(_dataDirectory, "managed-apps.json");
         _gate = Gates.GetOrAdd(_manifestPath, _ => new SemaphoreSlim(1, 1));
-        _processStarter = processStarter ?? StartProcess;
+        _processStarter = processStarter;
     }
 
     public event EventHandler? Changed;
@@ -216,8 +216,11 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
             ct.ThrowIfCancellationRequested();
             try
             {
-                return _processStarter(installation.ExePath!, Path.GetDirectoryName(installation.ExePath!)!)
-                    ? new(true) : new(false, "launcher_start_failed");
+                var workingDirectory = Path.GetDirectoryName(installation.ExePath!)!;
+                var started = _processStarter is not null
+                    ? _processStarter(installation.ExePath!, workingDirectory)
+                    : await StartProcessAsync(installation.ExePath!, workingDirectory).ConfigureAwait(false);
+                return started ? new(true) : new(false, "launcher_start_failed");
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
             catch (Exception)
@@ -416,7 +419,8 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException) { return false; }
     }
 
-    private static bool StartProcess(string executablePath, string workingDirectory)
+    /// <summary>启动入口后短暂观察异常退出；正常退出允许程序转交给现有实例。</summary>
+    private static async Task<bool> StartProcessAsync(string executablePath, string workingDirectory)
     {
         using var process = Process.Start(new ProcessStartInfo
         {
@@ -424,7 +428,19 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
             WorkingDirectory = workingDirectory,
             UseShellExecute = false,
         });
-        return process is not null;
+        if (process is null) return false;
+        // 保持 LaunchAsync 在观察期内未完成，防止连续点击造成重复启动。
+        // 退出码 0 可表示启动器或单实例程序正常转交，不能据此认定失败。
+        using var observation = new CancellationTokenSource(TimeSpan.FromSeconds(4));
+        try
+        {
+            await process.WaitForExitAsync(observation.Token).ConfigureAwait(false);
+            return process.ExitCode == 0;
+        }
+        catch (OperationCanceledException) when (observation.IsCancellationRequested)
+        {
+            return true;
+        }
     }
 
     private void NotifyChanged()
