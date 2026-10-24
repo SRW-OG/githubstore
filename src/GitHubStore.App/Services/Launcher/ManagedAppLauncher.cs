@@ -69,6 +69,9 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
                     DisplayVersion = installation.DisplayVersion ?? installation.Version.Raw,
                     InstalledAt = installation.InstalledAt,
                     IsAvailable = IsAvailable(installation),
+                    // 索引本身可读时只有两种结果：入口文件可核验，或登记存在但入口文件缺失。
+                    // 索引不可读会在 ReadAsync 抛出，调用方按其约定显示“无法核对”，不能当成未安装。
+                    Status = IsAvailable(installation) ? InstalledStatus.Installed : InstalledStatus.NeedsRepair,
                     // 只有本程序自己解包出来的便携/绿色安装才允许由本程序删除文件。
                     StoreManagedRemoval = StoreOwnedInstallation.OwnsExtractedFiles(installation),
                     // 本程序用合法产品码执行的 MSI：UI 据此显示“用产品码卸载”，而不是“启动第三方卸载器”。
@@ -150,6 +153,46 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         }
         finally { _gate.Release(); }
         if (changed) NotifyChanged();
+    }
+
+    /// <summary>
+    /// 只改一条登记的入口路径。安装目录、安装身份、来源、版本与移除标记都不变，
+    /// 因此安装器类应用同样适用：这里既不删除文件，也不改变任何卸载判定依据。
+    /// </summary>
+    public async Task<LauncherLaunchResult> RepairExecutableAsync(string installId, AppId expectedAppId,
+        string executablePath, CancellationToken ct = default)
+    {
+        if (!ValidText(installId, 256)) return new(false, "launcher_invalid_install_id");
+        var changed = false;
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var entries = await ReadAsync(ct).ConfigureAwait(false);
+            var index = Array.FindIndex(entries, e => string.Equals(e.Installation.InstallId, installId, StringComparison.Ordinal));
+            if (index < 0) return new(false, "launcher_not_found");
+            var existing = entries[index].Installation;
+            // 安装身份由调用方重新确认：界面传入的 AppId 与登记不一致时不做任何改动。
+            if (existing.AppId != expectedAppId) return new(false, "launcher_identity_mismatch");
+            var target = NormalizeLocalPath(existing.TargetDir);
+            var candidate = NormalizeLocalPath(executablePath);
+            // 新入口必须仍在原安装目录之内：修复不能把启动指向别处的程序。
+            if (!candidate.StartsWith(target + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                || !Path.GetExtension(candidate).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                return new(false, "launcher_invalid_path");
+            CheckExistingAncestors(candidate);
+            if (!Directory.Exists(target) || !File.Exists(candidate)) return new(false, "launcher_executable_missing");
+            if (!IsPortableExecutable(candidate)) return new(false, "launcher_executable_invalid");
+            ct.ThrowIfCancellationRequested();
+            var next = entries.ToArray();
+            // ExePath 已是规范化路径；其余字段原样保留，登记身份与元数据不受影响。
+            next[index] = new Entry(entries[index].DisplayName, existing with { ExePath = candidate });
+            await WriteAsync(next, ct).ConfigureAwait(false);
+            changed = true;
+        }
+        catch (LauncherException ex) { return new(false, ex.Code); }
+        finally { _gate.Release(); }
+        if (changed) NotifyChanged();
+        return new(true);
     }
 
     public async Task<LauncherLaunchResult> LaunchAsync(string installId, CancellationToken ct = default)
@@ -338,6 +381,30 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
     {
         try { EnsureExecutableAvailable(installation); return true; }
         catch (LauncherException) { return false; }
+    }
+
+    /// <summary>
+    /// 修复入口时要求目标确为 Windows 可执行文件。与安装流程的校验口径一致：
+    /// 只读取文件头，不执行任何内容；不满足时拒绝写入登记。
+    /// </summary>
+    private static bool IsPortableExecutable(string path)
+    {
+        try
+        {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan);
+            if (stream.Length < 64 || stream.ReadByte() != 'M' || stream.ReadByte() != 'Z') return false;
+            stream.Position = 60;
+            Span<byte> offsetBytes = stackalloc byte[4];
+            if (stream.Read(offsetBytes) != 4) return false;
+            var offset = System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(offsetBytes);
+            if (offset < 64 || offset > stream.Length - 24) return false;
+            stream.Position = offset;
+            Span<byte> header = stackalloc byte[24];
+            if (stream.Read(header) != 24 || header[0] != 'P' || header[1] != 'E' || header[2] != 0 || header[3] != 0) return false;
+            var flags = System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(header[22..]);
+            return (flags & 2) != 0 && (flags & 0x2000) == 0;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException) { return false; }
     }
 
     private static bool StartProcess(string executablePath, string workingDirectory)

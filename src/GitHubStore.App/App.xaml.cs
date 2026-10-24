@@ -9,6 +9,12 @@ public partial class App : Application
     private ServiceProvider? _services;
     private MainWindow? _window;
 
+    /// <summary>
+    /// 当前主窗口，供需要窗口句柄的界面能力使用（例如未打包应用的文件选择器）。
+    /// 尚未创建或已关闭时为 null，调用方必须自行处理这种情况。
+    /// </summary>
+    public static MainWindow? MainWindow { get; private set; }
+
     public App()
     {
         StartupDiagnostics.Log("App ctor: InitializeComponent start.");
@@ -27,6 +33,7 @@ public partial class App : Application
             _services = ServiceRegistration.CreateProvider();
             StartupDiagnostics.Log("DI provider created.");
             _window = _services.GetRequiredService<MainWindow>();
+            MainWindow = _window;
             StartupDiagnostics.Log("MainWindow constructed.");
             _window.Closed += OnWindowClosed;
             _window.Activate();

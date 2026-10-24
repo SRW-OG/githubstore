@@ -44,11 +44,34 @@ public sealed record InstalledProgram
     /// <summary>Explicit receipt-only removal; this does not assert the application was uninstalled.</summary>
     public bool CanRemoveRegistration { get; init; }
 
+    /// <summary>
+    /// 这条登记的核对结果。用于区分“可运行”“入口缺失可修复”“无法核对”，
+    /// 界面不得把后两种显示成未安装，也不得据此自动删除记录或文件。
+    /// </summary>
+    public InstalledStatus Status { get; init; } = InstalledStatus.Installed;
+
+    /// <summary>
+    /// 该安装的 Windows 卸载登记核对结果。只有在已找到可用登记、或本程序能自行移除时才可卸载；
+    /// “没有匹配到”与“无法核对”都不等于已卸载。
+    /// </summary>
+    public UninstallRegistrationStatus RegistrationStatus { get; init; } = UninstallRegistrationStatus.Unknown;
+
+    /// <summary>入口缺失但登记完整时可修复；索引不可读或未登记时不可修复。</summary>
+    public bool CanRepairExecutable => Status == InstalledStatus.NeedsRepair
+        && Origin == RegistryOrigin.StoreInstall && !string.IsNullOrWhiteSpace(SourceKeyPath);
+
     public bool CanUninstall => StoreManagedRemoval || StorePerformedMsiRemoval
         || !string.IsNullOrWhiteSpace(EffectiveUninstallString);
 }
 
 public enum RegistryOrigin { Hklm64, Hklm32, Hkcu, GreenInstall, StoreInstall }
+
+/// <summary>
+/// 这条安装的 Windows 卸载登记核对结果。三个值不能混为一谈：
+/// <see cref="Available"/> 表示找到了唯一可信的登记；<see cref="NotFound"/> 表示读取成功但确实
+/// 没有匹配到登记；<see cref="Unknown"/> 表示读取失败，无法判断。后两者都不能当作“已卸载”。
+/// </summary>
+public enum UninstallRegistrationStatus { Available, NotFound, Unknown }
 
 /// <summary>
 /// 一次成功移除到底做了什么。三种语义对用户意味着完全不同的事，
@@ -67,6 +90,9 @@ public enum UninstallRemovalKind
 
     /// <summary>Only the Store receipt was removed; application and user files were preserved.</summary>
     RegistrationRemoved,
+
+    /// <summary>Only the recorded executable path was corrected; no files were moved or deleted.</summary>
+    RepairApplied,
 }
 
 /// <summary>启动卸载器的结果；失败用稳定错误码表达，不抛异常给 UI。</summary>
@@ -129,6 +155,14 @@ public interface IInstalledProgramService
     /// <summary>Explicitly forget a Store installer receipt without uninstalling or deleting files.</summary>
     Task<UninstallLaunchResult> RemoveRegistrationAsync(InstalledProgram program, CancellationToken ct = default) =>
         Task.FromResult(UninstallLaunchResult.Failure(UninstallErrorCodes.NotStoreOwned));
+
+    /// <summary>
+    /// 重新指定入口文件以修复“记录在、程序入口找不到”的安装。只改入口路径，
+    /// 不移动或删除任何文件，也不改变安装身份与卸载依据。
+    /// </summary>
+    Task<UninstallLaunchResult> RepairExecutableAsync(InstalledProgram program, string executablePath,
+        CancellationToken ct = default) =>
+        Task.FromResult(UninstallLaunchResult.Failure(UninstallErrorCodes.NotStoreOwned));
 }
 
 /// <summary>稳定错误码。</summary>
@@ -154,6 +188,9 @@ public static class UninstallErrorCodes
 
     /// <summary>登记未能更新，因此一个文件都没有删除。</summary>
     public const string RemovalFailed = "removal_failed";
+
+    /// <summary>选定的入口不是有效的 Windows 可执行文件，登记未被改动。</summary>
+    public const string InvalidExecutable = "invalid_executable";
 
     /// <summary>
     /// 登记已移除，但目录删除未完成：可能残留文件。安装不再出现于启动器，

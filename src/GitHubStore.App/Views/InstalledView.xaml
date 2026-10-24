@@ -70,6 +70,16 @@
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             <TextBlock Text="{Binding SelectedLocation}" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
                         </StackPanel>
+                        <!-- 状态如实展示：入口缺失与无法核对都不等于已卸载。 -->
+                        <TextBlock Text="{Binding SelectedStatusText}" TextWrapping="Wrap" FontSize="12"
+                                   AutomationProperties.AutomationId="InstalledStatusText"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="{Binding SelectedRegistrationText}" TextWrapping="Wrap" FontSize="12"
+                                   AutomationProperties.AutomationId="InstalledRegistrationText"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <Button Content="{Binding Text[InstalledRepair]}" Click="OnRepairClick"
+                                IsEnabled="{Binding CanRepair}" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="RepairExecutableButton" />
                         <!-- 点击后先二次确认，再由 ViewModel 调用服务层启动卸载器。 -->
                         <Button x:Name="UninstallButton" Content="{Binding Text[InstalledUninstall]}"
                                 Click="OnUninstallClick"

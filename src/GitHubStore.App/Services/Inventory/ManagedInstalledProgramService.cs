@@ -27,6 +27,8 @@ public sealed class ManagedInstalledProgramService : IInstalledProgramService
             ct.ThrowIfCancellationRequested();
             RegisteredUninstaller? registration = null;
             var canRemoveRegistration = false;
+            // 默认按“无法核对”处理：读取失败与确实没有登记必须能区分开，不能都显示成未登记。
+            var registrationStatus = UninstallRegistrationStatus.Unknown;
             if (!entry.StoreManagedRemoval)
             {
                 try
@@ -36,17 +38,23 @@ public sealed class ManagedInstalledProgramService : IInstalledProgramService
                     {
                         canRemoveRegistration = CanForget(receipt);
                         registration = _registered.Find(receipt, entry.DisplayName);
+                        registrationStatus = registration is null
+                            ? UninstallRegistrationStatus.NotFound : UninstallRegistrationStatus.Available;
                     }
+                    else registrationStatus = UninstallRegistrationStatus.NotFound;
                 }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
-                catch (Exception) { /* An unverified uninstall entry must remain unavailable. */ }
+                catch (Exception) { /* 读取失败：保持 Unknown，界面必须显示“无法核对”。 */ }
             }
             programs.Add(new InstalledProgram
             {
                 DisplayName = entry.DisplayName, DisplayVersion = entry.DisplayVersion,
                 InstallLocation = entry.InstallDirectory, Origin = RegistryOrigin.StoreInstall,
                 SourceKeyPath = entry.InstallId, StoreManagedRemoval = entry.StoreManagedRemoval,
+                // 启动器读取登记时已经核对过入口文件；这里原样传递，不重新推断。
+                Status = entry.Status,
                 CanRemoveRegistration = canRemoveRegistration,
+                RegistrationStatus = registrationStatus,
                 ProductCode = registration?.ProductCode,
                 UninstallString = registration?.CommandLine,
             });
@@ -82,6 +90,41 @@ public sealed class ManagedInstalledProgramService : IInstalledProgramService
         catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
         catch (Exception) { return UninstallLaunchResult.Failure(UninstallErrorCodes.RemovalFailed); }
     }
+
+    /// <summary>
+    /// 只有入口缺失的登记才可修复；读取失败或未登记时拒绝，避免把“无法核对”当成可修复。
+    /// 路径校验与写入都由启动器按安装 ID 重读登记后完成，界面传入的路径不能授予任何权限。
+    /// </summary>
+    public async Task<UninstallLaunchResult> RepairExecutableAsync(InstalledProgram program, string executablePath,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        if (string.IsNullOrWhiteSpace(executablePath)) return UninstallLaunchResult.Failure(UninstallErrorCodes.ExecutableNotFound);
+        ct.ThrowIfCancellationRequested();
+        if (program.Origin != RegistryOrigin.StoreInstall || string.IsNullOrWhiteSpace(program.SourceKeyPath)
+            || program.SourceKeyPath.Length > 256)
+            return UninstallLaunchResult.Failure(UninstallErrorCodes.InstallationNotFound);
+        try
+        {
+            var receipt = await _launcher.GetAsync(program.SourceKeyPath, ct).ConfigureAwait(false);
+            // 登记必须仍然存在且身份一致：修复不能作用到另一条安装上。
+            if (receipt is null) return UninstallLaunchResult.Failure(UninstallErrorCodes.InstallationNotFound);
+            var result = await _launcher.RepairExecutableAsync(receipt.InstallId, receipt.AppId, executablePath, ct).ConfigureAwait(false);
+            return result.Started ? new UninstallLaunchResult { Started = true, Kind = UninstallRemovalKind.RepairApplied }
+                : UninstallLaunchResult.Failure(MapRepairError(result.ErrorCode));
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+        catch (Exception) { return UninstallLaunchResult.Failure(UninstallErrorCodes.RemovalFailed); }
+    }
+
+    private static string MapRepairError(string? code) => code switch
+    {
+        "launcher_executable_missing" => UninstallErrorCodes.ExecutableNotFound,
+        "launcher_executable_invalid" => UninstallErrorCodes.InvalidExecutable,
+        "launcher_invalid_path" or "launcher_unsafe_path" => UninstallErrorCodes.UnsafeRemovalPath,
+        "launcher_not_found" => UninstallErrorCodes.InstallationNotFound,
+        _ => UninstallErrorCodes.RemovalFailed,
+    };
 
     public async Task<UninstallLaunchResult> LaunchUninstallAsync(InstalledProgram program, CancellationToken ct = default)
     {

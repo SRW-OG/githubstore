@@ -77,6 +77,28 @@ public sealed partial class InstalledView : UserControl
     }
 
     /// <summary>
+    /// 定位主程序并修复入口路径。文件由系统选择器指定，且只改记录中的入口路径，
+    /// 不移动、不删除任何文件；选择器不可用或用户取消时不做任何改动。
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
+    private async void OnRepairClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { CanRepairExecutable: true } program) return;
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker();
+            picker.FileTypeFilter.Add(".exe");
+            // 未打包应用必须显式绑定窗口句柄，否则选择器不会显示。
+            var handle = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, handle);
+            var file = await picker.PickSingleFileAsync();
+            if (file is null) return;
+            await viewModel.RepairConfirmedAsync(program, file.Path);
+        }
+        catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledRepairFailed"]; }
+    }
+
+    /// <summary>
     /// 卸载前二次确认：卸载是不可撤销的系统写操作，必须先让用户看到会发生什么。
     /// 对话框文案来自本地化服务，卸载命令由 ViewModel 调用服务层执行。
     /// </summary>

@@ -30,13 +30,14 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     public ObservableCollection<InstalledProgram> Programs { get; } = [];
     [ObservableProperty] private string _filter = string.Empty;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanUninstall), nameof(CanRemoveRegistration))]
+    [NotifyPropertyChangedFor(nameof(CanUninstall), nameof(CanRemoveRegistration), nameof(CanRepair))]
     private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection), nameof(SelectedName), nameof(SelectedPublisher),
-        nameof(SelectedVersion), nameof(SelectedLocation), nameof(CanUninstall), nameof(CanRemoveRegistration))]
+        nameof(SelectedVersion), nameof(SelectedLocation), nameof(CanUninstall), nameof(CanRemoveRegistration),
+        nameof(CanRepair), nameof(SelectedStatusText), nameof(HasStatusWarning), nameof(SelectedRegistrationText))]
     private InstalledProgram? _selectedProgram;
 
     public bool HasSelection => SelectedProgram is not null;
@@ -46,6 +47,34 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     public string SelectedLocation => SelectedProgram?.InstallLocation ?? "—";
     public bool CanRemoveRegistration => !_disposed && !IsBusy && SelectedProgram?.CanRemoveRegistration == true;
     public bool CanUninstall => !_disposed && !IsBusy && SelectedProgram?.CanUninstall == true;
+
+    /// <summary>入口缺失的登记可以定位修复；其余状态不提供修复。</summary>
+    public bool CanRepair => !_disposed && !IsBusy && SelectedProgram?.CanRepairExecutable == true;
+
+    /// <summary>
+    /// 如实说明这条登记当前的状态。“入口缺失”与“无法核对”都不等于已卸载，
+    /// 界面不能把它们显示成未安装，也不能据此自动清理。
+    /// </summary>
+    public string SelectedStatusText => SelectedProgram?.Status switch
+    {
+        InstalledStatus.NeedsRepair => Text["InstalledStatusNeedsRepair"],
+        InstalledStatus.Unknown => Text["InstalledStatusUnknown"],
+        InstalledStatus.NotInstalled => Text["InstalledStatusNotInstalled"],
+        _ => Text["InstalledStatusInstalled"],
+    };
+
+    public bool HasStatusWarning => SelectedProgram?.Status is InstalledStatus.NeedsRepair or InstalledStatus.Unknown;
+
+    /// <summary>
+    /// Windows 卸载登记的核对结果文案。“没有匹配到”与“无法核对”必须区分：
+    /// 两者都不能说成已卸载，前者只是没找到可用登记。
+    /// </summary>
+    public string SelectedRegistrationText => SelectedProgram?.RegistrationStatus switch
+    {
+        UninstallRegistrationStatus.Available => Text["InstalledRegistrationAvailable"],
+        UninstallRegistrationStatus.NotFound => Text["InstalledRegistrationNotFound"],
+        _ => Text["InstalledRegistrationUnknown"],
+    };
     private IReadOnlyList<InstalledProgram> _all = [];
 
     public async Task InitializeAsync(CancellationToken ct = default)
@@ -235,6 +264,50 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
         if (!_disposed) RefreshAiLanguage();
         if (!_disposed && !string.IsNullOrEmpty(StatusMessage) && !IsBusy)
             StatusMessage = Text.Format("InstalledCount", _all.Count);
+    }
+
+    /// <summary>
+    /// 重新指定入口文件。路径由用户在系统文件选择器中亲自选定，
+    /// 服务层会按安装 ID 重读登记并复验路径归属，界面传入的值不授予任何权限。
+    /// </summary>
+    public async Task RepairConfirmedAsync(InstalledProgram program, string executablePath, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        if (_disposed || IsBusy || _uninstallInProgress || !program.CanRepairExecutable) return;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _lifetime.Token);
+        _uninstallInProgress = true;
+        IsBusy = true;
+        try
+        {
+            ErrorMessage = string.Empty;
+            StatusMessage = string.Empty;
+            var result = await _service.RepairExecutableAsync(program, executablePath, cancellation.Token);
+            if (_disposed || cancellation.IsCancellationRequested) return;
+            if (result.Started && result.Kind == UninstallRemovalKind.RepairApplied)
+            {
+                // 修复只改入口路径，因此重扫一次即可拿到新的核对结果，而不是就地猜测。
+                _uninstallInProgress = false;
+                IsBusy = false;
+                await RescanAsync(ct);
+                if (!_disposed) StatusMessage = Text.Format("InstalledRepairApplied", program.DisplayName);
+                return;
+            }
+            ErrorMessage = result.ErrorCode == UninstallErrorCodes.ExecutableNotFound
+                ? Text["InstalledRepairExecutableMissing"]
+                : result.ErrorCode == UninstallErrorCodes.InvalidExecutable
+                    ? Text["InstalledRepairNotExecutable"]
+                    : Text["InstalledRepairFailed"];
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception)
+        {
+            if (!_disposed) ErrorMessage = Text["InstalledRepairFailed"];
+        }
+        finally
+        {
+            _uninstallInProgress = false;
+            if (!_disposed) IsBusy = false;
+        }
     }
 
     public void Dispose()

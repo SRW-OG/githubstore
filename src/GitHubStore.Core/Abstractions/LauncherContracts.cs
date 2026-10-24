@@ -13,6 +13,12 @@ public sealed record LauncherApp
     public bool IsAvailable { get; init; }
 
     /// <summary>
+    /// 这条登记当前的实际状态。<see cref="InstalledStatus.Installed"/> 之外的状态都必须如实展示，
+    /// 不能把"文件缺失"或"索引读不出来"当成未安装，也不能因此自动删除任何记录或文件。
+    /// </summary>
+    public InstalledStatus Status { get; init; } = InstalledStatus.Installed;
+
+    /// <summary>
     /// 本商店自己解包到受管安装根目录的便携/绿色安装：启动器只凭登记就能判定这一类。
     /// 由第三方安装程序安装的应用永远保持 false。
     /// </summary>
@@ -26,6 +32,15 @@ public sealed record LauncherApp
     /// </summary>
     public bool StorePerformedMsiRemoval { get; init; }
 }
+
+/// <summary>
+/// 一条已登记安装的核对结果。四种状态互斥且含义不同：
+/// <see cref="Installed"/> 表示登记与入口文件一致；<see cref="NeedsRepair"/> 表示登记存在但入口
+/// 文件已缺失（可以定位修复，绝不能当成未安装）；<see cref="Unknown"/> 表示索引本身读不出来，
+/// 此时无法判断任何一条登记，调用方必须按"无法核对"处理；<see cref="NotInstalled"/> 只表示
+/// 索引可读且确实没有对应登记。
+/// </summary>
+public enum InstalledStatus { Unknown, NotInstalled, Installed, NeedsRepair }
 
 public sealed record LauncherLaunchResult(bool Started, string? ErrorCode = null);
 
@@ -54,6 +69,16 @@ public interface IManagedAppLauncher
     /// </summary>
     Task<InstallRecord?> GetAsync(string installId, CancellationToken ct = default) =>
         Task.FromResult<InstallRecord?>(null);
+
+    /// <summary>
+    /// 为一条已完成登记重新指定主程序，用于入口文件被移动或改名后的修复。
+    /// 只改入口路径：安装目录、安装身份、来源、版本和移除相关标记全部保持不变；
+    /// 新入口必须仍然位于原安装目录之内并通过可执行文件校验，否则拒绝。
+    /// 默认实现拒绝：不能写入登记的实现也无法提供修复。
+    /// </summary>
+    Task<LauncherLaunchResult> RepairExecutableAsync(string installId, AppId expectedAppId,
+        string executablePath, CancellationToken ct = default) =>
+        Task.FromResult(new LauncherLaunchResult(false, "launcher_repair_unsupported"));
 }
 
 /// <summary>
