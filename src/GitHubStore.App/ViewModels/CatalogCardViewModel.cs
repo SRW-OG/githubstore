@@ -57,7 +57,7 @@ public sealed class CatalogCardViewModel : ObservableObject, IDisposable
                 + (topics.Length == 0 ? string.Empty : "\n" + Label("仓库标签：", "Repository topics: ") + string.Join(" · ", topics));
         }
         if (Description.Length == 0) Description = Label("暂无软件介绍。", "No application description available.");
-        LatestVersion = detail.Releases.FirstOrDefault(release => !release.Draft)?.TagName
+        LatestVersion = GitHubStore.Core.Catalog.DefaultAssetSelectionPolicy.SelectRelease(detail)?.TagName
             ?? Label("暂无发行版本", "No published release");
         _screenshotUri = detail.Screenshots.Select(SafeImageUri).FirstOrDefault(uri => uri is not null);
     }

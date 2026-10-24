@@ -50,6 +50,8 @@ public sealed class LocalizationService : INotifyPropertyChanged
             ["DownloadSelectedAsset"] = ("下载所选包（不安装）", "Download selected package (no installation)"),
             ["AssetRecommendedBadge"] = ("默认推荐", "Recommended"),
             ["AssetRecommendedName"] = ("默认推荐：{0}", "Recommended: {0}"),
+            ["InvalidPackagePolicy"] = ("版本或下载包配置无效，请核对固定标签、文件名规则和相对路径。", "The version or package policy is invalid. Check the pinned tag, filename rules, and relative paths."),
+            ["AssetPolicyNoMatch"] = ("当前发行版没有符合库配置和系统架构的下载包。请检查版本与选包规则，或核对后手动选择。", "No package matches the library policy and system architecture in this release. Check the version and package rules, or review and select a package manually."),
             ["AssetNoRecommendation"] = ("未找到可自动推荐的安装包，请核对平台和架构后手动选择，或查看发行页面。", "No package can be recommended automatically. Check platform and architecture before choosing manually, or visit the release page."),
             ["LauncherTitle"] = ("GitHubStore · 应用启动器", "GitHubStore · App launcher"),
             ["HomeExplore"] = ("去排行榜发现软件", "Explore rankings"),

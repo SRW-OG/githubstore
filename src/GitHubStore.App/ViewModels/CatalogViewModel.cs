@@ -54,7 +54,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         if (args.PropertyName == nameof(InstallationViewModel.IsInstalling)) OnPropertyChanged(nameof(CanInstallSelected));
     }
     public AppInstallRequest? CreateInstallRequest() => SelectedDetail is { } detail && LatestRelease is { } release
-        && SelectedAsset is { } selected ? new AppInstallRequest { App = detail.App, Release = release, Asset = selected.Asset } : null;
+        && SelectedAsset is { } selected ? new AppInstallRequest { App = detail.App, Release = release, Asset = selected.Asset, PackagePolicy = detail.PackagePolicy } : null;
     public IRepositoryCatalogService? Repositories => _catalog as IRepositoryCatalogService;
     public ObservableCollection<CatalogApp> Apps { get; } = [];
     public ObservableCollection<Category> Categories { get; } = [];
@@ -115,7 +115,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
     public bool HasNoDetail => !HasDetail;
     public bool HasNoRelease => SelectedDetail is not null && LatestRelease is null;
     public bool HasNoWindowsAssets => SelectedDetail is not null && WindowsAssets.Count == 0;
-    public Release? LatestRelease => SelectedDetail?.Releases.FirstOrDefault();
+    public Release? LatestRelease => SelectedDetail is { } detail ? DefaultAssetSelectionPolicy.SelectRelease(detail) : null;
     public string ReleaseNotes => LatestRelease?.Body is { } body
         ? (body.Length > 64000 ? body[..64000] + "\n\n…" : body) : string.Empty;
     public Uri? RepositoryUri => SelectedDetail is { } detail ? RepositoryLink(detail.App, false) : null;
@@ -144,16 +144,15 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         SelectedAsset = null;
         WindowsAssets.Clear();
         Asset? recommended = null;
-        if (value?.Releases.FirstOrDefault() is { } release)
+        if (value is not null && DefaultAssetSelectionPolicy.SelectRelease(value) is { } release)
         {
-            recommended = DefaultAssetSelectionPolicy.Select(release.Assets, SystemArchitecture,
-                $"{value.App.Owner}/{value.App.Repo}");
+            recommended = DefaultAssetSelectionPolicy.Select(value, SystemArchitecture);
             foreach (var asset in release.Assets.Where(a => a.Kind is AssetKind.InstallerExe or AssetKind.InstallerMsi
                 or AssetKind.PortableExe or AssetKind.ArchiveZip or AssetKind.Archive7z))
                 WindowsAssets.Add(new ReleaseAssetViewModel(asset, Text, ReferenceEquals(asset, recommended)));
             SelectedAsset = WindowsAssets.FirstOrDefault(a => ReferenceEquals(a.Asset, recommended));
         }
-        AssetRecommendation = recommended is null ? Text["AssetNoRecommendation"]
+        AssetRecommendation = recommended is null ? Text[value?.PackagePolicy is null ? "AssetNoRecommendation" : "AssetPolicyNoMatch"]
             : Text.Format("AssetRecommendedName", recommended.Name);
         OnPropertyChanged(nameof(HasNoWindowsAssets));
         RecommendationSources.Clear();
@@ -399,6 +398,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
             "request_timeout" => "RequestTimeout",
             "network_error" => "NetworkError",
             "invalid_response" => "InvalidResponse",
+            "invalid_package_policy" => "InvalidPackagePolicy",
             "cache_write_failed" => "CacheWriteFailed",
             "cache_read_failed" => "CacheReadFailed",
             "seed_unavailable" => "InvalidResponse",

@@ -41,6 +41,7 @@ public sealed record AppDetail
     public Capability? Capability { get; init; }
     public ReadmeSummary? Summary { get; init; }
     public AppCuration? Curation { get; init; }
+    public PackagePolicy? PackagePolicy { get; init; }
     public InstallRecord? Install { get; init; }
     public ReadmeMeta ReadmeMeta { get; init; } = new();
     public IReadOnlyList<string> Screenshots { get; init; } = [];

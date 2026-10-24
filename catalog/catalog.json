@@ -15075,6 +15075,14 @@
           }
         ]
       },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "installFormat": "PortableArchive",
+        "assetRules": [
+          { "architecture": "Amd64", "include": ["DBX_*_x64-portable.zip"], "exclude": [] },
+          { "architecture": "Arm64", "include": ["DBX_*_arm64-portable.zip"], "exclude": [] }
+        ]
+      },
       "curation": {
         "descriptionZh": "轻量级跨平台数据库管理客户端，支持 MySQL、PostgreSQL、SQLite、Redis、MongoDB 等 100+ 数据库，桌面端内置 AI 助手。",
         "recommendationSources": [

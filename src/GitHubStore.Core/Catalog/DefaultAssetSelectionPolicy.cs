@@ -53,6 +53,79 @@ public static class DefaultAssetSelectionPolicy
             .FirstOrDefault();
     }
 
+    public static Asset? Select(AppDetail detail, Arch architecture)
+    {
+        var release = SelectRelease(detail);
+        return release is null ? null : Select(release.Assets, architecture, $"{detail.App.Owner}/{detail.App.Repo}", detail.PackagePolicy);
+    }
+
+    public static Release? SelectRelease(AppDetail detail)
+    {
+        ArgumentNullException.ThrowIfNull(detail);
+        var policy = detail.PackagePolicy;
+        PackagePolicyValidator.Validate(policy);
+        var releases = detail.Releases.Where(r => !r.Draft);
+        releases = policy?.ReleaseChannel switch
+        {
+            PackageReleaseChannel.Pinned => releases.Where(r => r.TagName == policy.PinnedTag),
+            PackageReleaseChannel.LatestPrerelease => releases.Where(r => r.Prerelease),
+            _ => releases.Where(r => !r.Prerelease),
+        };
+        return releases.OrderByDescending(r => r.PublishedAt).ThenBy(r => r.TagName, StringComparer.Ordinal).FirstOrDefault();
+    }
+
+    public static Asset? Select(IEnumerable<Asset> assets, Arch architecture, string? repositoryKey, PackagePolicy? packagePolicy)
+    {
+        ArgumentNullException.ThrowIfNull(assets);
+        if (packagePolicy is null) return Select(assets, architecture, repositoryKey);
+        PackagePolicyValidator.Validate(packagePolicy);
+        var rule = packagePolicy.AssetRules.FirstOrDefault(r => r.Architecture == architecture)
+            ?? packagePolicy.AssetRules.FirstOrDefault(r => r.Architecture == Arch.Unknown);
+        if (packagePolicy.AssetRules.Count > 0 && rule is null) return null;
+        var candidates = assets.Where(asset => !IsExcluded(asset) && FilenameArchitectures(asset.Name).Count <= 1
+            && (architecture == Arch.Unknown || InferArchitecture(asset) == Arch.Unknown || InferArchitecture(asset) == architecture)
+            && (rule is null || (rule.Include.Count == 0 || rule.Include.Any(p => MatchesGlob(asset.Name, p)))
+                && !rule.Exclude.Any(p => MatchesGlob(asset.Name, p))))
+            .Where(asset => packagePolicy.InstallFormat switch
+            {
+                PackageInstallFormat.PortableArchive => Extension(asset) is ".zip" or ".7z" && !InstallerStemTokens.IsMatch(Stem(asset.Name)),
+                PackageInstallFormat.PortableExecutable => Extension(asset) == ".exe" && !InstallerStemTokens.IsMatch(Stem(asset.Name)),
+                PackageInstallFormat.Installer => Extension(asset) is ".exe" or ".msi",
+                _ => Extension(asset) is ".exe" or ".msi" or ".zip" or ".7z",
+            }).ToArray();
+        // Explicit include rules or a declared portable format can identify archives whose
+        // names lack legacy portable markers. They never override exclusion/architecture checks.
+        var explicitPortable = packagePolicy.InstallFormat is PackageInstallFormat.PortableArchive or PackageInstallFormat.PortableExecutable;
+        if (rule?.Include.Count > 0 || explicitPortable)
+        {
+            var explicitArchives = candidates.Where(a => Extension(a) is ".zip" or ".7z").Select(a => a.Name).ToHashSet(StringComparer.Ordinal);
+            return candidates.OrderBy(a => Rank(packagePolicy.InstallFormat == PackageInstallFormat.PortableExecutable
+                    ? a with { Installer = InstallerKind.Portable } : a, architecture, repositoryKey, explicitArchives))
+                .ThenBy(a => a.Name, StringComparer.OrdinalIgnoreCase).ThenBy(a => a.Name, StringComparer.Ordinal)
+                .ThenBy(a => a.InstallerId, StringComparer.Ordinal).ThenBy(a => a.DownloadUrl, StringComparer.Ordinal)
+                .ThenBy(a => a.ReleaseKey, StringComparer.Ordinal).FirstOrDefault();
+        }
+        return Select(candidates, architecture, repositoryKey);
+    }
+
+    // Glob grammar is filename-only '*' and '?'; bounded iterative matching avoids regex backtracking.
+    private static bool MatchesGlob(string name, string pattern)
+    {
+        if (name.Length > 1024) return false;
+        var previous = new bool[name.Length + 1];
+        previous[0] = true;
+        foreach (var token in pattern)
+        {
+            var current = new bool[name.Length + 1];
+            current[0] = token == '*' && previous[0];
+            for (var i = 1; i <= name.Length; i++)
+                current[i] = token == '*' ? previous[i] || current[i - 1]
+                    : previous[i - 1] && (token == '?' || char.ToUpperInvariant(token) == char.ToUpperInvariant(name[i - 1]));
+            previous = current;
+        }
+        return previous[name.Length];
+    }
+
     /// <summary>
     /// Names of ZIP/7z assets that are the product's own green distribution of an
     /// installer shipped in the same release. Matching uses an identity that drops

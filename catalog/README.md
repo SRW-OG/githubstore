@@ -37,6 +37,31 @@ https://raw.githubusercontent.com/SRW-OG/githubstore/main/catalog/catalog.json
 | `repository` | 对应仓库的 GitHub API JSON 快照 |
 | `release` | GitHub Release JSON 快照；没有发行版时为 `null` |
 | `curation` | 中文用途说明、推荐来源和仓库核验范围 |
+| `packagePolicy` | 可选：版本策略、分架构文件名规则、安装格式、主程序路径和升级保留路径 |
+
+### 默认版本与下载包配置
+
+新客户端支持在软件条目中增加下面的可选字段，旧条目不填写时继续使用通用选包规则：
+
+```json
+"packagePolicy": {
+  "releaseChannel": "Stable",
+  "installFormat": "PortableArchive",
+  "assetRules": [
+    { "architecture": "Amd64", "include": ["DBX_*_x64-portable.zip"], "exclude": ["*symbols*"] },
+    { "architecture": "Arm64", "include": ["DBX_*_arm64-portable.zip"], "exclude": [] }
+  ]
+}
+```
+
+- `releaseChannel` 为 `Stable`（最新正式版）、`LatestPrerelease`（最新预发布版）、`Pinned`（固定标签）。固定时额外填写 `pinnedTag`，例如 `v1.2.3`；其他模式不填该字段。
+- `assetRules` 按 `Amd64`、`Arm64`、`X86` 配置；`Unknown` 可作为通用架构规则。包含/排除规则仅匹配文件名，`*` 表示任意文本，`?` 表示单个字符，不支持正则表达式或下载地址。
+- 显式规则没有匹配时不会自动改选安装器。操作系统、架构和辅助文件检查仍然执行，不能用规则绕过。请在更新发行版后核对规则是否仍匹配。
+- `installFormat` 为 `Auto`、`PortableArchive`、`PortableExecutable` 或 `Installer`。它决定安装方式，必须与所选文件扩展名兼容。7z 解压能力在后续压缩包阶段提供。
+- 可选 `executableRelativePath` 指定包内主程序，例如 `bin/Client.exe`。路径必须相对安装目录且目标通过 EXE 校验；找不到时停止，不会猜另一个程序。
+- 可选 `preservePaths` 声明升级时需要保留的相对路径，例如 `["data", "settings.json"]`。只有升级功能实际使用时才生效；配置本身不会执行文件操作。
+
+这些规则与介绍可以通过更新共享库发布。库同步先读取库内发行快照；点击刷新仓库数据时，根据版本策略向仓库请求最新正式版、预发布版或固定标签。旧客户端不会使用新字段，需要升级客户端才能生效。
 
 可从现有条目复制结构；不要只改软件名称后保留别的仓库的发行资产或来源证据。
 文件应为完整 JSON，最多 8 MiB，不能重复包含同一仓库。

@@ -5,6 +5,7 @@ public sealed record AppInstallRequest
     public required App App { get; init; }
     public required Release Release { get; init; }
     public required Asset Asset { get; init; }
+    public PackagePolicy? PackagePolicy { get; init; }
 }
 
 public enum AppInstallPhase { Preparing, Downloading, Extracting, RunningInstaller, Verifying, Registering, Completed, UsingCache }

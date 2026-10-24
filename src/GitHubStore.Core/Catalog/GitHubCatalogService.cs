@@ -10,7 +10,7 @@ namespace GitHubStore.Core.Catalog;
 /// Public GitHub repository metadata with an offline seed and an atomic per-user cache.
 /// Repository membership is local user data, not a signed software source or install approval.
 /// </summary>
-public sealed partial class GitHubCatalogService : ICatalogService, ISearchService, IRepositoryCatalogService, ICatalogLibrarySyncService
+public sealed partial class GitHubCatalogService : ICatalogService, ISearchService, IRepositoryCatalogService, ICatalogLibrarySyncService, IPackagePolicyCatalogService
 {
     public static SourceInstanceId ManualSourceId { get; } = new(new Guid("bf1d349a-2696-40b5-98ac-b8f37e904d86"));
     private static readonly JsonSerializerOptions CacheJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -97,7 +97,7 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
                             && !restored.Any(entry => string.Equals(RepositoryKey(entry.App), RepositoryKey(seed.App), StringComparison.OrdinalIgnoreCase)))).ToArray()
                         : restored;
                     if (_includeCuratedSeed && libraryKeys is null)
-                        entries = entries.Select(entry => AttachCuration(entry, seeds)).ToArray();
+                        entries = entries.Select(entry => AttachCuration(entry, seeds, false)).ToArray();
                     manualKeys = cache.ManualRepositoryKeys is not null
                         ? ValidateMembershipKeys(cache.ManualRepositoryKeys)
                         : restored.Where(e => !seeds.Any(seed => RepositoryKey(seed.App) == RepositoryKey(e.App)))
@@ -262,8 +262,8 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
             progress?.Report(new RefreshProgress { Done = 0, Total = previous.Length, Message = "refreshing" });
             foreach (var entry in previous)
             {
-                var refreshed = await FetchAsync(RepositoryAddress.Parse($"{entry.App.Owner}/{entry.App.Repo}"), entry.App.PrimaryCategory, ct).ConfigureAwait(false);
-                next.Add(refreshed with { Curation = refreshed.Curation ?? entry.Curation });
+                var refreshed = await FetchAsync(RepositoryAddress.Parse($"{entry.App.Owner}/{entry.App.Repo}"), entry.App.PrimaryCategory, ct, entry.PackagePolicy, false).ConfigureAwait(false);
+                next.Add(refreshed with { Curation = refreshed.Curation ?? entry.Curation, PackagePolicy = entry.PackagePolicy });
                 progress?.Report(new RefreshProgress { Done = next.Count, Total = previous.Length, Message = "refreshing" });
             }
             var updated = next.ToArray();
@@ -275,12 +275,47 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
         NotifyUpdated();
     }
 
-    private async Task<AppDetail> FetchAsync(RepositoryAddress address, CategoryId category, CancellationToken ct)
+    private async Task<AppDetail> FetchAsync(RepositoryAddress address, CategoryId category, CancellationToken ct, PackagePolicy? policy = null, bool useSeedPolicy = true)
     {
+        if (useSeedPolicy) policy ??= _seedEntries.FirstOrDefault(e => RepositoryKey(e.App) == address.Key)?.PackagePolicy;
+        PackagePolicyValidator.Validate(policy);
         var path = $"repos/{Uri.EscapeDataString(address.Owner)}/{Uri.EscapeDataString(address.Repo)}";
         var repository = await RequestAsync(path, false, ct).ConfigureAwait(false);
-        var release = await RequestAsync($"{path}/releases/latest", true, ct).ConfigureAwait(false);
-        return AttachCuration(GitHubResponseParser.Parse(repository!, release, DateTimeOffset.UtcNow, category), _seedEntries);
+        string? release;
+        if (policy?.ReleaseChannel == PackageReleaseChannel.LatestPrerelease)
+        {
+            // GitHub lists releases by creation time, so compare published times over a bounded window.
+            var candidates = new List<(JsonElement Release, DateTimeOffset PublishedAt)>();
+            for (var page = 1; page <= 3; page++)
+            {
+                var json = await RequestAsync($"{path}/releases?per_page=100&page={page}", false, ct).ConfigureAwait(false);
+                try
+                {
+                    using var document = JsonDocument.Parse(json!);
+                    if (document.RootElement.ValueKind != JsonValueKind.Array) throw new JsonException();
+                    foreach (var item in document.RootElement.EnumerateArray())
+                        if (item.GetProperty("prerelease").GetBoolean() && !item.GetProperty("draft").GetBoolean())
+                            candidates.Add((item.Clone(), item.GetProperty("published_at").GetDateTimeOffset()));
+                    if (document.RootElement.GetArrayLength() < 100) break;
+                }
+                catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException or FormatException)
+                { throw new RepositoryCatalogException("invalid_response", ex); }
+            }
+            release = candidates.OrderByDescending(e => e.PublishedAt).Select(e => e.Release.GetRawText()).FirstOrDefault();
+        }
+        else
+        {
+            var suffix = policy?.ReleaseChannel == PackageReleaseChannel.Pinned
+                ? "tags/" + Uri.EscapeDataString(policy.PinnedTag!) : "latest";
+            release = await RequestAsync($"{path}/releases/{suffix}", true, ct).ConfigureAwait(false);
+        }
+        var detail = AttachCuration(GitHubResponseParser.Parse(repository!, release, DateTimeOffset.UtcNow, category), _seedEntries)
+            with { PackagePolicy = policy };
+        if (detail.Releases.Any(r => r.Draft || policy?.ReleaseChannel == PackageReleaseChannel.Pinned && r.TagName != policy.PinnedTag
+            || policy?.ReleaseChannel == PackageReleaseChannel.LatestPrerelease && !r.Prerelease
+            || (policy is null || policy.ReleaseChannel == PackageReleaseChannel.Stable) && r.Prerelease))
+            throw new RepositoryCatalogException("invalid_response");
+        return detail;
     }
 
     private async Task<string?> RequestAsync(string path, bool allowNotFound, CancellationToken ct)
@@ -372,15 +407,15 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
             if (!merged.TryGetValue(key, out var previous) || entry.App.FetchedAt >= previous.App.FetchedAt)
                 merged[key] = entry;
             else
-                merged[key] = previous with { Curation = entry.Curation };
+                merged[key] = previous with { Curation = entry.Curation, PackagePolicy = entry.PackagePolicy };
         }
         return merged.Values.ToArray();
     }
 
-    private static AppDetail AttachCuration(AppDetail entry, AppDetail[] seeds)
+    private static AppDetail AttachCuration(AppDetail entry, AppDetail[] seeds, bool attachPolicy = true)
     {
         var current = seeds.FirstOrDefault(seed => string.Equals(RepositoryKey(seed.App), RepositoryKey(entry.App), StringComparison.OrdinalIgnoreCase));
-        return current is null ? entry : entry with { Curation = current.Curation };
+        return current is null ? entry : entry with { Curation = current.Curation, PackagePolicy = attachPolicy ? entry.PackagePolicy ?? current.PackagePolicy : entry.PackagePolicy };
     }
 
     internal static bool IsKnownCategory(CategoryId category) => Categories.Any(c => c.Id == category);
@@ -395,6 +430,7 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
             if (entry.App.Id.SourceId != ManualSourceId || entry.App.Id.PackageId.Value != address.Key
                 || !keys.Add(address.Key) || !IsKnownCategory(entry.App.PrimaryCategory))
                 throw new RepositoryCatalogException("invalid_response");
+            PackagePolicyValidator.Validate(entry.PackagePolicy);
             if (entry.Curation is { } curation) CuratedCatalogLoader.ValidateCuration(curation, entry.App);
         }
     }

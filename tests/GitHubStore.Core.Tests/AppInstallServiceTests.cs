@@ -486,6 +486,67 @@ public sealed class AppInstallServiceTests
         Assert.True((await first).Succeeded);
     }
 
+    [Fact]
+    public async Task ConfiguredExecutableWinsOverNameHeuristicAndAmbiguity()
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Zip(("Tool.exe", Pe()), ("nested/Client.exe", Pe()));
+        var request = f.Request() with { PackagePolicy = new PackagePolicy
+        {
+            InstallFormat = PackageInstallFormat.PortableArchive,
+            ExecutableRelativePath = "nested/Client.exe",
+        } };
+        var result = await f.Service().InstallAsync(request);
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.EndsWith(Path.Combine("nested", "Client.exe"), result.ExecutablePath);
+        Assert.Equal(result.ExecutablePath, Assert.Single(f.Launcher.Receipts).ExePath);
+    }
+
+    [Fact]
+    public async Task MissingConfiguredExecutableDoesNotSilentlyUseAnotherProgram()
+    {
+        using var f = new Fixture();
+        var request = f.Request() with { PackagePolicy = new PackagePolicy { ExecutableRelativePath = "missing.exe" } };
+        var result = await f.Service().InstallAsync(request);
+        Assert.Equal("install_executable_missing", result.ErrorCode);
+        Assert.False(Directory.Exists(f.Target));
+        Assert.Empty(f.Launcher.Receipts);
+    }
+
+    [Theory]
+    [InlineData("../outside.exe")]
+    [InlineData("C:/outside.exe")]
+    [InlineData("bin/Client.dll")]
+    public async Task InvalidConfiguredExecutableFailsBeforeDownload(string path)
+    {
+        using var f = new Fixture();
+        var request = f.Request() with { PackagePolicy = new PackagePolicy { ExecutableRelativePath = path } };
+        Assert.False((await f.Service().InstallAsync(request)).Succeeded);
+        Assert.Null(f.Download.Last);
+        Assert.False(Directory.Exists(f.Target));
+    }
+
+    [Fact]
+    public async Task DeclaredPortableExecutableIsCopiedWithoutRunningInstaller()
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        var request = f.Request("Client.exe") with { PackagePolicy = new PackagePolicy
+        { InstallFormat = PackageInstallFormat.PortableExecutable, ExecutableRelativePath = "Client.exe" } };
+        var result = await f.Service().InstallAsync(request);
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(InstallerKind.Portable, Assert.Single(f.Launcher.Receipts).Installer);
+    }
+
+    [Fact]
+    public async Task InstallerFormatCannotTurnZipIntoExternalProcess()
+    {
+        using var f = new Fixture();
+        var request = f.Request() with { PackagePolicy = new PackagePolicy { InstallFormat = PackageInstallFormat.Installer } };
+        Assert.False((await f.Service().InstallAsync(request)).Succeeded);
+        Assert.Null(f.Download.Last);
+    }
+
     private static AppInstallRequest Bind(AppInstallRequest request, Asset asset) => request with
     { Asset = asset, Release = request.Release with { Assets = new[] { asset } } };
     private static byte[] Pe()

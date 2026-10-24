@@ -152,8 +152,13 @@ public sealed class AppInstallService : IAppInstallService
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 { System.Diagnostics.Trace.WriteLine("Package retained; its cache verification record could not be saved."); }
             }
-            var portable = extension == ".zip" || asset.Kind == AssetKind.PortableExe
-                || DefaultAssetSelectionPolicy.IsRecognizedPortable(asset, $"{app.Owner}/{app.Repo}");
+            var portable = request.PackagePolicy?.InstallFormat switch
+            {
+                PackageInstallFormat.PortableArchive or PackageInstallFormat.PortableExecutable => true,
+                PackageInstallFormat.Installer => false,
+                _ => extension == ".zip" || asset.Kind == AssetKind.PortableExe
+                    || DefaultAssetSelectionPolicy.IsRecognizedPortable(asset, $"{app.Owner}/{app.Repo}"),
+            };
             string relative;
             bool restart = false;
             if (portable)
@@ -170,7 +175,7 @@ public sealed class AppInstallService : IAppInstallService
                 }
                 else File.Copy(package, Path.Combine(stage, asset.Name), overwrite: false);
                 Report(AppInstallPhase.Verifying);
-                relative = await SelectExecutableAsync(stage, app, chooseExecutable, ct).ConfigureAwait(false);
+                relative = await SelectExecutableAsync(stage, app, chooseExecutable, ct, request.PackagePolicy?.ExecutableRelativePath).ConfigureAwait(false);
                 ct.ThrowIfCancellationRequested();
                 SafePath(target);
                 if (Exists(target)) return Fail("install_target_exists");
@@ -220,7 +225,7 @@ public sealed class AppInstallService : IAppInstallService
                 restart = result.ExitCode == 3010;
                 Report(AppInstallPhase.Verifying);
                 if (!Directory.Exists(target)) return Fail("install_target_not_honored");
-                relative = await SelectExecutableAsync(target, app, chooseExecutable, ct).ConfigureAwait(false);
+                relative = await SelectExecutableAsync(target, app, chooseExecutable, ct, request.PackagePolicy?.ExecutableRelativePath).ConfigureAwait(false);
             }
             var executable = SafePath(Path.Combine(target, relative));
             if (!IsExecutable(executable)) return Fail("install_executable_invalid");
@@ -295,6 +300,20 @@ public sealed class AppInstallService : IAppInstallService
             throw new InstallException("install_invalid_request");
         var extension = Path.GetExtension(asset.Name).ToLowerInvariant();
         if (extension is not (".zip" or ".7z" or ".exe" or ".msi")) throw new InstallException("install_unsupported_asset");
+        if (request.PackagePolicy is { } policy)
+        {
+            try { PackagePolicyValidator.Validate(policy); }
+            catch (RepositoryCatalogException) { throw new InstallException("install_invalid_request"); }
+            if (!Enum.IsDefined(policy.InstallFormat)
+                || policy.InstallFormat == PackageInstallFormat.PortableArchive && extension is not (".zip" or ".7z")
+                || policy.InstallFormat == PackageInstallFormat.PortableExecutable && extension != ".exe"
+                || policy.InstallFormat == PackageInstallFormat.Installer && extension is not (".exe" or ".msi"))
+                throw new InstallException("install_invalid_request");
+            if (policy.ExecutableRelativePath is { } entry
+                && (entry.Replace('\\', '/').Split('/').Any(part => !SafeSegment(part))
+                    || !Path.GetExtension(entry).Equals(".exe", StringComparison.OrdinalIgnoreCase)))
+                throw new InstallException("install_invalid_request");
+        }
         var architecture = RuntimeInformation.OSArchitecture switch
         { Architecture.Arm64 => Arch.Arm64, Architecture.X86 => Arch.X86, _ => Arch.Amd64 };
         // Policy rejects auxiliary, incompatible OS and conflicting architecture names.
@@ -362,8 +381,21 @@ public sealed class AppInstallService : IAppInstallService
     }
 
     private static async Task<string> SelectExecutableAsync(string directory, CatalogApp app,
-        Func<IReadOnlyList<string>, CancellationToken, Task<string?>>? choose, CancellationToken ct)
+        Func<IReadOnlyList<string>, CancellationToken, Task<string?>>? choose, CancellationToken ct,
+        string? configuredRelativePath = null)
     {
+        if (configuredRelativePath is not null)
+        {
+            ct.ThrowIfCancellationRequested();
+            var parts = configuredRelativePath.Replace('\\', '/').Split('/');
+            if (parts.Any(part => !SafeSegment(part))
+                || !Path.GetExtension(configuredRelativePath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                throw new InstallException("install_invalid_request");
+            var configured = SafePath(Path.Combine(directory, Path.Combine(parts)));
+            if (!File.Exists(configured)) throw new InstallException("install_executable_missing");
+            if (!IsExecutable(configured)) throw new InstallException("install_executable_invalid");
+            return Path.Combine(parts);
+        }
         var candidates = new List<string>();
         var pending = new Stack<string>();
         pending.Push(SafePath(directory));

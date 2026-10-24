@@ -37,7 +37,14 @@ public static class CuratedCatalogLoader
                 var curation = value.GetProperty("curation").Deserialize<AppCuration>(Json)
                     ?? throw new JsonException("Missing curation.");
                 ValidateCuration(curation, detail.App);
-                entries.Add(detail with { Curation = curation });
+                PackagePolicy? policy = null;
+                if (value.TryGetProperty("packagePolicy", out var packagePolicy) && packagePolicy.ValueKind != JsonValueKind.Null)
+                {
+                    policy = packagePolicy.Deserialize<PackagePolicy>(Json) ?? throw new JsonException("Missing package policy.");
+                    try { PackagePolicyValidator.Validate(policy); }
+                    catch (RepositoryCatalogException ex) { throw new JsonException("Invalid package policy.", ex); }
+                }
+                entries.Add(detail with { Curation = curation, PackagePolicy = policy });
             }
             return Array.AsReadOnly(entries.ToArray());
         }
