@@ -26,12 +26,16 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     /// <summary>自更新服务；未接入时界面如实报告不可用，不会假装有更新。</summary>
     private readonly SelfUpdateService? _selfUpdate;
 
+    /// <summary>软件库维护需要真实发行包与校验信息；未接入时维护功能如实报告不可用。</summary>
+    private readonly ICatalogService? _catalog;
+
     public SettingsViewModel(PreferencesService preferences, LocalizationService text,
         IManagedAppLauncher? managedApps = null, InstallationViewModel? installation = null,
         ICatalogLibrarySyncService? librarySync = null, PackageCacheService? packageCache = null,
-        SelfUpdateService? selfUpdate = null)
+        SelfUpdateService? selfUpdate = null, ICatalogService? catalog = null)
     {
         _selfUpdate = selfUpdate;
+        _catalog = catalog;
         _librarySync = librarySync;
         _managedApps = managedApps;
         _installation = installation;

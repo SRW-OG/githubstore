@@ -134,6 +134,29 @@ public sealed partial class SettingsView : UserControl, IDisposable
     private SettingsViewModel? ViewModel => DataContext as SettingsViewModel;
 
     /// <summary>
+    /// 导出软件库到用户选择的位置。保存位置由系统选择器指定；
+    /// 导出内容已在服务层自校验过，无法被自己读回的库不会交给用户。
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
+    private async void OnExportLibraryClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is not { } viewModel) return;
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker();
+            picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
+            picker.SuggestedFileName = "catalog";
+            if (App.MainWindow is { } window)
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            var file = await picker.PickSaveFileAsync();
+            if (file is null) return;
+            if (await viewModel.ExportLibraryAsync(file.Path))
+                viewModel.LibraryToolError = string.Empty;
+        }
+        catch (Exception) { viewModel.LibraryToolError = viewModel.Text["LibraryToolsExportFailed"]; }
+    }
+
+    /// <summary>
     /// 下拉项由代码填充：ComboBoxItem 的 Content 绑定在加载期不可靠，
     /// 会出现已选中却显示空白。这里按当前语言设置纯文本项。
     /// </summary>

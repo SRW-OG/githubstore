@@ -40,6 +40,39 @@
                         <TextBlock Text="{Binding CatalogLibraryStatus}" TextWrapping="Wrap" AutomationProperties.AutomationId="CatalogLibraryStatusText" />
                         <TextBlock Text="{Binding CatalogLibraryError}" TextWrapping="Wrap" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                    AutomationProperties.AutomationId="CatalogLibraryErrorText" />
+
+                        <!-- 软件库维护：离线检查配置问题，并导出可再次同步的库文件。 -->
+                        <TextBlock Text="{Binding Text[LibraryToolsTitle]}" FontWeight="SemiBold" Margin="0,8,0,0" />
+                        <TextBlock Text="{Binding Text[LibraryToolsHint]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[LibraryToolsInspect]}" Command="{Binding InspectLibraryCommand}"
+                                    IsEnabled="{Binding CanRunLibraryTools}" AutomationProperties.AutomationId="InspectLibraryButton" />
+                            <Button Content="{Binding Text[LibraryToolsExport]}" Click="OnExportLibraryClick"
+                                    IsEnabled="{Binding CanRunLibraryTools}" AutomationProperties.AutomationId="ExportLibraryButton" />
+                            <Button Content="{Binding Text[Cancel]}" Command="{Binding CancelLibraryToolsCommand}"
+                                    Visibility="{Binding IsLibraryToolBusy, Converter={StaticResource BooleanToVisibility}}"
+                                    AutomationProperties.AutomationId="CancelLibraryToolsButton" />
+                        </StackPanel>
+                        <ProgressBar IsIndeterminate="True" Visibility="{Binding IsLibraryToolBusy, Converter={StaticResource BooleanToVisibility}}" />
+                        <TextBlock Text="{Binding LibraryToolStatus}" TextWrapping="Wrap" FontSize="12"
+                                   AutomationProperties.AutomationId="LibraryToolStatusText" />
+                        <TextBlock Text="{Binding LibraryToolError}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <ItemsControl ItemsSource="{Binding LibraryDiagnostics}"
+                                      Visibility="{Binding HasLibraryDiagnostics, Converter={StaticResource BooleanToVisibility}}"
+                                      AutomationProperties.AutomationId="LibraryDiagnosticsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontSize="12" TextWrapping="Wrap" Margin="0,2">
+                                        <Run Text="{Binding RepositoryKey}" FontWeight="SemiBold" />
+                                        <Run Text=" · " />
+                                        <Run Text="{Binding Kind}" />
+                                        <Run Text="{Binding Detail}" />
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
                 <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
