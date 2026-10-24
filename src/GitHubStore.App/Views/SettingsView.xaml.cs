@@ -15,6 +15,7 @@ public sealed partial class SettingsView : UserControl, IDisposable
 
     private bool _initializeRequested;
     private bool _cacheConfirmationOpen;
+    private bool _updateConfirmationOpen;
     private bool _suppressSelection;
     private SettingsViewModel? _subscribedViewModel;
     private bool _disposed;
@@ -96,6 +97,38 @@ public sealed partial class SettingsView : UserControl, IDisposable
     {
         PopulateSelectors();
         if (ViewModel is { } viewModel) SyncSelectorsFromViewModel(viewModel);
+    }
+
+    /// <summary>
+    /// 启动已校验的安装程序前必须<em>由用户明确确认</em>；没有确认对话框的返回就不会执行任何东西。
+    /// 本程序不会静默更新，也不会自动执行安装包。
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI 事件必须返回 void；处理器内捕获所有异常。")]
+    private async void OnInstallSelfUpdateClick(object sender, RoutedEventArgs args)
+    {
+        if (_disposed || _updateConfirmationOpen || ViewModel is not { } vm || XamlRoot is null) return;
+        if (vm.PreparedInstallerPath is not { } installerPath) { vm.ReportFailure(); return; }
+        _updateConfirmationOpen = true;
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot, RequestedTheme = ActualTheme,
+                Title = vm.Text["SelfUpdateConfirmTitle"],
+                Content = new TextBlock
+                {
+                    Text = vm.Text.Format("SelfUpdateConfirm", installerPath),
+                    TextWrapping = TextWrapping.Wrap, IsTextSelectionEnabled = true, MaxWidth = 520,
+                },
+                PrimaryButtonText = vm.Text["SelfUpdateInstall"], CloseButtonText = vm.Text["Cancel"],
+                // 默认按钮是最安全的那个：回车不会启动安装程序。
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary && !_disposed && ReferenceEquals(ViewModel, vm))
+                await vm.InstallPreparedUpdateAsync();
+        }
+        catch (Exception) { if (!_disposed) ViewModel?.ReportFailure(); }
+        finally { _updateConfirmationOpen = false; }
     }
 
     private SettingsViewModel? ViewModel => DataContext as SettingsViewModel;

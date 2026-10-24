@@ -70,11 +70,24 @@ public static class ServiceRegistration
             WindowsSystemToolLocator.ResolveWingetAsync));
         services.AddSingleton<ConfiguredDownloadService>();
         services.AddSingleton<IDownloadService>(sp => sp.GetRequiredService<ConfiguredDownloadService>());
+        services.AddSingleton<IDownloadQueueService>(sp => new DownloadQueueService(
+            sp.GetRequiredService<IDownloadService>(),
+            new DownloadQueueOptions { QueueFilePath = Path.Combine(DataDirectory, "download-queue.json") },
+            sp.GetRequiredService<PackageCacheService>()));
+        // GitHubStore 自更新：只更新 GitHubStore 自身，来源固定为官方仓库，永不静默执行。
+        services.AddSingleton(sp => new GitHubStore.App.Services.Updates.SelfUpdateService(
+            sp.GetRequiredService<IDownloadService>(),
+            DataDirectory,
+            sp.GetRequiredService<HttpClient>(),
+            installerLauncher: GitHubStore.App.Services.Updates.SelfUpdateService.CreateShellLauncher()));
         services.AddSingleton<IProcessRunner, ProcessRunner>();
         services.AddSingleton<IWingetService>(sp => new WingetService(sp.GetRequiredService<IProcessRunner>(),
             tools: sp.GetRequiredService<IToolManager>()));
         services.AddSingleton<SourcesViewModel>();
-        services.AddSingleton<DownloadsViewModel>();
+        services.AddSingleton(sp => new DownloadsViewModel(
+            sp.GetRequiredService<IDownloadService>(), sp.GetRequiredService<PreferencesService>(),
+            sp.GetRequiredService<LocalizationService>(), sp.GetRequiredService<PackageCacheService>(),
+            sp.GetRequiredService<IDownloadQueueService>()));
         services.AddSingleton<GitHubStore.App.Services.Ai.IAiClient>(sp =>
             new GitHubStore.App.Services.Ai.OpenAiClient(sp.GetRequiredService<PreferencesService>()));
         services.AddSingleton<GitHubStore.App.Services.Ai.IReadmeSummaryService>(sp =>

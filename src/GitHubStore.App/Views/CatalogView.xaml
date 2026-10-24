@@ -142,7 +142,8 @@
                     </StackPanel>
                 </Expander>
             </StackPanel>
-            <StackPanel x:Name="DownloadsPanel" DataContext="{Binding Downloads}" Spacing="4" Visibility="Collapsed">
+            <!-- 命名此面板，任务模板才能用 ElementName 找到队列命令（模板自身的 DataContext 是单个任务）。 -->
+            <StackPanel x:Name="DownloadQueuePanel" DataContext="{Binding Downloads}" Spacing="4" Visibility="Collapsed">
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding Status}" TextWrapping="Wrap" MaxLines="2" IsTextSelectionEnabled="True" FontSize="12" AutomationProperties.AutomationId="DownloadStatus" />
@@ -151,6 +152,50 @@
                 </Grid>
                 <ProgressBar Minimum="0" Maximum="100" Value="{Binding Percent}" IsIndeterminate="{Binding IsIndeterminate}"
                              Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibility}}" />
+                <!-- 下载队列：串行执行，任务持久化，重启后仍在。暂停保留可续传的部分数据。 -->
+                <TextBlock Text="{Binding Text[DownloadQueueTitle]}" FontWeight="SemiBold" FontSize="12" Margin="0,6,0,0" />
+                <TextBlock Text="{Binding QueueStatus}" TextWrapping="Wrap" FontSize="12"
+                           IsTextSelectionEnabled="True" AutomationProperties.AutomationId="DownloadQueueStatus" />
+                <TextBlock Text="{Binding Text[DownloadQueueEmpty]}" FontSize="12"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="{Binding HasQueueJobs, Converter={StaticResource InverseBooleanToVisibility}}" />
+                <ItemsControl ItemsSource="{Binding Queue}" AutomationProperties.AutomationId="DownloadQueueList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnSpacing="8" Padding="0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="{Binding FileName}" FontSize="12" TextWrapping="Wrap" />
+                                    <TextBlock FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                        <Run Text="{Binding StateLabel}" />
+                                        <Run Text=" · " />
+                                        <Run Text="{Binding SizeText}" />
+                                        <Run Text="{Binding Detail}" />
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ErrorText}" FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                </StackPanel>
+                                <ProgressBar Grid.Column="1" Width="90" Minimum="0" Maximum="100" Value="{Binding Percent}"
+                                             VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                                    <Button Content="{Binding Text[DownloadQueuePause]}" Command="{Binding DataContext.PauseJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                            Visibility="{Binding CanPause, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
+                                    <Button Content="{Binding Text[DownloadQueueResume]}" Command="{Binding DataContext.ResumeJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                            Visibility="{Binding CanResume, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
+                                    <Button Content="{Binding Text[DownloadQueueCancel]}" Command="{Binding DataContext.CancelJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                            Visibility="{Binding CanCancel, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
+                                    <Button Content="{Binding Text[DownloadQueueRetry]}" Command="{Binding DataContext.RetryJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                            Visibility="{Binding CanRetry, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
+                                    <Button Content="{Binding Text[DownloadQueueRemove]}" Command="{Binding DataContext.RemoveJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                            Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2"
+                                            ToolTipService.ToolTip="{Binding Text[DownloadQueueRemoveHint]}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
             <ProgressBar IsIndeterminate="True" Visibility="{Binding IsWorking, Converter={StaticResource BooleanToVisibility}}" />
             <Grid>

@@ -418,6 +418,47 @@ public sealed class LocalizationService : INotifyPropertyChanged
             ["DownloadAria2Missing"] = ("内置 aria2 暂不可用，请稍后重新检查组件。", "Integrated aria2 is currently unavailable. Check the components again later."),
             ["DownloadAria2NotConfigured"] = ("内置 aria2 尚未就绪或准备失败，未开始下载；请稍后重试。", "Integrated aria2 is not ready or could not be prepared. The download did not start; try again later."),
             ["DownloadCancelled"] = ("下载已取消；HTTP 可验证断点将保留供重试。", "Download cancelled; verifiable HTTP partial data is retained for retry."),
+
+            // 下载队列（持久化、严格串行）
+            ["DownloadQueueTitle"] = ("下载队列", "Download queue"),
+            ["DownloadQueueHint"] = ("队列严格串行：同一时刻只下载一个任务，因为下载与安装共用同一个缓存租约。任务会保存到磁盘，重启后仍在。", "The queue is strictly sequential: one download at a time, because downloads and installations share a single cache lease. Jobs are saved to disk and survive a restart."),
+            ["DownloadQueueAdd"] = ("加入队列", "Add to queue"),
+            ["DownloadQueueEmpty"] = ("队列为空。", "The queue is empty."),
+            ["DownloadQueueEnqueued"] = ("已加入队列", "Added to the queue"),
+            ["DownloadQueueDuplicate"] = ("该下载已在队列中，未重复添加", "This download is already in the queue; no duplicate was added"),
+            ["DownloadQueueUpdated"] = ("队列已更新", "Queue updated"),
+            ["DownloadQueueUnavailable"] = ("下载队列服务不可用，未加入队列。", "The download queue service is unavailable. Nothing was added."),
+            ["DownloadQueueCorrupt"] = ("队列文件损坏或格式不受支持，原文件已保留，队列已锁定以免丢失任务。请备份并处理该文件后重启。", "The queue file is damaged or unsupported. The original file was preserved and the queue is locked so no jobs are lost. Back up and repair that file, then restart."),
+            ["DownloadQueueWriteFailed"] = ("无法保存队列文件，任务仍在内存中；请检查数据目录权限。", "The queue file could not be saved. Jobs remain in memory; check the data directory permissions."),
+            ["DownloadQueueInvalidRequest"] = ("队列请求无效：来源、文件名或目标路径不符合规则，未加入队列。", "Invalid queue request: the source, file name, or target path does not meet the rules. Nothing was added."),
+            ["DownloadQueueUnsupportedSource"] = ("只接受不含凭据的 HTTPS 来源，未加入队列。", "Only HTTPS sources without credentials are accepted. Nothing was added."),
+            ["DownloadQueueInvalidVerification"] = ("大小或 SHA-256 摘要无效，未加入队列。", "The size or SHA-256 digest is invalid. Nothing was added."),
+            ["DownloadQueueLimitExceeded"] = ("队列任务数或文件大小超出上限，未加入队列。", "The queue job count or file size exceeds the limit. Nothing was added."),
+            ["DownloadQueueInvalidState"] = ("当前状态不允许该操作。", "The current state does not allow this action."),
+            ["DownloadQueueJobMissing"] = ("该队列任务已不存在。", "That queue job no longer exists."),
+            ["DownloadQueuePauseFailed"] = ("暂停失败", "Pause failed"),
+            ["DownloadQueueResumeFailed"] = ("继续失败", "Resume failed"),
+            ["DownloadQueueCancelFailed"] = ("取消失败", "Cancel failed"),
+            ["DownloadQueueRetryFailed"] = ("重试失败", "Retry failed"),
+            ["DownloadQueueRemoveFailed"] = ("移除失败", "Remove failed"),
+            ["DownloadQueueInterrupted"] = ("上次运行被中断，已暂停；已下载的部分保留，可点继续。", "The previous run was interrupted, so this job is paused. Partial data was kept; select Resume to continue."),
+            ["DownloadQueueReconciled"] = ("重启后核验落盘文件通过，已标记完成。", "After restarting, the published file passed verification and the job was marked complete."),
+            ["DownloadQueueStateQueued"] = ("排队中", "Queued"),
+            ["DownloadQueueStateDownloading"] = ("下载中", "Downloading"),
+            ["DownloadQueueStatePaused"] = ("已暂停", "Paused"),
+            ["DownloadQueueStateCompleted"] = ("已完成", "Completed"),
+            ["DownloadQueueStateFailed"] = ("失败", "Failed"),
+            ["DownloadQueueStateCanceled"] = ("已取消", "Canceled"),
+            ["DownloadQueuePause"] = ("暂停", "Pause"),
+            ["DownloadQueueResume"] = ("继续", "Resume"),
+            ["DownloadQueueCancel"] = ("取消", "Cancel"),
+            ["DownloadQueueRetry"] = ("重试", "Retry"),
+            ["DownloadQueueRemove"] = ("移除", "Remove"),
+            ["DownloadQueueRemoveHint"] = ("只移除队列记录，不删除已下载的文件。", "This removes the queue record only. Downloaded files are not deleted."),
+            ["DownloadQueuePausedNote"] = ("暂停会保留可供续传的部分数据。", "Pausing keeps the partial data needed to resume."),
+            // 取消与暂停都是终态/停止态，但语义不同；aria2 的临时产物在取消时被删除，因此它只能重下而不是续传。
+            ["DownloadQueueCanceledNote"] = ("已取消：与暂停不同，不会自动继续，需要显式重试。内置 HTTP 的断点会保留；aria2 的临时文件在取消时被删除，因此它是重新下载而不是续传。", "Cancelled: unlike pausing, this does not resume automatically and needs an explicit retry. Built-in HTTP partials are kept; aria2 temporary files are deleted on cancel, so aria2 restarts instead of resuming."),
+            ["DownloadQueueAria2Note"] = ("aria2 尚不支持可验证的断点续传：它的临时文件在取消时被删除，重试会重新下载而不是续传。", "aria2 does not yet support verified resume: its temporary files are deleted on cancel, so a retry downloads from the start instead of resuming."),
             ["WingetDescription"] = ("内置精选是静态包标识清单；实际版本以成功的 winget 查询为准。当前不执行 winget 下载或安装。", "Built-in selections are static package identifiers. Versions come from successful winget queries. winget download and installation are not implemented."),
             ["CurrentBehaviorDescription"] = ("浏览本地仓库快照；下载不会自动执行安装包。支持首次安装、登记与启动，以及显式触发的 AI 摘要、用途搜索、选包解释、失败诊断和已安装问答。版本和卸载说明不执行升级、回滚、卸载或清理。", "Browse local repository snapshots; downloads never automatically execute installers. Supports first installation, registration and launch, plus explicit AI summaries, purpose search, package explanations, failure diagnosis and installed-app questions. Release and removal explanations do not execute upgrades, rollbacks, uninstalls or cleanup."),
             ["LocalCatalogDescription"] = ("真实仓库元数据保存在本地，离线可浏览。下载完成后不会自动安装。", "Real repository metadata is cached locally for offline browsing. Downloads are never installed automatically."),
@@ -450,9 +491,15 @@ public sealed class LocalizationService : INotifyPropertyChanged
 
     public string LanguageCode => _languageCode;
     public bool IsEnglish => _languageCode == "en-US";
+    /// <summary>
+    /// 按语言取词条。自更新词条放在独立文件里按需合并：
+    /// 未知键仍然返回键名本身，调用方能据此发现漏配词条，而不是显示空白。
+    /// </summary>
     public string this[string key] => Entries.TryGetValue(key, out var entry)
         ? IsEnglish ? entry.English : entry.Chinese
-        : key;
+        : SelfUpdateStrings.Entries.TryGetValue(key, out var extra)
+            ? IsEnglish ? extra.English : extra.Chinese
+            : key;
 
     public string Format(string key, params object?[] arguments) =>
         string.Format(CultureInfo.GetCultureInfo(_languageCode), this[key], arguments);

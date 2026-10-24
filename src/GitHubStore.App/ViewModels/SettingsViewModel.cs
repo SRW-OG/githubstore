@@ -4,7 +4,9 @@ using CommunityToolkit.Mvvm.Input;
 using GitHubStore.App.Services.Download;
 using GitHubStore.App.Services.Localization;
 using GitHubStore.App.Services.Preferences;
+using GitHubStore.App.Services.Updates;
 using GitHubStore.Core.Abstractions;
+using GitHubStore.Core.Catalog;
 
 namespace GitHubStore.App.ViewModels;
 
@@ -21,10 +23,15 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     private readonly InstallationViewModel? _installation;
     private readonly PackageCacheService _packageCache;
 
+    /// <summary>自更新服务；未接入时界面如实报告不可用，不会假装有更新。</summary>
+    private readonly SelfUpdateService? _selfUpdate;
+
     public SettingsViewModel(PreferencesService preferences, LocalizationService text,
         IManagedAppLauncher? managedApps = null, InstallationViewModel? installation = null,
-        ICatalogLibrarySyncService? librarySync = null, PackageCacheService? packageCache = null)
+        ICatalogLibrarySyncService? librarySync = null, PackageCacheService? packageCache = null,
+        SelfUpdateService? selfUpdate = null)
     {
+        _selfUpdate = selfUpdate;
         _librarySync = librarySync;
         _managedApps = managedApps;
         _installation = installation;
@@ -195,11 +202,17 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
             RestoreSelections();
             SetError(Preferences.Error);
             IsInitialized = true;
+            // 版本号在初始化后即可展示；此时不发起任何网络请求，也不提示更新。
+            RefreshSelfUpdateText();
             OnPropertyChanged(nameof(IsInitialized));
             OnPropertyChanged(nameof(CanClearCache));
             ClearCacheCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(CanApply));
             OnPropertyChanged(nameof(CanEditProxy));
+            OnPropertyChanged(nameof(IsSelfUpdateAvailable));
+            OnPropertyChanged(nameof(CanCheckForUpdate));
+            OnPropertyChanged(nameof(CanInstallSelfUpdate));
+            CheckForUpdateCommand.NotifyCanExecuteChanged();
         }
         finally
         {
@@ -441,6 +454,266 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         InstallRootDirectory = string.Empty;
     }
 
+    // ── 应用自更新（GitHubStore 更新自身，不是更新目录里的应用） ──────────
+    // 状态文案只保存 key 与参数，语言切换时重新求值，避免留下旧语言的句子。
+    private readonly CancellationTokenSource _selfUpdateLifetime = new();
+    private CancellationTokenSource? _selfUpdateCancellation;
+    private SelfUpdateCandidate? _selfUpdateCandidate;
+    private string? _selfUpdateStatusKey;
+    private object?[] _selfUpdateStatusArgs = [];
+    private string? _selfUpdateErrorKey;
+    private string? _selfUpdateChecksumName;
+    private string? _selfUpdateSha256;
+    private string? _preparedInstallerPath;
+
+    /// <summary>当前版本；构建时未注入版本号时显示“未知”，不显示编造值。</summary>
+    [ObservableProperty] private string _selfUpdateCurrentVersion = string.Empty;
+    [ObservableProperty] private string _selfUpdateStatus = string.Empty;
+    [ObservableProperty] private string _selfUpdateError = string.Empty;
+    /// <summary>候选版本标签；没有候选时为空。</summary>
+    [ObservableProperty] private string _selfUpdateCandidateVersion = string.Empty;
+    /// <summary>候选版本的发行说明地址。</summary>
+    [ObservableProperty] private string _selfUpdateReleaseNotesUrl = string.Empty;
+    /// <summary>实际使用的校验依据（官方发行版资产名与 SHA-256）；未下载时为空。</summary>
+    [ObservableProperty] private string _selfUpdateVerificationBasis = string.Empty;
+    [ObservableProperty] private double _selfUpdateProgressPercent;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCheckForUpdate), nameof(CanDownloadSelfUpdate),
+        nameof(CanInstallSelfUpdate), nameof(HasSelfUpdateCandidate))]
+    [NotifyCanExecuteChangedFor(nameof(CheckForUpdateCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DownloadSelfUpdateCommand))]
+    private bool _isSelfUpdateBusy;
+    /// <summary>存在可判定的更新候选（同版本/更旧/无法判定都不算）。</summary>
+    public bool HasSelfUpdateCandidate => _selfUpdateCandidate?.IsUpdateOffered == true;
+    public bool IsSelfUpdateAvailable => _selfUpdate is not null;
+    public bool CanCheckForUpdate => _selfUpdate is not null && !_disposed && IsInitialized && !IsSelfUpdateBusy;
+    public bool CanDownloadSelfUpdate => CanCheckForUpdate && HasSelfUpdateCandidate;
+
+    /// <summary>已有通过 SHA-256 校验的安装包，才允许启动；未准备时按钮不可用。</summary>
+    public bool CanInstallSelfUpdate => IsInitialized && !_disposed && !IsSelfUpdateBusy
+        && _selfUpdate?.IsInstallerPrepared == true && _preparedInstallerPath is not null;
+
+    [RelayCommand(CanExecute = nameof(CanCheckForUpdate))]
+    private Task CheckForUpdateAsync(CancellationToken ct) => CheckForSelfUpdateAsync(ct);
+
+    [RelayCommand(CanExecute = nameof(CanDownloadSelfUpdate))]
+    private Task DownloadSelfUpdateAsync(CancellationToken ct) => DownloadSelfUpdateCoreAsync(ct);
+
+    /// <summary>
+    /// 查询官方仓库的最新正式版并与当前版本比较。同版本、更旧与无法判定都如实报告，
+    /// 且只有确实更新时才允许下载。
+    /// </summary>
+    public async Task CheckForSelfUpdateAsync(CancellationToken ct = default)
+    {
+        if (_disposed || !CanCheckForUpdate) return;
+        _selfUpdateErrorKey = null;
+        _selfUpdateStatusKey = null;
+        _selfUpdateCandidate = null;
+        _preparedInstallerPath = null;
+        _selfUpdateChecksumName = null;
+        _selfUpdateSha256 = null;
+        SelfUpdateProgressPercent = 0;
+        RefreshSelfUpdateText();
+        IsSelfUpdateBusy = true;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _selfUpdateLifetime.Token);
+        _selfUpdateCancellation = cancellation;
+        SetSelfUpdateStatus("SelfUpdateChecking");
+        try
+        {
+            var result = await _selfUpdate!.CheckAsync(cancellation.Token);
+            if (_disposed) return;
+            if (!result.Succeeded || result.Candidate is not { } candidate)
+            {
+                SetSelfUpdateError(SelfUpdateErrorKey(result.ErrorCode));
+                return;
+            }
+            _selfUpdateCandidate = candidate;
+            SelfUpdateCandidateVersion = candidate.Tag;
+            SelfUpdateReleaseNotesUrl = candidate.ReleaseNotesUrl;
+            SetSelfUpdateStatus(candidate.Relation switch
+            {
+                VersionRelation.Newer => "SelfUpdateAvailable",
+                VersionRelation.Older => "SelfUpdateOlderInstalled",
+                VersionRelation.Same => "SelfUpdateUpToDate",
+                // Different 表示无法判定：既不说“有更新”，也不谎称“已是最新”。
+                _ => "SelfUpdateCannotCompare",
+            }, candidate.Tag);
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        { if (!_disposed) SetSelfUpdateError("SelfUpdateCancelled"); }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Trace.WriteLine(ex);
+            if (!_disposed) SetSelfUpdateError("SelfUpdateNetworkError");
+        }
+        finally
+        {
+            if (ReferenceEquals(_selfUpdateCancellation, cancellation)) _selfUpdateCancellation = null;
+            if (!_disposed)
+            {
+                IsSelfUpdateBusy = false;
+                OnPropertyChanged(nameof(HasSelfUpdateCandidate));
+                OnPropertyChanged(nameof(CanInstallSelfUpdate));
+                DownloadSelfUpdateCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 下载并校验官方安装包到暂存目录。<em>不</em>执行任何安装程序；
+    /// 校验依据是官方发行版里的 .sha256 资产，界面会如实展示该依据。
+    /// </summary>
+    public async Task DownloadSelfUpdateCoreAsync(CancellationToken ct = default)
+    {
+        if (_disposed || !CanDownloadSelfUpdate) return;
+        if (_selfUpdateCandidate is not { IsUpdateOffered: true } candidate) return;
+        _selfUpdateErrorKey = null;
+        SelfUpdateProgressPercent = 0;
+        IsSelfUpdateBusy = true;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _selfUpdateLifetime.Token);
+        _selfUpdateCancellation = cancellation;
+        SetSelfUpdateStatus("SelfUpdateDownloading");
+        try
+        {
+            var progress = new InlineProgress<DownloadProgress>(update =>
+            {
+                if (_disposed) return;
+                SelfUpdateProgressPercent = update.Fraction * 100;
+            });
+            var result = await _selfUpdate!.DownloadAsync(candidate, progress, cancellation.Token);
+            if (_disposed) return;
+            if (!result.Succeeded || result.InstallerPath is not { } installerPath)
+            {
+                _selfUpdateChecksumName = null;
+                _selfUpdateSha256 = null;
+                SetSelfUpdateError(SelfUpdateErrorKey(result.ErrorCode));
+                return;
+            }
+            // 只有通过校验的结果才登记为可启动，并把校验依据原样展示出来。
+            _preparedInstallerPath = installerPath;
+            _selfUpdateChecksumName = result.VerificationBasisChecksumName;
+            _selfUpdateSha256 = result.Sha256;
+            SetSelfUpdateStatus("SelfUpdateDownloaded");
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        { if (!_disposed) SetSelfUpdateError("SelfUpdateCancelled"); }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Trace.WriteLine(ex);
+            if (!_disposed) SetSelfUpdateError("SelfUpdateDownloadFailed");
+        }
+        finally
+        {
+            if (ReferenceEquals(_selfUpdateCancellation, cancellation)) _selfUpdateCancellation = null;
+            if (!_disposed)
+            {
+                IsSelfUpdateBusy = false;
+                RefreshSelfUpdateText();
+                OnPropertyChanged(nameof(CanInstallSelfUpdate));
+            }
+        }
+    }
+
+    /// <summary>取消正在进行的自更新检查或下载；不会执行任何安装程序。</summary>
+    [RelayCommand]
+    private void CancelSelfUpdate() => _selfUpdateCancellation?.Cancel();
+
+    /// <summary>已通过校验的安装包路径；未准备时为 null。视图据此展示确认对话框。</summary>
+    public string? PreparedInstallerPath => _selfUpdate?.IsInstallerPrepared == true ? _preparedInstallerPath : null;
+
+    /// <summary>
+    /// 在用户<em>明确确认</em>之后启动已校验的安装程序。视图负责先弹出确认对话框；
+    /// 本方法自身不弹窗，也不做任何自动执行。
+    /// </summary>
+    public async Task<bool> InstallPreparedUpdateAsync(CancellationToken ct = default)
+    {
+        if (_disposed || !CanInstallSelfUpdate || _preparedInstallerPath is not { } installerPath) return false;
+        SetSelfUpdateError(null);
+        IsSelfUpdateBusy = true;
+        try
+        {
+            var result = await _selfUpdate!.LaunchVerifiedInstallerAsync(installerPath, ct);
+            if (_disposed) return false;
+            if (!result.Succeeded) { SetSelfUpdateError(SelfUpdateErrorKey(result.ErrorCode)); return false; }
+            SetSelfUpdateStatus("SelfUpdateLaunched");
+            return true;
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        { if (!_disposed) SetSelfUpdateError("SelfUpdateCancelled"); return false; }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Trace.WriteLine(ex);
+            if (!_disposed) SetSelfUpdateError("SelfUpdateLaunchFailed");
+            return false;
+        }
+        finally
+        {
+            if (!_disposed)
+            {
+                IsSelfUpdateBusy = false;
+                OnPropertyChanged(nameof(CanInstallSelfUpdate));
+            }
+        }
+    }
+
+    private void RefreshSelfUpdateText()
+    {
+        SelfUpdateCurrentVersion = _selfUpdate?.CurrentVersion is { Length: > 0 } version
+            ? Text.Format("SelfUpdateCurrentVersion", version)
+            : _selfUpdate is null ? string.Empty : Text["SelfUpdateVersionUnknown"];
+        SelfUpdateStatus = ResolveSelfUpdate(_selfUpdateStatusKey, _selfUpdateStatusArgs);
+        SelfUpdateError = ResolveSelfUpdate(_selfUpdateErrorKey, []);
+        SelfUpdateVerificationBasis = _selfUpdateSha256 is { } sha && _selfUpdateChecksumName is { } name
+            ? Text.Format("SelfUpdateVerificationBasis", name, sha) : string.Empty;
+    }
+
+    private string ResolveSelfUpdate(string? key, object?[] args) => key is null ? string.Empty
+        : args.Length == 0 ? Text[key] : Text.Format(key, args);
+
+    private void SetSelfUpdateStatus(string key, params object?[] args)
+    {
+        _selfUpdateStatusKey = key;
+        _selfUpdateStatusArgs = args;
+        SelfUpdateStatus = ResolveSelfUpdate(key, args);
+    }
+
+    private void SetSelfUpdateError(string? key)
+    {
+        _selfUpdateErrorKey = key;
+        SelfUpdateError = ResolveSelfUpdate(key, []);
+    }
+
+    /// <summary>把自更新错误码映射到本地化文案 key；未知码不臆测原因。</summary>
+    private static string SelfUpdateErrorKey(string? errorCode) => errorCode switch
+    {
+        SelfUpdateErrorCodes.Unavailable => "SelfUpdateUnavailable",
+        SelfUpdateErrorCodes.NetworkError => "SelfUpdateNetworkError",
+        SelfUpdateErrorCodes.RateLimited => "SelfUpdateRateLimited",
+        SelfUpdateErrorCodes.InvalidResponse => "SelfUpdateInvalidResponse",
+        SelfUpdateErrorCodes.UnsupportedSource => "SelfUpdateUnsupportedSource",
+        SelfUpdateErrorCodes.AccessDenied => "SelfUpdateAccessDenied",
+        SelfUpdateErrorCodes.NotStable => "SelfUpdateNotStable",
+        SelfUpdateErrorCodes.UnsupportedVersion => "SelfUpdateUnsupportedVersion",
+        SelfUpdateErrorCodes.InstallerMissing => "SelfUpdateInstallerMissing",
+        SelfUpdateErrorCodes.ChecksumAssetMissing => "SelfUpdateNoChecksum",
+        SelfUpdateErrorCodes.ChecksumAssetInvalid => "SelfUpdateChecksumInvalid",
+        SelfUpdateErrorCodes.AssetRejected => "SelfUpdateAssetRejected",
+        SelfUpdateErrorCodes.ChecksumMismatch => "SelfUpdateChecksumMismatch",
+        SelfUpdateErrorCodes.StagingFailed => "SelfUpdateStagingFailed",
+        SelfUpdateErrorCodes.DownloadFailed => "SelfUpdateDownloadFailed",
+        SelfUpdateErrorCodes.NotOffered => "SelfUpdateNotOffered",
+        SelfUpdateErrorCodes.NotPrepared => "SelfUpdateNotPrepared",
+        SelfUpdateErrorCodes.LaunchFailed => "SelfUpdateLaunchFailed",
+        SelfUpdateErrorCodes.Cancelled => "SelfUpdateCancelled",
+        _ => "SelfUpdateDownloadFailed",
+    };
+
+    /// <summary>进度直接回调，不依赖捕获的同步上下文；测试因此可确定地断言。</summary>
+    private sealed class InlineProgress<T>(Action<T> report) : IProgress<T>
+    {
+        public void Report(T value) => report(value);
+    }
+
     private static string? NullIfBlank(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
@@ -471,6 +744,8 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         CacheError = string.Empty;
         OnPropertyChanged(nameof(CatalogLibraryStatus));
         OnPropertyChanged(nameof(CatalogLibraryError));
+        // 自更新文案含本地化句子与格式化参数，语言切换后必须整段重新求值。
+        RefreshSelfUpdateText();
     }
 
     public void Dispose()
@@ -479,6 +754,9 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         _disposed = true;
         _catalogLibraryLifetime.Cancel();
         _catalogLibraryLifetime.Dispose();
+        _selfUpdateCancellation?.Cancel();
+        _selfUpdateLifetime.Cancel();
+        _selfUpdateLifetime.Dispose();
         Text.LanguageChanged -= OnLanguageChanged;
     }
 }

@@ -137,7 +137,10 @@ public sealed partial class CatalogView : UserControl, IDisposable
             || !string.IsNullOrWhiteSpace(installation.ErrorMessage)) ? Visibility.Visible : Visibility.Collapsed;
         DiagnosisPanel.Visibility = installation?.LastDiagnostic is not null ? Visibility.Visible : Visibility.Collapsed;
         var downloads = vm?.Downloads;
-        DownloadsPanel.Visibility = downloads is not null && (downloads.IsDownloading || !string.IsNullOrWhiteSpace(downloads.Status))
+        // 队列有任务或队列自身报错时同样要显示，否则用户看不到已排队/待恢复的任务。
+        DownloadQueuePanel.Visibility = downloads is not null && (downloads.IsDownloading
+            || downloads.HasQueueJobs || !string.IsNullOrWhiteSpace(downloads.QueueStatus)
+            || !string.IsNullOrWhiteSpace(downloads.Status))
             ? Visibility.Visible : Visibility.Collapsed;
     }
 

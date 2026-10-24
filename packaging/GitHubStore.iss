@@ -11,6 +11,14 @@
   #define IconPath "..\src\GitHubStore.App\Assets\githubstore.ico"
 #endif
 
+; AppVersion 必须与 build-installer.ps1 的 -Version 完全相同：它同时决定
+; OutputBaseFilename、程序集版本（-p:AppVersion=）与客户端自更新期待的资产名
+; GitHubStore-Setup-<AppVersion>-win-x64.exe。三者不一致时自更新会找不到官方安装包
+; 并如实拒绝，而不是去猜一个相近的文件名。
+;
+; CloseApplications=yes 是自更新链的一环：客户端只启动安装包，由安装器负责关闭并替换
+; 正在运行的应用；客户端从不覆盖自己正在运行的文件。
+
 [Setup]
 AppId={{739F23F9-0C57-4938-A740-54A455E166DA}
 AppName=GitHubStore

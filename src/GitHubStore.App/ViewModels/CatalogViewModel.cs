@@ -191,6 +191,8 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         try
         {
             if (Repositories is { } repositories) await repositories.InitializeAsync(ct);
+            // 队列必须在界面显示之前加载：中断的任务要对账为暂停状态，而不是等用户点开才出现。
+            if (Downloads is { } downloads) await downloads.InitializeQueueAsync(ct);
             var categories = await _catalog.ListCategoriesAsync(ct);
             Categories.Clear();
             foreach (var category in categories) Categories.Add(category);

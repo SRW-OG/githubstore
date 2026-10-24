@@ -169,6 +169,54 @@
                                 AutomationProperties.AutomationId="SaveAiSettingsButton" />
                     </StackPanel>
                 </Border>
+                <!-- 自更新：更新的是 GitHubStore 自己，不是目录里的应用。 -->
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[SelfUpdateTitle]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock Text="{Binding SelfUpdateCurrentVersion}" TextWrapping="Wrap"
+                                   AutomationProperties.AutomationId="SelfUpdateCurrentVersionText" />
+                        <TextBlock Text="{Binding Text[SelfUpdateNoAutoUpdate]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[SelfUpdateCheck]}" Command="{Binding CheckForUpdateCommand}"
+                                    AutomationProperties.AutomationId="CheckForUpdateButton" />
+                            <Button Content="{Binding Text[Cancel]}" Command="{Binding CancelSelfUpdateCommand}"
+                                    Visibility="{Binding IsSelfUpdateBusy, Converter={StaticResource BooleanToVisibility}}"
+                                    AutomationProperties.AutomationId="CancelSelfUpdateButton" />
+                        </StackPanel>
+                        <ProgressBar IsIndeterminate="True"
+                                     Visibility="{Binding IsSelfUpdateBusy, Converter={StaticResource BooleanToVisibility}}" />
+                        <StackPanel Spacing="4" Visibility="{Binding HasSelfUpdateCandidate, Converter={StaticResource BooleanToVisibility}}">
+                            <TextBlock Text="{Binding SelfUpdateCandidateVersion}" TextWrapping="Wrap"
+                                       AutomationProperties.AutomationId="SelfUpdateCandidateVersionText" />
+                            <HyperlinkButton Content="{Binding Text[SelfUpdateReleaseNotes]}"
+                                             NavigateUri="{Binding SelfUpdateReleaseNotesUrl}"
+                                             AutomationProperties.AutomationId="SelfUpdateReleaseNotesLink" />
+                            <Button Content="{Binding Text[SelfUpdateDownload]}" Command="{Binding DownloadSelfUpdateCommand}"
+                                    AutomationProperties.AutomationId="DownloadUpdateButton" />
+                        </StackPanel>
+                        <ProgressBar Value="{Binding SelfUpdateProgressPercent}" Maximum="100" Width="320"
+                                     HorizontalAlignment="Left"
+                                     Visibility="{Binding IsSelfUpdateBusy, Converter={StaticResource BooleanToVisibility}}" />
+                        <TextBlock Text="{Binding SelfUpdateVerificationBasis}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   AutomationProperties.AutomationId="SelfUpdateVerificationBasisText" />
+                        <TextBlock Text="{Binding SelfUpdateStatus}" TextWrapping="Wrap"
+                                   AutomationProperties.AutomationId="SelfUpdateStatusText" />
+                        <TextBlock Text="{Binding SelfUpdateError}" TextWrapping="Wrap"
+                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                   AutomationProperties.AutomationId="SelfUpdateErrorText" />
+                        <StackPanel Spacing="4">
+                            <!-- 只有已通过 SHA-256 校验的安装包才会让这个按钮可用；点击后仍需在对话框里确认。 -->
+                            <Button Content="{Binding Text[SelfUpdateInstall]}" IsEnabled="{Binding CanInstallSelfUpdate}"
+                                    Click="OnInstallSelfUpdateClick"
+                                    AutomationProperties.AutomationId="InstallUpdateButton" />
+                            <TextBlock Text="{Binding Text[SelfUpdateLaunchHint]}" TextWrapping="Wrap" FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
                 <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
                     <StackPanel Spacing="12">

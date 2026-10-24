@@ -18,6 +18,18 @@
     <RuntimeIdentifier Condition="'$(Platform)' == 'x64'">win-x64</RuntimeIdentifier>
     <RuntimeIdentifier Condition="'$(Platform)' == 'ARM64'">win-arm64</RuntimeIdentifier>
     <ApplicationIcon>Assets\githubstore.ico</ApplicationIcon>
+    <!--
+      自更新必须在界面上如实报告“当前版本”，因此版本号由构建脚本注入，而不是硬编码。
+      默认值 0.0.0 表示“未注入”：自更新界面会显示“版本未知”，绝不会凭它声称已是最新。
+      build-installer.ps1 会传入 -p:AppVersion=<发行版本>；它同时驱动程序集版本与 Inno Setup 的 AppVersion。
+    -->
+    <!-- 兼容两种调用方式：脚本传 -p:AppVersion=，或只传 -p:Version=。 -->
+    <AppVersion Condition="'$(AppVersion)' == '' AND '$(Version)' != ''">$(Version)</AppVersion>
+    <AppVersion Condition="'$(AppVersion)' == ''">0.0.0</AppVersion>
+    <Version>$(AppVersion)</Version>
+    <FileVersion>$(AppVersion).0</FileVersion>
+    <AssemblyVersion>$(AppVersion).0</AssemblyVersion>
+    <InformationalVersion>$(AppVersion)</InformationalVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />

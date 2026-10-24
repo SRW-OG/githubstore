@@ -44,6 +44,8 @@
     <Compile Include="..\..\src\GitHubStore.App\Services\Winget\*.cs" Link="Services\Winget\%(Filename)%(Extension)" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Processes\*.cs" Link="Services\Processes\%(Filename)%(Extension)" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Inventory\*.cs" Link="Services\Inventory\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Updates\*.cs" Link="Services\Updates\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Localization\SelfUpdateStrings.cs" Link="Services\Localization\SelfUpdateStrings.cs" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Tools\*.cs" Exclude="..\..\src\GitHubStore.App\Services\Tools\Windows*.cs" Link="Services\Tools\%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\..\src\GitHubStore.App\Assets\Tools\tools.manifest.json" LogicalName="GitHubStore.Tools.tools.manifest.json" />
     <EmbeddedResource Include="..\..\src\GitHubStore.App\Assets\Tools\aria2x64.zip" LogicalName="GitHubStore.Tools.aria2.x64.zip" />
