@@ -27,7 +27,7 @@ public static class DiscoveryFeedParser
         if (string.IsNullOrWhiteSpace(payload) || payload.Length > 8 * 1024 * 1024) throw Invalid();
         DiscoveryFeedResult result;
         if (kind == DiscoveryFeedKind.StarHistoryWeekly)
-            result = TryWeeklyJson(payload, fetchedAt) ?? ParseWeeklyMarkdown(payload, fetchedAt);
+            result = TryWeeklyJson(payload, fetchedAt) ?? TryWeeklyInlineScript(payload, fetchedAt) ?? ParseWeeklyMarkdown(payload, fetchedAt);
         else if (kind == DiscoveryFeedKind.TrendshiftDaily)
             result = ParseTrendshift(payload, fetchedAt);
         else throw new ArgumentOutOfRangeException(nameof(kind));
@@ -139,6 +139,45 @@ public static class DiscoveryFeedParser
             { /* Unrecognized embedded JSON is not treated as ranking data. */ }
         }
         return null;
+    }
+
+    /// <summary>
+    /// 源站把每周排行直接内联在页面脚本里：<c>pv="Oct 16, 2026",hv="Oct 22, 2026",fv=[{name,new_stars,stars_total,...}]</c>。
+    /// 这是页面渲染真实使用的数据，比解析 HTML 列表更稳定，也不依赖第三方代理。
+    /// 只接受本函数严格匹配到的结构；字段缺失或数值异常一律视为无法解析，绝不用猜测补值。
+    /// </summary>
+    private static DiscoveryFeedResult? TryWeeklyInlineScript(string payload, DateTimeOffset fetchedAt)
+    {
+        var match = Regex.Match(payload,
+            "pv=\"(?<from>[^\"]{1,40})\"\\s*,\\s*hv=\"(?<to>[^\"]{1,40})\"\\s*,\\s*fv=\\[(?<repos>[^\\]]*)\\]",
+            RegexOptions.CultureInvariant | RegexOptions.Singleline);
+        if (!match.Success) return null;
+        if (!DateOnly.TryParse(match.Groups["from"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var from)
+            || !DateOnly.TryParse(match.Groups["to"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var to)) return null;
+        var entries = new List<DiscoveryEntry>();
+        foreach (Match item in Regex.Matches(match.Groups["repos"].Value,
+            "\\{name:\"(?<name>" + RepositoryPattern + ")\",new_stars:(?<gained>\\d+),stars_total:(?<total>\\d+)"))
+        {
+            var name = item.Groups["name"].Value;
+            var gained = long.Parse(item.Groups["gained"].Value, CultureInfo.InvariantCulture);
+            var total = long.Parse(item.Groups["total"].Value, CultureInfo.InvariantCulture);
+            // 累计 Star 不可能少于本期新增：出现这种组合说明数据不可信。
+            if (gained < 0 || total < gained) return null;
+            entries.Add(new DiscoveryEntry
+            {
+                RepositoryFullName = name, RepositoryUri = new("https://github.com/" + name),
+                SourceUri = new("https://www.star-history.com/" + name), Rank = entries.Count + 1,
+                StarsGained = gained, TotalStars = total,
+            });
+        }
+        if (entries.Count == 0) return null;
+        return new DiscoveryFeedResult
+        {
+            Kind = DiscoveryFeedKind.StarHistoryWeekly, SourceName = SourceName(DiscoveryFeedKind.StarHistoryWeekly),
+            SourceUri = SourceUri(DiscoveryFeedKind.StarHistoryWeekly), Entries = entries.AsReadOnly(),
+            PeriodLabel = $"Updated {match.Groups["from"].Value} – {match.Groups["to"].Value}",
+            PeriodStart = from, PeriodEnd = to, FetchedAt = fetchedAt,
+        };
     }
 
     private static JsonElement? FindWeeklyData(JsonElement element, int depth)

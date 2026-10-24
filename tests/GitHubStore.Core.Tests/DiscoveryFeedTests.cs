@@ -27,6 +27,13 @@ public sealed class DiscoveryFeedTests
 
     Updated Oct 14, 2026 – Oct 20, 2026
     """;
+    /// <summary>
+    /// 线上站点把每周排行内联在页面脚本里：pv/hv 是统计区间，fv 是仓库数组。
+    /// 这里保持与真实脚本一致的字段形状与顺序，包括多余的 rank_change 字段。
+    /// </summary>
+    private const string WeeklyInline = """
+    var _v={from:pv,to:hv,repos:fv},pv="Oct 16, 2026",hv="Oct 22, 2026",fv=[{name:"morluto/rea",new_stars:91729,stars_total:370735,rank_change:0},{name:"google-research/harness2",new_stars:18068,stars_total:18355,rank_change:null}]
+    """;
     private static readonly DateTimeOffset Fetched = DateTimeOffset.Parse("2026-10-23T09:00:00Z");
     private static string Flight(string data)
     {
@@ -57,6 +64,35 @@ public sealed class DiscoveryFeedTests
         Assert.Contains("@VeknQAQ", mentioned.ReviewAttribution);
         Assert.Equal("https://x.com/VeknQAQ/status/2113208834617454621", mentioned.ReviewUri!.AbsoluteUri);
         Assert.Equal(DateTimeOffset.Parse("2026-10-22T10:00:22Z"), mentioned.ReviewPublishedAt);
+    }
+
+    [Fact]
+    public void WeeklyParsesInlineScriptDataUsedByTheLiveSite()
+    {
+        // 源站已把每周排行内联进页面脚本，首页 HTML 与代理文本都不再提供可用列表。
+        var parsed = DiscoveryFeedParser.Parse(DiscoveryFeedKind.StarHistoryWeekly, WeeklyInline, Fetched);
+
+        Assert.Equal(new DateOnly(2026, 10, 16), parsed.PeriodStart);
+        Assert.Equal(new DateOnly(2026, 10, 22), parsed.PeriodEnd);
+        Assert.Equal(2, parsed.Entries.Count);
+        Assert.Equal("morluto/rea", parsed.Entries[0].RepositoryFullName);
+        Assert.Equal(91729L, parsed.Entries[0].StarsGained);
+        Assert.Equal(370735L, parsed.Entries[0].TotalStars);
+        Assert.Equal(1, parsed.Entries[0].Rank);
+        Assert.Equal(new Uri("https://github.com/morluto/rea"), parsed.Entries[0].RepositoryUri);
+        Assert.Equal(new Uri("https://www.star-history.com/morluto/rea"), parsed.Entries[0].SourceUri);
+        Assert.Equal("Star History", parsed.SourceName);
+    }
+
+    [Fact]
+    public void WeeklyRejectsInlineScriptDataWithImpossibleNumbers()
+    {
+        // 累计 Star 少于本期新增属于自相矛盾的数据，必须整份拒绝而不是照抄。
+        Assert.Throws<DiscoveryFeedException>(() => DiscoveryFeedParser.Parse(DiscoveryFeedKind.StarHistoryWeekly,
+            WeeklyInline.Replace("new_stars:18068,stars_total:18355", "new_stars:99999,stars_total:10", StringComparison.Ordinal), Fetched));
+        // 周期日期不可解析时同样拒绝。
+        Assert.Throws<DiscoveryFeedException>(() => DiscoveryFeedParser.Parse(DiscoveryFeedKind.StarHistoryWeekly,
+            WeeklyInline.Replace("hv=\"Oct 22, 2026\"", "hv=\"not a date\"", StringComparison.Ordinal), Fetched));
     }
 
     [Fact]

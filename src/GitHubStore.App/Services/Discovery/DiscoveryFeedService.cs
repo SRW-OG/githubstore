@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using GitHubStore.Core.Abstractions;
 
 namespace GitHubStore.App.Services.Discovery;
@@ -56,7 +57,19 @@ public sealed class DiscoveryFeedService : IDiscoveryFeedService
                     if (finalUri.Scheme != "https" || !finalUri.Host.Equals(fetchUri.Host, StringComparison.OrdinalIgnoreCase))
                     { error = "discovery_invalid_response"; continue; }
                     var body = await ReadBoundedAsync(response.Content, attempt.Token).ConfigureAwait(false);
-                    var parsed = DiscoveryFeedParser.Parse(kind, body, _clock());
+                    DiscoveryFeedResult parsed;
+                    try
+                    {
+                        parsed = DiscoveryFeedParser.Parse(kind, body, _clock());
+                    }
+                    catch (DiscoveryFeedException) when (kind == DiscoveryFeedKind.StarHistoryWeekly && !proxy)
+                    {
+                        // 源站把每周排行内联在同源的页面脚本里，首页 HTML 本身已不含数据。
+                        // 只跟随本页面自己引用的 https 同源脚本，绝不访问任意第三方地址。
+                        var scriptBody = await TryFetchWeeklyScriptAsync(body, attempt.Token).ConfigureAwait(false);
+                        if (scriptBody is null) throw;
+                        parsed = DiscoveryFeedParser.Parse(kind, scriptBody, _clock());
+                    }
                     if (proxy) parsed = parsed with { SourceName = parsed.SourceName + " · r.jina.ai" };
                     _memory[kind] = parsed;
                     await WriteCacheAsync(kind, parsed, ct).ConfigureAwait(false);
@@ -75,6 +88,28 @@ public sealed class DiscoveryFeedService : IDiscoveryFeedService
                 : new DiscoveryFeedResult { Kind = kind, SourceName = DiscoveryFeedParser.SourceName(kind), SourceUri = DiscoveryFeedParser.SourceUri(kind), ErrorCode = error, IsStale = true };
         }
         finally { _gates[(int)kind].Release(); }
+    }
+
+    /// <summary>
+    /// 取首页自己引用的同源脚本，用于读取内联的每周排行数据。
+    /// 只接受 https、同主机、路径以 /assets/ 开头且以 .js 结尾的引用；找不到或不合格一律返回 null，
+    /// 绝不去猜测或访问第三方地址。
+    /// </summary>
+    private async Task<string?> TryFetchWeeklyScriptAsync(string html, CancellationToken ct)
+    {
+        var match = Regex.Match(html, "(?i)src=\"(?<src>/assets/[A-Za-z0-9._-]{1,120}\\.js)\"", RegexOptions.CultureInvariant);
+        if (!match.Success) return null;
+        var baseUri = DiscoveryFeedParser.SourceUri(DiscoveryFeedKind.StarHistoryWeekly);
+        if (!Uri.TryCreate(baseUri, match.Groups["src"].Value, out var scriptUri)) return null;
+        if (scriptUri.Scheme != Uri.UriSchemeHttps || !scriptUri.Host.Equals(baseUri.Host, StringComparison.OrdinalIgnoreCase)) return null;
+        using var request = new HttpRequestMessage(HttpMethod.Get, scriptUri);
+        request.Headers.UserAgent.ParseAdd("GitHubStore/0.1");
+        request.Headers.Accept.ParseAdd("application/javascript");
+        using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode) return null;
+        var finalUri = response.RequestMessage?.RequestUri ?? scriptUri;
+        if (finalUri.Scheme != Uri.UriSchemeHttps || !finalUri.Host.Equals(baseUri.Host, StringComparison.OrdinalIgnoreCase)) return null;
+        return await ReadBoundedAsync(response.Content, ct).ConfigureAwait(false);
     }
 
     private async Task<DiscoveryFeedResult?> ReadSeedAsync(DiscoveryFeedKind kind, CancellationToken ct)
