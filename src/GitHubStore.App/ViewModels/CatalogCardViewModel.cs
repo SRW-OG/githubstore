@@ -30,7 +30,8 @@ public sealed class CatalogCardViewModel : ObservableObject, IDisposable
         _scopeToken = scopeToken;
         RepositoryUri = SafeRepositoryUri(App);
         var original = App.Description?.Trim() ?? string.Empty;
-        var curated = !english ? detail.Curation?.DescriptionZh?.Trim() ?? string.Empty : string.Empty;
+        var curated = detail.DescriptionOverride?.Trim()
+            ?? (!english ? detail.Curation?.DescriptionZh?.Trim() ?? string.Empty : string.Empty);
         var features = detail.Summary?.KeyFeatures.Where(value => !string.IsNullOrWhiteSpace(value))
             .Select(value => value.Trim()).Distinct(StringComparer.Ordinal).Take(6).ToArray() ?? [];
         if (features.Length > 0)

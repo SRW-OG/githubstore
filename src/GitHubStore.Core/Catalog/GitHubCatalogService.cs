@@ -89,7 +89,7 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
                             || seeds.Any(seed => string.Equals(RepositoryKey(seed.App), RepositoryKey(entry.App), StringComparison.OrdinalIgnoreCase)))
                         .Select(entry => entry with
                     {
-                        App = entry.App with { Stale = true },
+                        App = entry.App with { Stale = true, Description = entry.DescriptionOverride ?? entry.App.Description },
                         Capability = null, Install = null, Summary = null,
                     }).ToArray();
                     entries = _includeCuratedSeed && libraryKeys is null
@@ -263,7 +263,7 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
             foreach (var entry in previous)
             {
                 var refreshed = await FetchAsync(RepositoryAddress.Parse($"{entry.App.Owner}/{entry.App.Repo}"), entry.App.PrimaryCategory, ct, entry.PackagePolicy, false).ConfigureAwait(false);
-                next.Add(refreshed with { Curation = refreshed.Curation ?? entry.Curation, PackagePolicy = entry.PackagePolicy });
+                next.Add(ApplyDescriptionOverride(refreshed with { Curation = refreshed.Curation ?? entry.Curation, PackagePolicy = entry.PackagePolicy }, entry.DescriptionOverride));
                 progress?.Report(new RefreshProgress { Done = next.Count, Total = previous.Length, Message = "refreshing" });
             }
             var updated = next.ToArray();
@@ -431,6 +431,7 @@ public sealed partial class GitHubCatalogService : ICatalogService, ISearchServi
                 || !keys.Add(address.Key) || !IsKnownCategory(entry.App.PrimaryCategory))
                 throw new RepositoryCatalogException("invalid_response");
             PackagePolicyValidator.Validate(entry.PackagePolicy);
+            ValidateDescriptionOverride(entry.DescriptionOverride);
             if (entry.Curation is { } curation) CuratedCatalogLoader.ValidateCuration(curation, entry.App);
         }
     }

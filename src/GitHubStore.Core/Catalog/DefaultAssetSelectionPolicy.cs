@@ -36,6 +36,9 @@ public static class DefaultAssetSelectionPolicy
     /// as emulation fallbacks. Returns null when no supported candidate exists.
     /// </summary>
     public static Asset? Select(IEnumerable<Asset> assets, Arch architecture, string? repositoryKey = null)
+        => RankEligibleAssets(assets, architecture, repositoryKey).FirstOrDefault();
+
+    private static IReadOnlyList<Asset> RankEligibleAssets(IEnumerable<Asset> assets, Arch architecture, string? repositoryKey)
     {
         ArgumentNullException.ThrowIfNull(assets);
         var materialized = assets as IReadOnlyCollection<Asset> ?? assets.ToArray();
@@ -50,7 +53,7 @@ public static class DefaultAssetSelectionPolicy
             .ThenBy(candidate => candidate.Asset.DownloadUrl, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.Asset.ReleaseKey, StringComparer.Ordinal)
             .Select(candidate => candidate.Asset)
-            .FirstOrDefault();
+            .ToArray();
     }
 
     public static Asset? Select(AppDetail detail, Arch architecture)
@@ -75,13 +78,16 @@ public static class DefaultAssetSelectionPolicy
     }
 
     public static Asset? Select(IEnumerable<Asset> assets, Arch architecture, string? repositoryKey, PackagePolicy? packagePolicy)
+        => GetEligibleAssets(assets, architecture, repositoryKey, packagePolicy).FirstOrDefault();
+
+    public static IReadOnlyList<Asset> GetEligibleAssets(IEnumerable<Asset> assets, Arch architecture, string? repositoryKey, PackagePolicy? packagePolicy)
     {
         ArgumentNullException.ThrowIfNull(assets);
-        if (packagePolicy is null) return Select(assets, architecture, repositoryKey);
+        if (packagePolicy is null) return RankEligibleAssets(assets, architecture, repositoryKey);
         PackagePolicyValidator.Validate(packagePolicy);
         var rule = packagePolicy.AssetRules.FirstOrDefault(r => r.Architecture == architecture)
             ?? packagePolicy.AssetRules.FirstOrDefault(r => r.Architecture == Arch.Unknown);
-        if (packagePolicy.AssetRules.Count > 0 && rule is null) return null;
+        if (packagePolicy.AssetRules.Count > 0 && rule is null) return [];
         var candidates = assets.Where(asset => !IsExcluded(asset) && FilenameArchitectures(asset.Name).Count <= 1
             && (architecture == Arch.Unknown || InferArchitecture(asset) == Arch.Unknown || InferArchitecture(asset) == architecture)
             && (rule is null || (rule.Include.Count == 0 || rule.Include.Any(p => MatchesGlob(asset.Name, p)))
@@ -103,9 +109,9 @@ public static class DefaultAssetSelectionPolicy
                     ? a with { Installer = InstallerKind.Portable } : a, architecture, repositoryKey, explicitArchives))
                 .ThenBy(a => a.Name, StringComparer.OrdinalIgnoreCase).ThenBy(a => a.Name, StringComparer.Ordinal)
                 .ThenBy(a => a.InstallerId, StringComparer.Ordinal).ThenBy(a => a.DownloadUrl, StringComparer.Ordinal)
-                .ThenBy(a => a.ReleaseKey, StringComparer.Ordinal).FirstOrDefault();
+                .ThenBy(a => a.ReleaseKey, StringComparer.Ordinal).ToArray();
         }
-        return Select(candidates, architecture, repositoryKey);
+        return RankEligibleAssets(candidates, architecture, repositoryKey);
     }
 
     // Glob grammar is filename-only '*' and '?'; bounded iterative matching avoids regex backtracking.

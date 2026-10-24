@@ -10,7 +10,11 @@
         <TextBox Header="{Binding Text[RepositoryUrl]}" PlaceholderText="https://github.com/microsoft/PowerToys"
                  Text="{Binding RepositoryInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  IsEnabled="{Binding IsEditable}" AutomationProperties.AutomationId="RepositoryUrlInput" />
-        <Button Content="{Binding Text[Preview]}" Command="{Binding PreviewCommand}" AutomationProperties.AutomationId="PreviewRepositoryButton" />
+        <ComboBox Header="{Binding Text[WizardReleaseChannel]}" ItemsSource="{Binding Channels}" DisplayMemberPath="Name"
+                  SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" IsEnabled="{Binding IsEditable}" HorizontalAlignment="Stretch" />
+        <TextBox Header="{Binding Text[WizardPinnedTag]}" Text="{Binding PinnedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 IsEnabled="{Binding IsEditable}" />
+        <Button Content="{Binding Text[Preview]}" IsEnabled="{Binding IsEditable}" Command="{Binding PreviewCommand}" AutomationProperties.AutomationId="PreviewRepositoryButton" />
         <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
         <TextBlock Text="{Binding ErrorMessage}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" TextWrapping="Wrap" />
         <Border Padding="16" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
@@ -27,8 +31,33 @@
                 </StackPanel>
             </StackPanel>
         </Border>
-        <ComboBox Header="{Binding Text[SelectCategory]}" ItemsSource="{Binding Categories}" DisplayMemberPath="Name"
-                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" HorizontalAlignment="Stretch" />
-        <TextBlock Text="{Binding Text[PreviewFirst]}" FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        <ContentControl IsEnabled="{Binding IsEditable}" HorizontalContentAlignment="Stretch">
+        <StackPanel Spacing="12" Visibility="{Binding HasPreview, Converter={StaticResource BooleanToVisibility}}">
+            <TextBlock Text="{Binding ReleaseTag}" FontWeight="SemiBold" />
+            <CheckBox Content="{Binding Text[WizardCatalogOnly]}" IsChecked="{Binding CatalogOnly, Mode=TwoWay}"
+                      Visibility="{Binding CanChooseCatalogOnly, Converter={StaticResource BooleanToVisibility}}" />
+            <ComboBox Visibility="{Binding HasEligibleAssets, Converter={StaticResource BooleanToVisibility}}" Header="{Binding Text[WizardActualAsset]}" ItemsSource="{Binding Assets}" DisplayMemberPath="Name"
+                      SelectedItem="{Binding SelectedAsset, Mode=TwoWay}" HorizontalAlignment="Stretch" AutomationProperties.AutomationId="WizardAsset" />
+            <TextBox Visibility="{Binding HasEligibleAssets, Converter={StaticResource BooleanToVisibility}}" Header="{Binding Text[WizardFilenamePattern]}" Text="{Binding FilenamePattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Visibility="{Binding HasEligibleAssets, Converter={StaticResource BooleanToVisibility}}" Text="{Binding Text[WizardPatternHint]}" TextWrapping="Wrap" FontSize="12" />
+            <ComboBox Header="{Binding Text[SelectCategory]}" ItemsSource="{Binding Categories}" DisplayMemberPath="Name"
+                      SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+            <TextBox Header="{Binding Text[WizardDescription]}" Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     AcceptsReturn="True" TextWrapping="Wrap" MaxLength="4000" MaxHeight="140" />
+            <ComboBox Visibility="{Binding HasEligibleAssets, Converter={StaticResource BooleanToVisibility}}" Header="{Binding Text[WizardInstallFormat]}" ItemsSource="{Binding Formats}" DisplayMemberPath="Name"
+                      SelectedItem="{Binding SelectedFormat, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+            <TextBox Visibility="{Binding HasEligibleAssets, Converter={StaticResource BooleanToVisibility}}" Header="{Binding Text[WizardExecutable]}" Text="{Binding ExecutableRelativePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="{Binding Text[WizardAiHint]}" TextWrapping="Wrap" FontSize="12" />
+            <Button Content="{Binding Text[WizardSuggest]}" Command="{Binding SuggestCommand}" IsEnabled="{Binding CanSuggest}" />
+            <Border Padding="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Visibility="{Binding HasSuggestion, Converter={StaticResource BooleanToVisibility}}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Text[WizardSuggestionReview]}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding SuggestionText}" TextWrapping="Wrap" />
+                    <Button Content="{Binding Text[WizardApplySuggestion]}" Command="{Binding ApplySuggestionCommand}" IsEnabled="{Binding CanApplySuggestion}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        </ContentControl>
+        <TextBlock Text="{Binding Text[WizardReviewFirst]}" FontSize="12" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
     </StackPanel></ScrollViewer>
 </ContentDialog>

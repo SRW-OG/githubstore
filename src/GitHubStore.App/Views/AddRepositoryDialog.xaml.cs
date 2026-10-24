@@ -14,8 +14,10 @@ public sealed partial class AddRepositoryDialog : ContentDialog
     public AddRepositoryDialog(AddRepositoryViewModel viewModel)
     {
         _viewModel = viewModel;
+        _viewModel.BeginDialog();
         InitializeComponent();
         DataContext = viewModel;
+        Closed += (_, _) => _viewModel.EndDialog();
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI 对话框事件必须返回 void；异步 deferral 在 finally 中完成且异常全部处理。")]

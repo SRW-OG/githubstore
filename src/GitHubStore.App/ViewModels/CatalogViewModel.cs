@@ -122,7 +122,8 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
     public Uri? ReleasesUri => SelectedDetail is { } detail ? RepositoryLink(detail.App, true) : null;
     public string SnapshotText => SelectedDetail?.App.FetchedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "—";
     public string CacheStatusText => Text[SelectedDetail?.App.Stale == true ? "CacheNotice" : "LiveNotice"];
-    public string CurationDescription => Text.IsEnglish ? string.Empty : SelectedDetail?.Curation?.DescriptionZh?.Trim() ?? string.Empty;
+    public string CurationDescription => SelectedDetail?.DescriptionOverride?.Trim()
+        ?? (Text.IsEnglish ? string.Empty : SelectedDetail?.Curation?.DescriptionZh?.Trim() ?? string.Empty);
     public bool HasCurationDescription => !string.IsNullOrWhiteSpace(CurationDescription);
     public bool HasRecommendationSources => RecommendationSources.Count > 0;
     public bool HasVerification => SelectedDetail?.Curation?.Verification is not null;

@@ -95,6 +95,32 @@ public sealed class PackagePolicyTests
         Assert.Equal("invalid_response", (await Assert.ThrowsAsync<RepositoryCatalogException>(() => CuratedCatalogLoader.LoadAsync(bad))).Code);
     }
 
+    [Theory]
+    [InlineData("releaseChanel")]
+    [InlineData("installFormatt")]
+    [InlineData("executableRelativepath")]
+    public async Task LoaderRejectsMisspelledPolicyFieldsInsteadOfUsingDefaults(string field)
+    {
+        // 拼写错误必须整份拒绝：静默使用默认值会悄悄换掉用户以为已经配好的版本或安装方式。
+        var root = await Library();
+        root["entries"]![0]!["packagePolicy"] = JsonNode.Parse($$"""{"{{field}}":"Stable"}""");
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(root.ToJsonString()));
+        Assert.Equal("invalid_response", (await Assert.ThrowsAsync<RepositoryCatalogException>(
+            () => CuratedCatalogLoader.LoadAsync(stream))).Code);
+    }
+
+    [Fact]
+    public async Task LoaderRejectsMisspelledAssetRuleFields()
+    {
+        var root = await Library();
+        root["entries"]![0]!["packagePolicy"] = JsonNode.Parse("""
+            {"assetRules":[{"architecture":"Amd64","includes":["Product-*.zip"]}]}
+            """);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(root.ToJsonString()));
+        Assert.Equal("invalid_response", (await Assert.ThrowsAsync<RepositoryCatalogException>(
+            () => CuratedCatalogLoader.LoadAsync(stream))).Code);
+    }
+
     [Fact]
     public async Task PolicyUpdateRefreshAndRestartPreserveManualMetadataAndPinnedRelease()
     {

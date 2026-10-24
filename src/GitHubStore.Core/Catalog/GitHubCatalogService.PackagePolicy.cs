@@ -16,7 +16,7 @@ public sealed partial class GitHubCatalogService
                 ?? throw new RepositoryCatalogException("repository_not_found");
             // Fetch first: an unavailable channel or failed request must not partially change the cache.
             detail = await FetchAsync(RepositoryAddress.Parse($"{previous.App.Owner}/{previous.App.Repo}"), previous.App.PrimaryCategory, ct, policy, false).ConfigureAwait(false);
-            detail = detail with { Curation = previous.Curation, PackagePolicy = policy };
+            detail = ApplyDescriptionOverride(detail with { Curation = previous.Curation, PackagePolicy = policy }, previous.DescriptionOverride);
             var next = _entries.Select(e => e.App.Id == id ? detail : e).ToArray();
             // A local policy edit makes this entry local user data; subsequent library
             // syncs must not silently replace either its policy or repository membership.

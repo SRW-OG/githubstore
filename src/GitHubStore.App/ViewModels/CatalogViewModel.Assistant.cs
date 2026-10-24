@@ -205,7 +205,7 @@ public sealed partial class CatalogViewModel
         {
             var request = new AiAssistantRequest(task)
             {
-                App = detail.App, Asset = asset, Release = release,
+                App = detail.App, Asset = asset, Release = release, PackagePolicy = detail.PackagePolicy,
                 Context = $"System architecture: {SystemArchitecture}. Default package recommendation: {AssetRecommendation}. "
                     + "Current application supports first installation of ZIP, portable EXE and interactive EXE/MSI; 7z extraction is unsupported. "
                     + (task == AiAssistantTask.ReleaseImpact

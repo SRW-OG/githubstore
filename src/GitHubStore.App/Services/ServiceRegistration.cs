@@ -76,6 +76,7 @@ public static class ServiceRegistration
             new GitHubStore.App.Services.Ai.ReadmeSummaryService(sp.GetRequiredService<HttpClient>(),
                 sp.GetRequiredService<PreferencesService>(), DataDirectory,
                 client: sp.GetRequiredService<GitHubStore.App.Services.Ai.IAiClient>()));
+        services.AddSingleton<GitHubStore.App.Services.Ai.IRepositorySuggestionService, GitHubStore.App.Services.Ai.RepositorySuggestionService>();
         services.AddSingleton<GitHubStore.App.Services.Ai.IAiAssistantService>(sp =>
             new GitHubStore.App.Services.Ai.AiAssistantService(
                 sp.GetRequiredService<GitHubStore.App.Services.Ai.IAiClient>(),

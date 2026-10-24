@@ -13,6 +13,7 @@ public sealed record AiAssistantRequest(AiAssistantTask Task)
     public CatalogApp? App { get; init; }
     public Asset? Asset { get; init; }
     public Release? Release { get; init; }
+    public PackagePolicy? PackagePolicy { get; init; }
     public string Question { get; init; } = "";
     public string Context { get; init; } = "";
     public string? InstallId { get; init; }
@@ -55,7 +56,7 @@ public sealed class AiAssistantService : IAiAssistantService
         {
             ["task"] = request.Task.ToString(), ["question"] = request.Question,
             ["operationContext"] = request.Context,
-            ["clientCapabilities"] = "First installation only; ZIP/portable EXE/interactive EXE/MSI; no 7z extraction, upgrade, rollback or executable uninstall for managed receipts. AI never executes actions.",
+            ["clientCapabilities"] = "First installation; ZIP/portable EXE/interactive EXE/MSI; configurable release channel and package rules; managed portable removal, registered Windows uninstallers and explicit receipt-only forgetting; no 7z extraction, upgrade or rollback yet. AI suggests and explains; it never executes actions.",
         };
         string instruction;
         switch (request.Task)
@@ -69,7 +70,8 @@ public sealed class AiAssistantService : IAiAssistantService
                 facts["architecture"] = RuntimeInformation.OSArchitecture.ToString();
                 var architecture = RuntimeInformation.OSArchitecture switch { Architecture.Arm64 => Arch.Arm64, Architecture.X86 => Arch.X86, _ => Arch.Amd64 };
                 var recommended = DefaultAssetSelectionPolicy.Select(request.Release?.Assets ?? new[] { request.Asset }, architecture,
-                    $"{request.App.Owner}/{request.App.Repo}");
+                    $"{request.App.Owner}/{request.App.Repo}", request.PackagePolicy);
+                facts["packagePolicy"] = request.PackagePolicy;
                 facts["ruleRecommendedAsset"] = recommended is null ? null : AssetFacts(recommended);
                 facts["alternatives"] = request.Release?.Assets.Select(AssetFacts).ToArray();
                 facts["releaseNotes"] = Clip(request.Release?.Body, 14000);
