@@ -169,6 +169,10 @@ public sealed partial class InstalledViewModel
         OnPropertyChanged(nameof(CanAnalyzeInstalled));
         OnPropertyChanged(nameof(CanAskInstalled));
         OnPropertyChanged(nameof(CanExplainUninstall));
+        // 更新入口的可用性同样受 IsBusy/选中项影响，必须一起刷新，否则按钮会停在旧状态。
+        OnPropertyChanged(nameof(CanCheckForUpdate));
+        OnPropertyChanged(nameof(CanUpgrade));
+        CheckForUpdateCommand.NotifyCanExecuteChanged();
         AskInstalledAiCommand.NotifyCanExecuteChanged();
         CompareInstalledAiCommand.NotifyCanExecuteChanged();
         ExplainUninstallAiCommand.NotifyCanExecuteChanged();

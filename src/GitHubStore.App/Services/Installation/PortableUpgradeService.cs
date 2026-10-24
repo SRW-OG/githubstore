@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
@@ -39,7 +40,49 @@ public sealed record PortableUpgradeRequest
 
     /// <summary>可选：库策略里配置好的入口相对路径，优先级高于“沿用旧入口”。</summary>
     public string? ExecutableRelativePath { get; init; }
+
+    /// <summary>
+    /// 库策略里声明的“必须保留”的相对路径（<see cref="PackagePolicy.PreservePaths"/>）。
+    /// <para>
+    /// 本服务目前<em>不支持</em>保留式更新：整目录替换会把用户自己改过的文件一起换掉。
+    /// 因此只要这里非空，更新就会被明确拒绝（<see cref="PortableUpgradeErrorCodes.PreservePathsUnsupported"/>），
+    /// 而不是默默丢掉用户配置。把策略里的路径如实传进来，是让“拒绝”这件事能够发生的前提。
+    /// </para>
+    /// </summary>
+    public IReadOnlyList<string> PreservePaths { get; init; } = [];
 }
+
+/// <summary>
+/// 一条安装的候选更新：完全来自已绑定的软件源目录（真实发行版 + 真实资产），
+/// 由 <see cref="DefaultAssetSelectionPolicy"/> 按当前架构与库策略筛选，本服务不臆造版本。
+/// </summary>
+public sealed record PortableUpgradeCandidate
+{
+    public required CatalogApp App { get; init; }
+    public required Release Release { get; init; }
+    public required Asset Asset { get; init; }
+
+    /// <summary>当前已安装版本的原文，仅用于展示与比较说明。</summary>
+    public required string InstalledVersion { get; init; }
+
+    /// <summary>候选版本原文，仅用于展示。</summary>
+    public required string CandidateVersion { get; init; }
+
+    /// <summary>
+    /// 版本比较结论。<see cref="VersionRelation.Different"/> 表示“无法判定”，
+    /// 界面必须如实说明这一点，不能把它说成“确认有新版”。
+    /// </summary>
+    public required VersionRelation Relation { get; init; }
+
+    public string? ExecutableRelativePath { get; init; }
+    public IReadOnlyList<string> PreservePaths { get; init; } = [];
+}
+
+/// <summary>
+/// 候选查询结果。<see cref="Candidate"/> 为 null 时 <see cref="ErrorCode"/> 说明原因，
+/// 且“目录读不出来”与“确实没有可用候选”必须是两个不同的码——后者才代表打听过了、没有新版。
+/// </summary>
+public sealed record PortableUpgradeCandidateResult(PortableUpgradeCandidate? Candidate, string? ErrorCode = null);
 
 public sealed record PortableUpgradeResult(bool Succeeded, string? ErrorCode = null, string? InstallId = null,
     string? TargetDirectory = null, string? ExecutablePath = null, string? DisplayVersion = null,
@@ -75,6 +118,15 @@ public sealed record PortableUpgradeJournal
     public required DateTimeOffset StartedAt { get; init; }
     public required InstallRecord PreviousReceipt { get; init; }
     public required string PreviousDisplayName { get; init; }
+
+    /// <summary>
+    /// 还原时被“挪到一边”的那个目录（当时的当前版本）。
+    /// <para>
+    /// 它必须在移动之前就写进 journal：登记写回失败时这一份既不能删、也不能丢，
+    /// 否则下一次恢复就不知道该清理什么，只会永久残留一份新版本。
+    /// </para>
+    /// </summary>
+    public string? ReplacedDir { get; init; }
 
     /// <summary>
     /// 提交标记：新版本文件已就位<em>且</em>新登记已写入后置为 true（并立即落盘）。
@@ -141,6 +193,24 @@ public static class PortableUpgradeErrorCodes
     /// <summary>候选资产既不是便携归档、也不是被识别为便携可执行文件，不能走整目录替换。</summary>
     public const string UnsupportedAsset = "update_unsupported_asset";
 
+    /// <summary>
+    /// 库策略声明了必须保留的相对路径，而本服务不做保留式更新（整目录替换会覆盖用户改过的文件）。
+    /// 明确拒绝，绝不默默丢掉用户配置。
+    /// </summary>
+    public const string PreservePathsUnsupported = "update_preserve_paths_unsupported";
+
+    /// <summary>
+    /// 该安装存在未完成的 journal：上一次更新/回退还没有收尾。此时开始新更新会覆盖恢复依据，
+    /// 因此必须先恢复（<see cref="PortableUpgradeService.RecoverAsync"/>）才能再次更新。
+    /// </summary>
+    public const string PendingJournal = "update_pending_journal";
+
+    /// <summary>绑定来源的目录里没有可用的便携候选（版本相同或更旧，或没有符合架构的资产）。</summary>
+    public const string CandidateNotFound = "update_candidate_not_found";
+
+    /// <summary>目录暂时读不出来：这不代表“没有新版”，界面不能据此说已经是最新。</summary>
+    public const string CatalogUnavailable = "update_catalog_unavailable";
+
     /// <summary>目标/暂存/备份路径未通过校验（非安装根目录直接子目录、重解析点、UNC、保留目录名等）。未改动任何文件。</summary>
     public const string UnsafePath = "update_unsafe_path";
 
@@ -183,6 +253,12 @@ public static class PortableUpgradeErrorCodes
     public const string RecoveryJournalInvalid = "update_recovery_journal_invalid";
     public const string RecoveryFailed = "update_recovery_failed";
 
+    /// <summary>
+    /// 遗留的是旧版（schema 1）journal。它没有把暂存/备份目录与安装绑定，因此无法证明归属：
+    /// 本服务<em>不</em>自动处理，保留 journal 与备份原样，如实报告需要人工介入。
+    /// </summary>
+    public const string RecoveryLegacyJournal = "update_recovery_legacy_journal";
+
     public const string RollbackNotAvailable = "rollback_not_available";
     public const string RollbackNotPortable = "rollback_not_portable";
     public const string RollbackInstallationNotFound = "rollback_installation_not_found";
@@ -217,15 +293,33 @@ public static class PortableUpgradeErrorCodes
 /// </summary>
 public sealed class PortableUpgradeService
 {
-    /// <summary>本进程内的便携更新互斥；拿不到立即返回 busy，不排队（避免用户以为卡住）。</summary>
-    private static readonly SemaphoreSlim Gate = new(1, 1);
+    /// <summary>
+    /// 按生效的数据目录串行化便携更新；拿不到立即返回 busy，不排队（避免用户以为卡住）。
+    /// <para>
+    /// 按目录而非整个进程共享：同一个数据目录上的并发更新必须互斥，但指向不同目录的服务
+    /// 之间没有任何共享状态，不该互相判忙。这与 ManagedAppLauncher 按清单路径取锁的做法一致。
+    /// </para>
+    /// </summary>
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> Gates = new(StringComparer.OrdinalIgnoreCase);
+    private readonly SemaphoreSlim _gate;
 
     private const int MaximumEntries = 10000;
     private const long MaximumExpandedBytes = 2L * 1024 * 1024 * 1024;
     private const int MaximumMetadataBytes = 262144;
     private const int MaximumPathLength = 2048;
-    private const int JournalSchemaVersion = 1;
-    private const int RollbackRecordSchemaVersion = 1;
+    /// <summary>
+    /// 当前 journal/保留记录的 schema。2 起，暂存/备份/中间目录名里并入产生它的安装代际标记，
+    /// 使这些目录能被证明“属于这条安装”。schema 1 的旧记录<em>不</em>自动处理（见 RecoverAsync）：
+    /// 它们无法证明路径归属，据此移动/删除文件就有动到别的安装的风险。
+    /// </summary>
+    private const int JournalSchemaVersion = 2;
+    private const int RollbackRecordSchemaVersion = 2;
+
+    /// <summary>代际标记长度（十六进制字符）。够短不撑爆路径，也够长避免碰撞。</summary>
+    private const int GenerationTokenLength = 16;
+
+    /// <summary>操作后缀长度（operationId 是 Guid 的 "N" 形式，恒为 32 位十六进制）。</summary>
+    private const int OperationSuffixLength = 32;
 
     private const string StagePrefix = ".githubstore-stage-";
     private const string BackupPrefix = ".githubstore-backup-";
@@ -247,6 +341,7 @@ public sealed class PortableUpgradeService
     private readonly string _dataDirectory;
     private readonly Func<string> _root;
     private readonly PackageCacheService _packageCache;
+    private readonly ICatalogService? _catalog;
     private readonly Func<PortableUpgradePhase, CancellationToken, Task>? _checkpoint;
 
     /// <param name="installRootProvider">
@@ -257,9 +352,13 @@ public sealed class PortableUpgradeService
     /// 故障注入点，仅供测试在指定阶段制造失败或模拟崩溃。
     /// 它无法改变任何所有权判断（目标路径、备份路径、删除范围都不来自它），只能中断流程以验证还原路径。
     /// </param>
+    /// <param name="catalog">
+    /// 已绑定来源的目录服务，仅用于“查找候选更新”（<see cref="FindCandidateAsync"/>）。
+    /// 为 null 时更新入口不可用，但更新/回滚/恢复本身照常工作——这三者只依赖登记与磁盘状态。
+    /// </param>
     public PortableUpgradeService(IDownloadService downloads, IManagedAppLauncher launcher, PreferencesService preferences,
         string dataDirectory, Func<string>? installRootProvider = null, PackageCacheService? packageCache = null,
-        Func<PortableUpgradePhase, CancellationToken, Task>? checkpoint = null)
+        Func<PortableUpgradePhase, CancellationToken, Task>? checkpoint = null, ICatalogService? catalog = null)
     {
         ArgumentNullException.ThrowIfNull(downloads);
         ArgumentNullException.ThrowIfNull(launcher);
@@ -268,7 +367,9 @@ public sealed class PortableUpgradeService
         _downloads = downloads;
         _launcher = launcher;
         _preferences = preferences;
+        _catalog = catalog;
         _dataDirectory = Path.GetFullPath(dataDirectory);
+        _gate = Gates.GetOrAdd(_dataDirectory, _ => new SemaphoreSlim(1, 1));
         _root = installRootProvider ?? (() => launcher.InstallRoot);
         // 与安装流程共用同一个包缓存：同一资产已下载并校验过时不再联网。
         _packageCache = packageCache ?? new PackageCacheService(
@@ -301,6 +402,95 @@ public sealed class PortableUpgradeService
     }
 
     /// <summary>
+    /// 为一条已登记的便携安装查找候选更新。候选<em>只</em>来自绑定软件源目录里的真实发行版与真实资产：
+    /// 按该安装的 <see cref="AppId"/> 取详情，再用安装流程同一套 <see cref="DefaultAssetSelectionPolicy"/>
+    /// 依当前架构与库策略筛选。本方法不联外网、不猜版本号、不在没有候选时编造一个。
+    /// <para>
+    /// 返回 <see cref="PortableUpgradeErrorCodes.CatalogUnavailable"/> 与
+    /// <see cref="PortableUpgradeErrorCodes.CandidateNotFound"/> 是两件不同的事：
+    /// 前者代表“没打听到”，界面绝不能据此说已经是最新；后者才是“打听过了，确实没有可用候选”。
+    /// </para>
+    /// </summary>
+    public async Task<PortableUpgradeCandidateResult> FindCandidateAsync(string installId, CancellationToken ct = default)
+    {
+        if (!ValidText(installId, 256)) return new(null, PortableUpgradeErrorCodes.InstallationNotFound);
+        if (_catalog is null) return new(null, PortableUpgradeErrorCodes.CatalogUnavailable);
+        InstallRecord? receipt;
+        try { receipt = await _launcher.GetAsync(installId, ct).ConfigureAwait(false); }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception) { return new(null, PortableUpgradeErrorCodes.ScanFailed); }
+        if (receipt is null) return new(null, PortableUpgradeErrorCodes.InstallationNotFound);
+        if (!StoreOwnedInstallation.OwnsExtractedFiles(receipt))
+            return new(null, PortableUpgradeErrorCodes.NotPortable);
+        if (HasPendingRecovery(installId)) return new(null, PortableUpgradeErrorCodes.PendingJournal);
+
+        AppDetail detail;
+        try { detail = await _catalog.GetAppAsync(receipt.AppId, ct).ConfigureAwait(false); }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception) { return new(null, PortableUpgradeErrorCodes.CatalogUnavailable); }
+        if (detail?.App is not { } app || app.Id != receipt.AppId)
+            return new(null, PortableUpgradeErrorCodes.CatalogUnavailable);
+
+        // 候选发行版的选择必须尊重库策略的发布通道，而不是硬编码“只要正式版”：
+        // LatestPrerelease 的用户明确要预发布，Pinned 的用户明确只认某一个标签。
+        var policy = detail.PackagePolicy;
+        PackagePolicyValidator.Validate(policy);
+        var releases = detail.Releases.Where(release => !release.Draft);
+        releases = policy?.ReleaseChannel switch
+        {
+            PackageReleaseChannel.Pinned => releases.Where(release => release.TagName == policy.PinnedTag),
+            PackageReleaseChannel.LatestPrerelease => releases.Where(release => release.Prerelease),
+            _ => releases.Where(release => !release.Prerelease),
+        };
+        releases = releases.OrderByDescending(release => release.PublishedAt)
+            .ThenBy(release => release.TagName, StringComparer.Ordinal);
+        var architecture = RuntimeInformation.OSArchitecture switch
+        { Architecture.Arm64 => Arch.Arm64, Architecture.X86 => Arch.X86, _ => Arch.Amd64 };
+        var preserve = detail.PackagePolicy?.PreservePaths ?? [];
+        foreach (var release in releases)
+        {
+            ct.ThrowIfCancellationRequested();
+            var relation = VersionComparer.Relate(receipt.Version, release.TagName);
+            // 只把“更新/无法判定”的发行版当候选；更旧或完全相同的都不算“有新版”。
+            if (relation is VersionRelation.Older or VersionRelation.Same) continue;
+            var asset = SelectPortableAsset(release, app, architecture, detail.PackagePolicy);
+            if (asset is null) continue;
+            return new(new PortableUpgradeCandidate
+            {
+                App = app, Release = release, Asset = asset,
+                InstalledVersion = receipt.Version.Raw, CandidateVersion = release.TagName, Relation = relation,
+                ExecutableRelativePath = detail.PackagePolicy?.ExecutableRelativePath,
+                PreservePaths = preserve,
+            });
+        }
+        return new(null, PortableUpgradeErrorCodes.CandidateNotFound);
+    }
+
+    /// <summary>
+    /// 在一个发行版里挑选可用于整目录替换的便携资产：策略存在时走策略，否则用默认选择策略，
+    /// 再按同一套口径确认它确实是便携产物。普通的 .exe 安装器永远不会被选中。
+    /// </summary>
+    private static Asset? SelectPortableAsset(Release release, CatalogApp app, Arch architecture, PackagePolicy? policy)
+    {
+        // 安装器格式的库策略明确要求走安装器路径，绝不是“整目录替换”。
+        if (policy?.InstallFormat == PackageInstallFormat.Installer) return null;
+        var repository = $"{app.Owner}/{app.Repo}";
+        var selected = policy is null
+            ? DefaultAssetSelectionPolicy.Select(release.Assets, architecture, repository)
+            : DefaultAssetSelectionPolicy.Select(release.Assets, architecture, repository, policy);
+        if (selected is null) return null;
+        // 只有本服务真正支持的两种形态才算候选：ZIP 归档与便携单文件。
+        // 7z 目前不支持（UpdateAsync 也会拒绝），绝不能把它当成可更新的候选展示给用户。
+        var extension = Path.GetExtension(selected.Name).ToLowerInvariant();
+        if (extension is not (".zip" or ".exe")) return null;
+        // 策略里的可执行相对路径等显式声明可以确认便携性，因此两者取“或”：
+        // 默认命名约定识别不了时，显式配置仍然是有效的证据。
+        if (policy is not null && policy.InstallFormat is PackageInstallFormat.PortableArchive
+            or PackageInstallFormat.PortableExecutable) return selected;
+        return DefaultAssetSelectionPolicy.IsRecognizedPortable(selected, repository) ? selected : null;
+    }
+
+    /// <summary>
     /// 用候选发布替换一条便携安装。只有候选版本更高、或<em>版本无法比较</em>（Different，
     /// 由用户显式发起的更新）时才继续；候选更旧或完全相同时直接拒绝，不会以“更新”为名降级。
     /// </summary>
@@ -310,9 +500,9 @@ public sealed class PortableUpgradeService
         CancellationToken ct = default)
     {
         if (ct.IsCancellationRequested) return new(false, PortableUpgradeErrorCodes.Cancelled);
-        if (!await Gate.WaitAsync(0).ConfigureAwait(false)) return new(false, PortableUpgradeErrorCodes.Busy);
+        if (!await _gate.WaitAsync(0).ConfigureAwait(false)) return new(false, PortableUpgradeErrorCodes.Busy);
         string? stage = null, target = null, root = null;
-        var operationId = Guid.NewGuid().ToString("N");
+        var operationId = NewOperationSuffix();
         var backupStarted = false;
         PortableUpgradeJournal? journal = null;
         try
@@ -334,6 +524,28 @@ public sealed class PortableUpgradeService
             target = ValidateTarget(receipt, root);
             if (ResolveExistingExecutable(receipt, target) is null || !Directory.Exists(target))
                 return new(false, PortableUpgradeErrorCodes.TargetMissing, request.InstallId, target);
+            // 存在未完成的 journal 时绝不开新更新：写 journal 会覆盖上一次的恢复依据，
+            // 把一次本可自愈的更新变成不可恢复的现场。必须先恢复收尾。
+            // 例外：已提交（Completed）的残留只是没删掉的元数据，文件与登记都已是新版本，
+            // 直接清掉即可，不必也不该阻止用户继续更新。
+            if (HasPendingRecovery(request.InstallId))
+            {
+                PortableUpgradeJournal? leftover = null;
+                try
+                {
+                    leftover = await ReadMetadataAsync<PortableUpgradeJournal>(
+                        GetJournalPath(request.InstallId), ct).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+                catch (Exception) { leftover = null; }
+                if (leftover is null || !leftover.Completed)
+                    return new(false, PortableUpgradeErrorCodes.PendingJournal, request.InstallId, target);
+                await DeleteMetadataAsync(GetJournalPath(request.InstallId), CancellationToken.None).ConfigureAwait(false);
+            }
+            // 库策略要求保留的文件，本服务没法在用新目录整体替换的同时保住它们。
+            // 明确拒绝并说清原因，绝不默默丢掉用户配置。
+            if (request.PreservePaths.Count > 0)
+                return new(false, PortableUpgradeErrorCodes.PreservePathsUnsupported, request.InstallId, target);
 
             var relation = VersionComparer.Relate(receipt.Version, request.Release.TagName);
             if (relation == VersionRelation.Older) return new(false, PortableUpgradeErrorCodes.NotAnUpgrade, request.InstallId, target);
@@ -393,7 +605,7 @@ public sealed class PortableUpgradeService
             }
             await CheckpointAsync(PortableUpgradePhase.Downloading, ct).ConfigureAwait(false);
 
-            stage = Path.Combine(root, StagePrefix + operationId);
+            stage = Path.Combine(root, OwnedName(StagePrefix, request.InstallId, operationId));
             Directory.CreateDirectory(stage);
             SafePath(stage);
             if (extension == ".zip")
@@ -423,8 +635,10 @@ public sealed class PortableUpgradeService
             journal = new PortableUpgradeJournal
             {
                 SchemaVersion = JournalSchemaVersion, InstallId = request.InstallId, TargetDir = target,
-                BackupDir = Path.Combine(root, BackupPrefix + operationId), StageDir = stage,
-                StartedAt = DateTimeOffset.UtcNow, PreviousReceipt = receipt, PreviousDisplayName = displayName,
+                // 暂存与备份共用同一个操作后缀：两条路径因此可以互相印证是同一次操作的产物。
+                BackupDir = Path.Combine(root, OwnedName(BackupPrefix, request.InstallId, operationId)),
+                StageDir = stage, StartedAt = DateTimeOffset.UtcNow, PreviousReceipt = receipt,
+                PreviousDisplayName = displayName,
             };
             await WriteMetadataAsync(GetJournalPath(request.InstallId), journal, ct).ConfigureAwait(false);
             await CheckpointAsync(PortableUpgradePhase.Journaling, ct).ConfigureAwait(false);
@@ -481,8 +695,10 @@ public sealed class PortableUpgradeService
                     PreviousDisplayName = displayName, ReplacedVersion = request.Release.TagName,
                 }, CancellationToken.None).ConfigureAwait(false);
                 // 同一安装只保留一份上一版；更早的那一份在这里删除，删不掉就如实报告可能残留。
+                // 删除前必须证明那一份确实属于这条安装：只看前缀会把别的安装的备份删掉。
                 if (previous is not null && !SamePath(previous.BackupDir, journal.BackupDir)
-                    && !TryDeleteOwned(previous.BackupDir, BackupPrefix, root)) filesMayRemain = true;
+                    && !TryDeleteOwnedName(previous.BackupDir, BackupPrefix, request.InstallId, root))
+                    filesMayRemain = true;
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
@@ -517,7 +733,7 @@ public sealed class PortableUpgradeService
             // 只清理本进程自己创建、且位于安装根目录之下的暂存目录。
             // 备份与 journal 一律交给还原逻辑处置：在这里删掉它们就等于毁掉用户的上一个可用版本。
             if (stage is not null && root is not null) TryDeleteOwned(stage, StagePrefix, root);
-            Gate.Release();
+            _gate.Release();
         }
 
         /// <summary>
@@ -555,7 +771,7 @@ public sealed class PortableUpgradeService
     {
         var directory = Path.Combine(_dataDirectory, JournalDirectoryName);
         if (!Directory.Exists(directory)) return PortableRecoveryResult.Nothing;
-        if (!await Gate.WaitAsync(0).ConfigureAwait(false))
+        if (!await _gate.WaitAsync(0).ConfigureAwait(false))
             return new(0, 0, 0, 0, [PortableUpgradeErrorCodes.Busy]);
         try
         {
@@ -577,8 +793,22 @@ public sealed class PortableUpgradeService
                 catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
                 catch (Exception) { failed++; codes.Add(PortableUpgradeErrorCodes.RecoveryJournalInvalid); continue; }
                 // journal 内容必须自证：安装 ID 合法，且它确实就是按该 ID 推导出来的那一个文件。
-                if (journal is null || journal.SchemaVersion != JournalSchemaVersion || !ValidText(journal.InstallId, 256)
+                if (journal is null || !ValidText(journal.InstallId, 256)
                     || !string.Equals(GetJournalPath(journal.InstallId), entry, StringComparison.OrdinalIgnoreCase))
+                {
+                    failed++;
+                    codes.Add(PortableUpgradeErrorCodes.RecoveryJournalInvalid);
+                    continue;
+                }
+                // 旧版 journal 没有把暂存/备份/中间目录与安装绑定，无法证明这些路径的归属。
+                // 本服务不猜：原样保留 journal 与备份，如实报告需要人工核对，绝不自动处理旧数据。
+                if (journal.SchemaVersion < JournalSchemaVersion)
+                {
+                    failed++;
+                    codes.Add(PortableUpgradeErrorCodes.RecoveryLegacyJournal);
+                    continue;
+                }
+                if (journal.SchemaVersion != JournalSchemaVersion)
                 {
                     failed++;
                     codes.Add(PortableUpgradeErrorCodes.RecoveryJournalInvalid);
@@ -587,13 +817,27 @@ public sealed class PortableUpgradeService
                 string root;
                 try { root = ResolveRoot(); }
                 catch (Exception) { failed++; codes.Add(PortableUpgradeErrorCodes.UnsafePath); continue; }
-                var outcome = await RestorePreviousAsync(journal, root, reRegister: true, ct).ConfigureAwait(false);
+                // 单条失败绝不能中断其余条目：一条 journal 的属性读取失败，不应该让别的应用
+                // 永远停在未恢复状态。
+                RestoreOutcome outcome;
+                try
+                {
+                    outcome = await RestorePreviousAsync(journal, root, reRegister: true, ct).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    failed++;
+                    codes.Add(PortableUpgradeErrorCodes.RecoveryFailed);
+                    continue;
+                }
                 if (outcome.ErrorCode is not null) { failed++; codes.Add(outcome.ErrorCode); continue; }
                 if (outcome.Restored) restored++; else cleaned++;
             }
             return new PortableRecoveryResult(examined, restored, cleaned, failed, codes);
         }
-        finally { Gate.Release(); }
+        finally { _gate.Release(); }
     }
 
     /// <summary>
@@ -606,7 +850,7 @@ public sealed class PortableUpgradeService
     {
         if (!ValidText(installId, 256)) return new(false, PortableUpgradeErrorCodes.RollbackInstallationNotFound);
         if (ct.IsCancellationRequested) return new(false, PortableUpgradeErrorCodes.Cancelled);
-        if (!await Gate.WaitAsync(0).ConfigureAwait(false)) return new(false, PortableUpgradeErrorCodes.Busy);
+        if (!await _gate.WaitAsync(0).ConfigureAwait(false)) return new(false, PortableUpgradeErrorCodes.Busy);
         try
         {
             ct.ThrowIfCancellationRequested();
@@ -654,20 +898,36 @@ public sealed class PortableUpgradeService
 
             var target = ValidateOwnedChild(record.TargetDir, root, null);
             var backup = ValidateOwnedChild(record.BackupDir, root, BackupPrefix);
-            // 记录里的三条路径都要逐项通过校验；任何一条不过关就什么都不做。
-            if (target is null || backup is null || !SamePath(target, record.TargetDir))
+            // 记录里的路径都要逐项通过校验；任何一条不过关就什么都不做。
+            if (target is null || backup is null || !SamePath(target, record.TargetDir)
+                || !SamePath(target, receipt.TargetDir ?? string.Empty))
                 return new(false, PortableUpgradeErrorCodes.RollbackUnsafePath, installId);
             if (!Directory.Exists(target) || !Directory.Exists(backup))
                 return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId);
             ct.ThrowIfCancellationRequested();
 
-            var outcome = await RestorePreviousAsync(new PortableUpgradeJournal
+            // 先把这个回退动作持久化成一条真正的 journal，再动任何文件。
+            // 否则一旦在“备份已消耗、登记还没写回”的那一刻失败，磁盘上就再也没有恢复依据了。
+            var journal = new PortableUpgradeJournal
             {
                 SchemaVersion = JournalSchemaVersion, InstallId = installId, TargetDir = target, BackupDir = backup,
-                StageDir = Path.Combine(root, StagePrefix + Guid.NewGuid().ToString("N")),
+                // 暂存目录名必须与其它自建目录用同一套代际命名，否则恢复流程会因“名字对不上”
+                // 而拒绝清理它，白白留下一份永不回收的残留。
+                // 暂存名沿用备份的操作后缀：恢复流程要求两者互相印证，用新后缀会被正确地拒绝。
+                StageDir = Path.Combine(root, OwnedName(StagePrefix, installId,
+                    Path.GetFileName(backup)[(BackupPrefix.Length + GenerationTokenLength + 1)..])),
                 StartedAt = DateTimeOffset.UtcNow, PreviousReceipt = record.PreviousReceipt,
                 PreviousDisplayName = record.PreviousDisplayName,
-            }, root, reRegister: true, ct).ConfigureAwait(false);
+            };
+            try { await WriteMetadataAsync(GetJournalPath(installId), journal, ct).ConfigureAwait(false); }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                Trace.WriteLine(ex);
+                // journal 落不了盘就绝不开始替换：一个文件都还没动。
+                return new(false, PortableUpgradeErrorCodes.JournalFailed, installId);
+            }
+
+            var outcome = await RestorePreviousAsync(journal, root, reRegister: true, ct).ConfigureAwait(false);
             if (outcome.ErrorCode is not null)
                 return new(false, outcome.ErrorCode, installId, FilesMayRemain: outcome.FilesMayRemain);
             if (!outcome.Restored) return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId);
@@ -676,12 +936,15 @@ public sealed class PortableUpgradeService
             return new(true, InstallId: installId, TargetDirectory: target, ExecutablePath: current?.ExePath,
                 DisplayVersion: current?.DisplayVersion, FilesMayRemain: outcome.FilesMayRemain);
         }
+        // 与 UpdateAsync 同样处理故障注入：它代表“进程在此处被强杀”，
+        // 不能被下面的通用 catch 吞掉并降级成 rollback_incomplete——那样就不是崩溃了。
+        catch (PortableUpgradeSimulatedCrashException) { throw; }
         catch (OperationCanceledException) { return new(false, PortableUpgradeErrorCodes.Cancelled, installId); }
         catch (UpgradePathException) { return new(false, PortableUpgradeErrorCodes.RollbackUnsafePath, installId); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         { return new(false, PortableUpgradeErrorCodes.RollbackIncomplete, installId); }
         catch (Exception) { return new(false, PortableUpgradeErrorCodes.RollbackIncomplete, installId); }
-        finally { Gate.Release(); }
+        finally { _gate.Release(); }
     }
 
     /// <summary>
@@ -700,38 +963,72 @@ public sealed class PortableUpgradeService
             await DeleteMetadataAsync(GetJournalPath(journal.InstallId), CancellationToken.None).ConfigureAwait(false);
             return new(false, false, null);
         }
-        var target = ValidateOwnedChild(journal.TargetDir, root, null);
-        var backup = ValidateOwnedChild(journal.BackupDir, root, BackupPrefix);
-        var stage = ValidateOwnedChild(journal.StageDir, root, StagePrefix);
-        // 备份路径必须与记录完全一致：磁盘上允许不存在（说明还没走到那一步），但不允许指向别处。
-        if (target is null || backup is null || !SamePath(target, journal.TargetDir) || !SamePath(backup, journal.BackupDir))
-            return new(false, false, PortableUpgradeErrorCodes.RollbackUnsafePath);
-        if (stage is not null) TryDeleteOwned(stage, StagePrefix, root);
+
+        // ── 变更前必须完成全部身份校验 ──────────────────────────────────────────
+        // 只做“是根目录的直接子目录”检查是不够的：一个被改成邻居名字的 journal 依然满足它，
+        // 却会让本服务移动/删除邻居的目录。因此这里先证明：这条 journal 描述的就是它自称的那条安装。
+        var validated = await ValidateJournalAuthorityAsync(journal, root).ConfigureAwait(false);
+        if (validated is null) return new(false, false, PortableUpgradeErrorCodes.RollbackUnsafePath);
+        var (target, backup) = validated.Value;
+        // 暂存目录同样必须证明属于这条安装，且必须与备份是同一次操作的产物（同一个操作后缀）。
+        // 否则一份把 stageDir 改成“别的安装的暂存目录”的 journal，就能借清理之名删掉别人的目录。
+        var stage = ValidateOwnedName(journal.StageDir, root, StagePrefix, journal.InstallId);
+        if (stage is not null && SameOperationSuffix(stage, backup, StagePrefix, BackupPrefix))
+            TryDeleteOwnedName(stage, StagePrefix, journal.InstallId, root);
 
         var filesMayRemain = false;
         var restored = false;
+        // 还原过程中被挪开的那个目录。它必须在 Move 之前就落到 journal 上：
+        // 否则“已经挪走、还没记下来”的那一瞬间崩溃，这一份就成了无人认领的残留——
+        // 恢复流程既不知道它存在，也无从判断它属于谁。先记后动，因此可重入。
+        var replaced = journal.ReplacedDir;
         if (Directory.Exists(backup))
         {
             // 把当前（可能是新版本）目录挪到一边而不是直接删除：换回失败时还要把它放回去。
-            string? replaced = null;
             if (Directory.Exists(target))
             {
-                replaced = Path.Combine(root, ReplacedPrefix + Guid.NewGuid().ToString("N"));
-                try { Directory.Move(target, replaced); }
-                catch (Exception ex) { Trace.WriteLine(ex); return new(false, false, PortableUpgradeErrorCodes.RollbackFailed); }
+                // 已记录过目标位置（上次到这里崩溃过）就复用它，不新建：保持幂等。
+                var destination = replaced is not null
+                    && ValidateOwnedName(replaced, root, ReplacedPrefix, journal.InstallId) is { } ownedReplaced
+                        ? ownedReplaced
+                        : Path.Combine(root, OwnedName(ReplacedPrefix, journal.InstallId, NewOperationSuffix()));
+                if (!SamePath(destination, replaced ?? string.Empty))
+                {
+                    try
+                    {
+                        await WriteMetadataAsync(GetJournalPath(journal.InstallId), journal with { ReplacedDir = destination },
+                            CancellationToken.None).ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (ex is not OutOfMemoryException)
+                    {
+                        // 记录不下来就绝不移动：一个文件都还没动，状态与开始前一致。
+                        Trace.WriteLine(ex);
+                        return new(false, false, PortableUpgradeErrorCodes.RollbackFailed);
+                    }
+                    replaced = destination;
+                }
+                // 只有“记录里的位置还没有目录”时才真正移动。若它已经存在，说明上一次到这里之后
+                // 就崩溃了（记录已落盘、移动已完成），直接沿用即可，绝不重复移动。
+                if (!Directory.Exists(replaced))
+                {
+                    try { Directory.Move(target, replaced!); }
+                    catch (Exception ex) { Trace.WriteLine(ex); return new(false, false, PortableUpgradeErrorCodes.RollbackFailed); }
+                }
             }
+            // 故障注入点：在“当前版本已挪开、登记还没写回”之间模拟崩溃。
+            // 生产传 null，因此这一行不影响任何真实流程。
+            await CheckpointAsync(PortableUpgradePhase.Registering, ct).ConfigureAwait(false);
             try { Directory.Move(backup, target); }
             catch (Exception ex)
             {
                 Trace.WriteLine(ex);
-                if (replaced is not null && !Directory.Exists(target))
+                if (replaced is not null && !Directory.Exists(target) && Directory.Exists(replaced))
                 {
                     try { Directory.Move(replaced, target); }
                     catch (Exception inner) { Trace.WriteLine(inner); }
                 }
                 return new(false, false, PortableUpgradeErrorCodes.RollbackFailed);
             }
-            if (replaced is not null && !TryDeleteOwned(replaced, ReplacedPrefix, root)) filesMayRemain = true;
             restored = true;
         }
 
@@ -745,13 +1042,54 @@ public sealed class PortableUpgradeService
             }
             catch (Exception ex) when (ex is not OutOfMemoryException)
             {
-                // 文件已是旧版本，但登记没写回：保留 journal 供下次启动重试，绝不谎报已还原。
+                // 文件已是旧版本，但登记没写回。journal 必须留在原处：它记录了 ReplacedDir，
+                // 下一次恢复据此清理，绝不谎报已还原，也绝不假装没有残留。
                 Trace.WriteLine(ex);
                 return new(restored, filesMayRemain, PortableUpgradeErrorCodes.ReceiptRestoreFailed);
             }
         }
+
+        // 只有登记确实写回成功（或本次不需要写回）之后，才允许清掉被替换下来的目录。
+        // 顺序颠倒会造成最坏的结果：登记失败 + 新版本文件已被删除 = 两个版本都没了。
+        if (replaced is not null && !TryDeleteOwnedName(replaced, ReplacedPrefix, journal.InstallId, root))
+            filesMayRemain = true;
         await DeleteMetadataAsync(GetJournalPath(journal.InstallId), CancellationToken.None).ConfigureAwait(false);
         return new(restored, filesMayRemain, null);
+    }
+
+    /// <summary>
+    /// 证明一条 journal 的权威性：它自称的安装确实存在、确实是本程序解包的便携安装，
+    /// 且 journal 里记录的目标目录<em>正是</em>那条登记的目标目录。三条都通过才返回规范化路径。
+    /// <para>
+    /// 这是所有移动/删除动作的前置条件。缺少它，一份被篡改的 journal 只要把自己的目录名改成
+    /// 邻居的名字，就能让本服务去搬动邻居的目录。
+    /// </para>
+    /// </summary>
+    private async Task<(string Target, string Backup)?> ValidateJournalAuthorityAsync(PortableUpgradeJournal journal,
+        string root)
+    {
+        if (!ValidText(journal.InstallId, 256)) return null;
+        // journal 里记录的旧登记必须自证清白：同一条安装 ID，且确实是本程序解包的便携/绿色安装。
+        if (journal.PreviousReceipt is null || !SameText(journal.PreviousReceipt.InstallId, journal.InstallId)
+            || !StoreOwnedInstallation.OwnsExtractedFiles(journal.PreviousReceipt)) return null;
+        var target = ValidateOwnedChild(journal.TargetDir, root, null);
+        // 备份目录必须能证明属于这条安装（前缀 + 代际标记 + 操作后缀），而不只是“带备份前缀”。
+        var backup = ValidateOwnedName(journal.BackupDir, root, BackupPrefix, journal.InstallId);
+        if (target is null || backup is null) return null;
+        if (!SamePath(target, journal.TargetDir) || !SamePath(backup, journal.BackupDir)) return null;
+        // 已被挪开的那个目录同样必须属于这条安装；否则一律视为记录不可信。
+        if (journal.ReplacedDir is { } replaced
+            && ValidateOwnedName(replaced, root, ReplacedPrefix, journal.InstallId) is null) return null;
+        // 旧登记自己声明的目标必须与 journal 的目标一致：两者不一致说明记录被拼凑过。
+        if (!SamePath(target, journal.PreviousReceipt.TargetDir ?? string.Empty)) return null;
+        // 若这一条安装当前仍有登记，它必须仍然是同一条安装、同一个目标目录。
+        InstallRecord? current;
+        try { current = await _launcher.GetAsync(journal.InstallId, CancellationToken.None).ConfigureAwait(false); }
+        catch (OperationCanceledException) { return null; }
+        catch (Exception) { return null; }
+        if (current is not null && (current.AppId != journal.PreviousReceipt.AppId
+            || !SamePath(current.TargetDir ?? string.Empty, target))) return null;
+        return (target, backup);
     }
 
     private sealed record RestoreOutcome(bool Restored, bool FilesMayRemain, string? ErrorCode);
@@ -955,6 +1293,54 @@ public sealed class PortableUpgradeService
         ValidateOwnedChild(receipt.TargetDir, root, null) ?? throw new UpgradePathException();
 
     /// <summary>
+    /// 某个安装的代际标记：安装 ID 哈希的前若干字符。它把本服务创建的暂存/备份/中间目录
+    /// 与<em>产生它的那条安装</em>绑在一起——仅凭“名字带保留前缀”无法区分是谁的目录，
+    /// 一份被改成别的安装暂存名的 journal 就能借它删掉别人的目录。
+    /// </summary>
+    private static string GenerationToken(string installId) =>
+        MetadataKey(installId)[..GenerationTokenLength];
+
+    /// <summary>本服务自建目录的规范名：前缀 + 代际标记 + "-" + 操作后缀。</summary>
+    private static string OwnedName(string prefix, string installId, string operationId) =>
+        prefix + GenerationToken(installId) + "-" + operationId;
+
+    /// <summary>
+    /// 校验一个受管目录确实<em>属于这条安装</em>：是根目录的直接子目录，名字形如
+    /// <c>前缀 + 该安装代际标记 + "-" + 32 位十六进制操作后缀</c>。
+    /// 只校验前缀是不够的——那只能证明“是本服务建的”，不能证明“是这条安装的”。
+    /// </summary>
+    private static string? ValidateOwnedName(string? path, string root, string prefix, string installId)
+    {
+        var full = ValidateOwnedChild(path, root, prefix);
+        if (full is null) return null;
+        var name = Path.GetFileName(full);
+        var expected = prefix + GenerationToken(installId) + "-";
+        if (!name.StartsWith(expected, StringComparison.Ordinal)) return null;
+        var suffix = name[expected.Length..];
+        // 操作后缀必须是纯十六进制且长度固定：既排除拼接，也排除“把别的安装的目录名挪过来”。
+        if (suffix.Length != OperationSuffixLength || !suffix.All(Uri.IsHexDigit)) return null;
+        return full;
+    }
+
+    /// <summary>为一次操作生成新的操作后缀（Guid 的 "N" 形式，恒为 32 位十六进制）。</summary>
+    private static string NewOperationSuffix() => Guid.NewGuid().ToString("N");
+
+    /// <summary>
+    /// 两个本服务自建目录是否出自同一次操作（同一个操作后缀）。
+    /// 暂存与备份由同一次更新创建，因此必须互相印证；不一致说明记录被拼凑过。
+    /// </summary>
+    private static bool SameOperationSuffix(string left, string right, string leftPrefix, string rightPrefix)
+    {
+        // 按<em>目录名</em>取后缀：left/right 是完整路径，直接按前缀长度切片会把分隔符也切进来，
+        // 于是任何两条路径都可能“相等”。
+        var leftName = Path.GetFileName(Path.TrimEndingDirectorySeparator(left));
+        var rightName = Path.GetFileName(Path.TrimEndingDirectorySeparator(right));
+        if (!leftName.StartsWith(leftPrefix, StringComparison.Ordinal)
+            || !rightName.StartsWith(rightPrefix, StringComparison.Ordinal)) return false;
+        return string.Equals(leftName[leftPrefix.Length..], rightName[rightPrefix.Length..], StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// 校验一条受管路径：绝对、非 UNC、无重解析点、段名合法，且是安装根目录的直接子目录。
     /// <paramref name="requiredPrefix"/> 非空时还要求目录名带该保留前缀（用于暂存/备份/中间目录）；
     /// 为空时反过来拒绝带任何保留前缀的名字——保留目录永远不会被当成用户的安装目标。
@@ -1129,6 +1515,28 @@ public sealed class PortableUpgradeService
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             // 删除失败（含 TOCTOU 发现的链接）只记 Trace 并如实返回 false，由调用方报告可能残留。
+            Trace.WriteLine(ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 只删除“确实属于这条安装”的自建目录。与 <see cref="TryDeleteOwned"/> 的区别是：
+    /// 后者只认前缀（“是本服务建的”），这里还要求名字里带该安装的代际标记
+    /// （“是这条安装的”）。删除不可逆，因此两个条件都必须满足。
+    /// </summary>
+    private static bool TryDeleteOwnedName(string path, string prefix, string installId, string root)
+    {
+        try
+        {
+            var owned = ValidateOwnedName(path, root, prefix, installId);
+            if (owned is null) return false;
+            if (!Directory.Exists(owned)) return true;
+            DeleteTree(owned);
+            return true;
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
             Trace.WriteLine(ex);
             return false;
         }

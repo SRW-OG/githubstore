@@ -76,6 +76,55 @@ public sealed partial class InstalledView : UserControl
         catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledRegistrationRemovalFailed"]; }
     }
 
+    /// <summary>
+    /// 升级前二次确认。对话框必须展示<em>将要安装的版本</em>与该版本是否可判定为更新，
+    /// 因为“版本号无法比较”时本程序不能声称一定是新版。
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
+    private async void OnUpgradeClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { } program) return;
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = viewModel.Text["InstalledUpdateTitle"],
+                Content = new StackPanel
+                {
+                    Spacing = 12,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = viewModel.Text.Format("InstalledUpdateConfirm", program.DisplayName, program.DisplayVersion),
+                            TextWrapping = TextWrapping.Wrap,
+                        },
+                        new TextBlock
+                        {
+                            // 这一行来自真实的候选查询结论，不是文案里的固定说法。
+                            Text = viewModel.UpdateStatusText,
+                            TextWrapping = TextWrapping.Wrap,
+                            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                        },
+                        new TextBlock
+                        {
+                            Text = viewModel.Text["InstalledUpdateHint"],
+                            TextWrapping = TextWrapping.Wrap,
+                            Opacity = 0.8,
+                        },
+                    },
+                },
+                PrimaryButtonText = viewModel.Text["InstalledUpdate"],
+                CloseButtonText = viewModel.Text["Cancel"],
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                await viewModel.UpgradeConfirmedAsync(program);
+        }
+        catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledUpdateFailed"]; }
+    }
+
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
     private async void OnRollbackClick(object sender, RoutedEventArgs args)
     {

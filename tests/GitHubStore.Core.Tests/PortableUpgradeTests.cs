@@ -926,13 +926,42 @@ public sealed class PortableUpgradeTests
         await entered.Task;
         try
         {
-            using var other = new Fixture();
-            await other.SeedAsync("1.0.0", "Tool.exe", "v1");
-            Assert.Equal(PortableUpgradeErrorCodes.Busy, (await other.Service().UpdateAsync(other.Request("1.1.0"))).ErrorCode);
-            Assert.Null(other.Download.Last);
+            // 互斥按数据目录分键：同一数据目录的第二个服务实例必须立刻返回忙。
+            // 这里只断言错误码，不断言 Download.Last——它记录的是仍在进行的那次成功更新。
+            var other = f.Service();
+            Assert.Equal(PortableUpgradeErrorCodes.Busy, (await other.UpdateAsync(f.Request("1.2.0"))).ErrorCode);
         }
         finally { release.TrySetResult(); }
         Assert.True((await first).Succeeded);
+    }
+
+    [Fact]
+    public async Task SeparateDataDirectoriesDoNotShareTheUpgradeGate()
+    {
+        using var first = new Fixture();
+        await first.SeedAsync("1.0.0", "Tool.exe", "v1");
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        first.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var running = first.Service(checkpoint: async (phase, _) =>
+        {
+            if (phase != PortableUpgradePhase.Extracting) return;
+            entered.TrySetResult();
+            await release.Task;
+        }).UpdateAsync(first.Request("1.1.0"));
+        await entered.Task;
+        try
+        {
+            // 另一个数据目录是另一套受管状态：它自己的更新不应被别人的门挡住。
+            using var other = new Fixture();
+            await other.SeedAsync("1.0.0", "Tool.exe", "v1");
+            other.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+            var result = await other.Service().UpdateAsync(other.Request("1.1.0"));
+            Assert.True(result.Succeeded, result.ErrorCode);
+            Assert.Equal("v2", Text(other.Target, "Tool.exe"));
+        }
+        finally { release.TrySetResult(); }
+        Assert.True((await running).Succeeded);
     }
 
     [Fact]
@@ -1012,6 +1041,405 @@ public sealed class PortableUpgradeTests
     /// 读回 <see cref="Pe"/> 写入的标记文本。标记刻意放在 PE 头部之后（偏移 128），
     /// 因为可执行文件校验只读文件头，标记不能干扰它。
     /// </summary>
+    // ── task-16：事务保证、路径权威与升级入口 ──────────────────────────────────
+
+    [Fact]
+    public async Task UpdateIsRefusedWhileAnIncompleteJournalStillExists()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        // 崩溃后现场：journal 仍在，恢复还没做。
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+
+        // 此时再开新更新会覆盖上一次的恢复依据，必须被拒绝。
+        var second = await f.Service().UpdateAsync(f.Request("1.2.0"));
+        Assert.Equal(PortableUpgradeErrorCodes.PendingJournal, second.ErrorCode);
+        // 原 journal 没被覆盖，恢复依据完好。
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+    }
+
+    /// <summary>
+    /// 已提交（Completed）的残留 journal 只是没删掉的元数据：文件与登记都已是新版本。
+    /// 它不能阻止用户继续更新，否则一次“删除元数据失败”就会把用户永久卡在旧版本上。
+    /// </summary>
+    [Fact]
+    public async Task AlreadyCommittedLeftoverJournalDoesNotBlockTheNextUpdate()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        Assert.False(f.Service().HasPendingRecovery(install.InstallId));
+
+        // 重建一条“已提交但没删掉”的残留 journal：用真实更新产生的 journal 再置上 completed，
+        // 这样字段、命名与嵌套结构都来自服务本身，不会因为手写 JSON 不匹配而误判。
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v3")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(
+            () => crashed.UpdateAsync(f.Request("1.2.0", shear: "Tool-1.2.0.zip")));
+        await TamperAsync(crashed.GetJournalPath(install.InstallId), root => root["completed"] = true);
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+
+        // 下一次更新必须能正常进行，而不是被这条残留挡住。
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v4")));
+        var result = await f.Service().UpdateAsync(f.Request("1.3.0", shear: "Tool-1.3.0.zip"));
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal("v4", Text(f.Target, "Tool.exe"));
+    }
+
+    [Fact]
+    public async Task JournalPointingAtANeighbouringDirectoryIsRefused()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        // 邻居：一个与本次安装无关的受管目录。被篡改的 journal 会把它当成 target。
+        var neighbour = Directory.CreateDirectory(Path.Combine(f.Root, "Neighbour")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(neighbour, "keep.txt"), "keep");
+        var journal = crashed.GetJournalPath(install.InstallId);
+        // 直接改写 JSON 字段（而不是替换原始文本），确保生成的是一份完全合法的 journal——
+        // 这样被拒的原因只会是“身份不符”，而不是“文件损坏”。
+        await TamperAsync(journal, root => root["targetDir"] = neighbour);
+
+        var recovered = await crashed.RecoverAsync();
+
+        Assert.Equal(1, recovered.Failed);
+        // 邻居目录既没被移动也没被删除。
+        Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(neighbour, "keep.txt")));
+    }
+
+    [Fact]
+    public async Task JournalWhosePreviousReceiptTargetsAnotherDirectoryIsRefused()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        // 把 journal 里旧登记的 TargetDir 换成另一个目录：两者不一致说明这条记录是被拼凑出来的。
+        var journal = crashed.GetJournalPath(install.InstallId);
+        await TamperAsync(journal, root =>
+            root["previousReceipt"]!["targetDir"] = Path.Combine(f.Root, "Elsewhere"));
+
+        Assert.Equal(1, (await crashed.RecoverAsync()).Failed);
+        // 目标目录仍是我们自己的那份，没有被搬动。
+        Assert.True(Directory.Exists(f.Target));
+    }
+
+    /// <summary>
+    /// 把 journal 的 backupDir 改成<em>另一条安装</em>的备份目录。它仍然是根目录的直接子目录、
+    /// 仍然带备份前缀，因此只校验前缀的实现会去搬动别人的备份。必须被拒绝。
+    /// </summary>
+    [Fact]
+    public async Task JournalPointingAtAnotherInstallsBackupIsRefused()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        // 另一条安装的备份目录：命名规范完全正确，只是代际标记属于别的安装。
+        var foreignBackup = Directory.CreateDirectory(
+            Path.Combine(f.Root, OwnedNameFor(".githubstore-backup-", Guid.NewGuid().ToString("N"), "b"))).FullName;
+        await File.WriteAllTextAsync(Path.Combine(foreignBackup, "keep.txt"), "keep");
+
+        await TamperAsync(crashed.GetJournalPath(f.InstallId), root => root["backupDir"] = foreignBackup);
+
+        Assert.Equal(1, (await crashed.RecoverAsync()).Failed);
+        // 别人的备份一个文件都没动。
+        Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(foreignBackup, "keep.txt")));
+    }
+
+    /// <summary>
+    /// 把 journal 的 stageDir 改成另一条安装的暂存目录。暂存目录会被“清理”，
+    /// 因此只按前缀识别的实现会删掉别人的目录。必须被拒绝。
+    /// </summary>
+    [Fact]
+    public async Task JournalPointingAtAnotherInstallsStageDirectoryIsRefused()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        var foreignStage = Directory.CreateDirectory(
+            Path.Combine(f.Root, OwnedNameFor(".githubstore-stage-", Guid.NewGuid().ToString("N"), "a"))).FullName;
+        await File.WriteAllTextAsync(Path.Combine(foreignStage, "keep.txt"), "keep");
+
+        await TamperAsync(crashed.GetJournalPath(f.InstallId), root => root["stageDir"] = foreignStage);
+
+        await crashed.RecoverAsync();
+        // 别人的暂存目录必须原样保留。
+        Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(foreignStage, "keep.txt")));
+    }
+
+    /// <summary>
+    /// 崩溃在“当前版本已挪到一边、登记还没写回”的那一刻。journal 里必须已有 replacedDir，
+    /// 重启恢复才能收敛到旧版本并清掉那一份，而不是留下无人认领的残留。
+    /// </summary>
+    [Fact]
+    public async Task CrashAfterMoveButBeforeReceiptRestoreIsRecoveredOnRestart()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+
+        var service = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => service.RollbackAsync(install.InstallId));
+
+        // 现场：当前（新）版本已被挪到 .githubstore-replaced-*，备份尚未换回，登记仍是新的。
+        // 这三个事实必须能自证，否则重启后无从收敛。
+        Assert.True(service.HasPendingRecovery(install.InstallId));
+        Assert.False(Directory.Exists(f.Target));
+        Assert.Single(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
+        var journalText = await File.ReadAllTextAsync(service.GetJournalPath(install.InstallId));
+        // replacedDir 必须在移动之前就已落盘，否则这一份就成了无人认领的残留。
+        Assert.Contains("replacedDir", journalText, StringComparison.OrdinalIgnoreCase);
+
+        // 重启恢复：必须收敛到“旧文件 + 旧登记 + 无 journal + 无残留”。
+        var recovered = await f.Service().RecoverAsync();
+        Assert.Equal(0, recovered.Failed);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.False(f.Service().HasPendingRecovery(install.InstallId));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
+    }
+
+    /// <summary>
+    /// 旧版（schema 1）journal：它没有把暂存/备份目录与安装绑定，因此无法证明归属。
+    /// 本服务必须 fail closed——保留 journal 与备份原样、如实报告，绝不自动处理旧数据。
+    /// </summary>
+    [Fact]
+    public async Task LegacyJournalIsReportedButNotActedOn()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        // 把 schema 降级成 1，模拟旧版本留下的 journal。
+        await TamperAsync(crashed.GetJournalPath(install.InstallId), root => root["schemaVersion"] = 1);
+        var backupsBefore = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
+        Assert.Single(backupsBefore);
+
+        var recovered = await crashed.RecoverAsync();
+
+        Assert.Equal(1, recovered.Failed);
+        Assert.Contains(PortableUpgradeErrorCodes.RecoveryLegacyJournal, recovered.ErrorCodes);
+        // 一个文件都没动：journal 与备份原样保留，交给人工核对。
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+        Assert.Single(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+    }
+
+    /// <summary>按本服务的命名规范拼一个自建目录名：前缀 + 安装 ID 哈希前 16 位 + "-" + 32 位后缀。</summary>
+    private static string OwnedNameFor(string prefix, string installId, string marker)
+    {
+        var key = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(installId))).ToLowerInvariant();
+        return prefix + key[..16] + "-" + string.Concat(Enumerable.Repeat(marker, 32));
+    }
+
+    [Fact]
+    public async Task UpdateRefusesDeclaredPreservePathsInsteadOfDiscardingUserConfig()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0") with { PreservePaths = new[] { "config/settings.json" } });
+
+        // 整目录替换必然覆盖这些文件，因此明确拒绝，而不是默默丢掉用户配置。
+        Assert.Equal(PortableUpgradeErrorCodes.PreservePathsUnsupported, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Single(f.Launcher.Receipts);
+    }
+
+    [Fact]
+    public async Task RollbackPersistsItsJournalSoARestartCanFinishTheJob()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+
+        // 回滚时登记写回失败：备份此刻已被“消耗”掉，如果没有持久化的 journal，就再无恢复依据。
+        f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
+        var rollback = await f.Service().RollbackAsync(install.InstallId);
+
+        Assert.False(rollback.Succeeded);
+        Assert.Equal(PortableUpgradeErrorCodes.ReceiptRestoreFailed, rollback.ErrorCode);
+        // 关键：journal 必须留在磁盘上，作为下次启动的恢复依据。
+        Assert.True(f.Service().HasPendingRecovery(install.InstallId));
+
+        // 模拟重启：登记恢复可写后，启动恢复必须能收敛到旧版本。
+        f.Launcher.OnRegister = null;
+        var recovered = await f.Service().RecoverAsync();
+
+        Assert.Equal(0, recovered.Failed);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.False(f.Service().HasPendingRecovery(install.InstallId));
+    }
+
+    [Fact]
+    public async Task RestoreKeepsTheDisplacedDirectoryUntilTheReceiptIsCommitted()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+
+        f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
+        await f.Service().RollbackAsync(install.InstallId);
+
+        // 登记写回失败时，被换下来的新版本不能删：删了就成了“两个版本都没了”。
+        // 它此时应仍存在于根目录下，等待下一次恢复处置。
+        var replaced = Directory.GetDirectories(f.Root, ".githubstore-replaced-*");
+        Assert.Single(replaced);
+        Assert.Equal("v2", Text(replaced[0], "Tool.exe"));
+
+        // 重试恢复：登记写回成功后，被换下来的目录才允许清理。
+        f.Launcher.OnRegister = null;
+        await f.Service().RecoverAsync();
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+    }
+
+    [Fact]
+    public async Task JournalRecordsTheDisplacedDirectoryBeforeMovingAnything()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
+        await f.Service().RollbackAsync(install.InstallId);
+
+        // journal 必须如实记录“把当时的新版本挪到了哪里”，否则下次恢复无从清理。
+        var text = await File.ReadAllTextAsync(f.Service().GetJournalPath(install.InstallId));
+        Assert.Contains(".githubstore-replaced-", text, StringComparison.Ordinal);
+        Assert.Contains("replacedDir", text, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task FindCandidateAsyncUsesRealCatalogDataAndNeverGuessesAVersion()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        var asset = new Asset
+        {
+            InstallerId = "asset-2", ReleaseKey = "release-1", Name = "Tool-1.1.0-windows-portable.zip",
+            DownloadUrl = "https://example.com/Tool-1.1.0-windows-portable.zip",
+        };
+        f.Catalog.Detail = new AppDetail
+        {
+            App = f.App,
+            Releases = new[]
+            {
+                new Release { AppId = f.App.Id, Key = "release-1", TagName = "1.1.0", Assets = new[] { asset } },
+                // 预发布与草稿都不能变成候选。
+                new Release { AppId = f.App.Id, Key = "release-2", TagName = "2.0.0", Prerelease = true, Assets = Array.Empty<Asset>() },
+                new Release { AppId = f.App.Id, Key = "release-3", TagName = "3.0.0", Draft = true, Assets = Array.Empty<Asset>() },
+            },
+        };
+
+        var result = await f.Service().FindCandidateAsync(install.InstallId);
+
+        Assert.NotNull(result.Candidate);
+        Assert.Equal("1.1.0", result.Candidate!.CandidateVersion);
+        Assert.Equal(asset.Name, result.Candidate.Asset.Name);
+        Assert.Equal(VersionRelation.Newer, result.Candidate.Relation);
+        Assert.Equal("1.0.0", result.Candidate.InstalledVersion);
+    }
+
+    [Fact]
+    public async Task FindCandidateAsyncReportsNoCandidateSeparatelyFromAnUnavailableCatalog()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        // 目录里只有更旧的版本：确实没有候选。
+        var asset = new Asset
+        {
+            InstallerId = "asset-2", ReleaseKey = "release-1", Name = "Tool-0.9.0-windows-portable.zip",
+            DownloadUrl = "https://example.com/Tool-0.9.0-windows-portable.zip",
+        };
+        f.Catalog.Detail = new AppDetail
+        {
+            App = f.App,
+            Releases = new[] { new Release { AppId = f.App.Id, Key = "release-1", TagName = "0.9.0", Assets = new[] { asset } } },
+        };
+        Assert.Equal(PortableUpgradeErrorCodes.CandidateNotFound, (await f.Service().FindCandidateAsync(install.InstallId)).ErrorCode);
+
+        // 目录读不出来：“没打听到”和“确实没有”必须区分开，后者才代表已经是最新。
+        f.Catalog.Error = new InvalidOperationException("catalog offline");
+        Assert.Equal(PortableUpgradeErrorCodes.CatalogUnavailable, (await f.Service().FindCandidateAsync(install.InstallId)).ErrorCode);
+
+        // 没有配置目录服务时同样是“不可用”，绝不能说成“没有新版”。
+        Assert.Equal(PortableUpgradeErrorCodes.CatalogUnavailable,
+            (await f.Service(useCatalog: false).FindCandidateAsync(install.InstallId)).ErrorCode);
+    }
+
+    [Fact]
+    public async Task FindCandidateAsyncRefusesNonPortableAndUnknownInstalls()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        Assert.Equal(PortableUpgradeErrorCodes.InstallationNotFound,
+            (await f.Service().FindCandidateAsync("unknown-id")).ErrorCode);
+
+        using var g = new Fixture();
+        var installer = await g.SeedAsync("1.0.0", "Tool.exe", "v1", installer: InstallerKind.Inno, strategy: Strategy.Custom);
+        Assert.Equal(PortableUpgradeErrorCodes.NotPortable, (await g.Service().FindCandidateAsync(installer.InstallId)).ErrorCode);
+    }
+
+    [Fact]
+    public async Task FindCandidateAsyncIgnoresNonPortableAssetsInARelease()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        // 该发行版只有安装器：不能拿它做整目录替换。
+        var setup = new Asset
+        {
+            InstallerId = "asset-2", ReleaseKey = "release-1", Name = "Tool-Setup-1.1.0-x64.exe",
+            DownloadUrl = "https://example.com/Tool-Setup-1.1.0-x64.exe",
+        };
+        f.Catalog.Detail = new AppDetail
+        {
+            App = f.App,
+            Releases = new[] { new Release { AppId = f.App.Id, Key = "release-1", TagName = "1.1.0", Assets = new[] { setup } } },
+        };
+
+        Assert.Equal(PortableUpgradeErrorCodes.CandidateNotFound, (await f.Service().FindCandidateAsync(install.InstallId)).ErrorCode);
+    }
+
+    /// <summary>用一次合法的 JSON 反序列化/序列化改写 journal 字段，保证改完仍是结构合法的文件。</summary>
+    private static async Task TamperAsync(string path, Action<System.Text.Json.Nodes.JsonObject> mutate)
+    {
+        var node = System.Text.Json.Nodes.JsonNode.Parse(await File.ReadAllTextAsync(path))!.AsObject();
+        mutate(node);
+        await File.WriteAllTextAsync(path, node.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    }
+
     private static string Text(string directory, string name)
     {
         var bytes = File.ReadAllBytes(Path.Combine(directory, name));
@@ -1104,9 +1532,12 @@ public sealed class PortableUpgradeTests
             return receipt;
         }
 
+        public FakeCatalog Catalog { get; } = new();
+
         public PortableUpgradeService Service(Func<string>? root = null,
-            Func<PortableUpgradePhase, CancellationToken, Task>? checkpoint = null) =>
-            new(Download, Launcher, Preferences, Data, root ?? (() => Root), checkpoint: checkpoint);
+            Func<PortableUpgradePhase, CancellationToken, Task>? checkpoint = null, bool useCatalog = true) =>
+            new(Download, Launcher, Preferences, Data, root ?? (() => Root), checkpoint: checkpoint,
+                catalog: useCatalog ? Catalog : null);
 
         /// <summary>替换资产时必须同时更新 Release.Assets，否则请求不合法（构建如实的输入）。</summary>
         public PortableUpgradeRequest Rebind(PortableUpgradeRequest request, Asset asset) =>
@@ -1132,6 +1563,29 @@ public sealed class PortableUpgradeTests
             try { if (Directory.Exists(_base)) Directory.Delete(_base, true); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
         }
+    }
+
+    /// <summary>
+    /// 只提供“按 AppId 取目录详情”的假目录：本服务只会用它找候选，
+    /// 不会用它做刷新、搜索或任何写操作。
+    /// </summary>
+    private sealed class FakeCatalog : ICatalogService
+    {
+        public AppDetail? Detail { get; set; }
+        public Exception? Error { get; set; }
+
+        public event EventHandler<CatalogUpdatedEventArgs>? CatalogUpdated { add { } remove { } }
+        public Task<IReadOnlyList<Category>> ListCategoriesAsync(CancellationToken ct = default) =>
+            Task.FromResult<IReadOnlyList<Category>>(Array.Empty<Category>());
+        public Task<CatalogPage> BrowseAsync(CatalogQuery query, CancellationToken ct = default) =>
+            Task.FromResult(new CatalogPage());
+        public Task<IReadOnlyList<CatalogApp>> RankAsync(BoardKind board, int limit, CancellationToken ct = default) =>
+            Task.FromResult<IReadOnlyList<CatalogApp>>(Array.Empty<CatalogApp>());
+        public Task<AppDetail> GetAppAsync(AppId id, CancellationToken ct = default) =>
+            Error is not null ? Task.FromException<AppDetail>(Error)
+            : Task.FromResult(Detail ?? throw new KeyNotFoundException("No catalog detail configured."));
+        public Task RefreshAsync(RefreshScope scope, IProgress<RefreshProgress>? progress = null, CancellationToken ct = default) =>
+            Task.CompletedTask;
     }
 
     private sealed class FakeDownload : IDownloadService

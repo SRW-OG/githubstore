@@ -80,6 +80,16 @@
                         <Button Content="{Binding Text[InstalledRepair]}" Click="OnRepairClick"
                                 IsEnabled="{Binding CanRepair}" HorizontalAlignment="Stretch"
                                 AutomationProperties.AutomationId="RepairExecutableButton" />
+                        <!-- 升级入口：先查询绑定来源目录里的真实候选，再由用户显式确认。绝不自动安装。 -->
+                        <Button Content="{Binding Text[InstalledCheckUpdate]}" Command="{Binding CheckForUpdateCommand}"
+                                IsEnabled="{Binding CanCheckForUpdate}" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="CheckUpdateButton" />
+                        <TextBlock Text="{Binding UpdateStatusText}" TextWrapping="Wrap" FontSize="12"
+                                   AutomationProperties.AutomationId="UpdateStatusText"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <Button Content="{Binding Text[InstalledUpdate]}" Click="OnUpgradeClick"
+                                IsEnabled="{Binding CanUpgrade}" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="UpgradeButton" />
                         <!-- 回退只在确实保留了上一版本时出现；失败保留当前版本。 -->
                         <Button Content="{Binding Text[InstalledRollback]}" Click="OnRollbackClick"
                                 IsEnabled="{Binding CanRollback}" HorizontalAlignment="Stretch"

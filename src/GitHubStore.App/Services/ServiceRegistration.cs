@@ -64,7 +64,8 @@ public static class ServiceRegistration
         services.AddSingleton(sp => new GitHubStore.App.Services.Installation.PortableUpgradeService(
             sp.GetRequiredService<IDownloadService>(), sp.GetRequiredService<IManagedAppLauncher>(),
             sp.GetRequiredService<PreferencesService>(), DataDirectory,
-            packageCache: sp.GetRequiredService<PackageCacheService>()));
+            packageCache: sp.GetRequiredService<PackageCacheService>(),
+            catalog: sp.GetRequiredService<ICatalogService>()));
         services.AddSingleton<IToolManager>(_ => new ManagedToolManager(DataDirectory,
             new BundledToolPackageSource(typeof(ServiceRegistration).Assembly, "GitHubStore.Tools.tools.manifest.json"),
             WindowsSystemToolLocator.ResolveWingetAsync));
