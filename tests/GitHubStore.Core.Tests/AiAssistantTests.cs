@@ -105,7 +105,7 @@ public sealed class AiAssistantTests
     }
 
     [Fact]
-    public async Task AssetExplanationContainsActualAlternativesAndExplicitUnsupportedCapabilities()
+    public async Task AssetExplanationContainsActualAlternativesAndExplicitCapabilityLimits()
     {
         var app = App(1);
         var asset = new Asset { InstallerId = "portable", ReleaseKey = "release", Name = "tool-windows-x64-portable.zip", DownloadUrl = "https://example.test/tool.zip", Kind = AssetKind.ArchiveZip, Arch = Arch.Amd64 };
@@ -116,7 +116,9 @@ public sealed class AiAssistantTests
             Assert.Contains("tool-windows-x64-portable.zip", request.UserPrompt);
             Assert.Contains("tool-windows-x64.exe", request.UserPrompt);
             Assert.Contains("Requires Windows 11", request.UserPrompt);
-            Assert.Contains("no 7z extraction", request.UserPrompt);
+            // 7z 已由系统 bsdtar 支持，因此这里断言的是当前真实能力边界，而不是旧的不支持说法。
+            Assert.Contains("ZIP and 7z archives", request.UserPrompt);
+            Assert.Contains("do not claim they are available", request.UserPrompt);
             Assert.Contains("not verified compatibility", request.SystemPrompt);
             return "Package explanation";
         });

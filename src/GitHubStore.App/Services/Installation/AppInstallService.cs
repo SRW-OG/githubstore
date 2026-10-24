@@ -29,16 +29,20 @@ public sealed class AppInstallService : IAppInstallService
     private readonly Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>> _runner;
     private readonly Func<string> _root;
     private readonly PackageCacheService _packageCache;
+    private readonly Func<string?> _bsdtar;
 
     public AppInstallService(IDownloadService downloads, IManagedAppLauncher launcher, PreferencesService preferences,
         string dataDirectory, Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>>? processRunner = null,
-        Func<string>? installRootProvider = null, PackageCacheService? packageCache = null)
+        Func<string>? installRootProvider = null, PackageCacheService? packageCache = null,
+        Func<string?>? bsdtarProvider = null)
     {
         _downloads = downloads;
         _launcher = launcher;
         _preferences = preferences;
         _dataDirectory = dataDirectory;
         _runner = processRunner ?? RunProcessAsync;
+        // 7z 解压工具可注入，便于在没有该工具的机器上确定性地测试“明确失败”分支。
+        _bsdtar = bsdtarProvider ?? FindBsdtar;
         _root = installRootProvider ?? (() => StorageLocations.ResolveInstallRoot(preferences.Current));
         // 缓存根与“仅下载”按钮共用同一目录，因此“先下载、后安装”能真正复用同一份文件。
         _packageCache = packageCache ?? new PackageCacheService(
@@ -95,7 +99,8 @@ public sealed class AppInstallService : IAppInstallService
             if ((await _launcher.ListAsync(ct).ConfigureAwait(false)).Any(x => x.AppId == app.Id
                 || string.Equals(x.InstallDirectory, target, StringComparison.OrdinalIgnoreCase))) return Fail("install_already_installed");
             var extension = Path.GetExtension(asset.Name).ToLowerInvariant();
-            if (extension == ".7z") return Fail("install_unsupported_archive");
+            // .7z 由系统自带的 bsdtar 解压；缺少该工具时明确失败，不退回 ZIP 假设。
+            if (extension == ".7z" && _bsdtar() is null) return Fail("install_7z_unsupported");
             // 缓存目录与安装目录必须互不包含，避免把安装产物当缓存清掉，反之亦然。
             await using var cacheLease = await _packageCache.AcquireAsync(ct).ConfigureAwait(false);
             var packageCache = cacheLease.Cache;
@@ -156,7 +161,9 @@ public sealed class AppInstallService : IAppInstallService
             {
                 PackageInstallFormat.PortableArchive or PackageInstallFormat.PortableExecutable => true,
                 PackageInstallFormat.Installer => false,
-                _ => extension == ".zip" || asset.Kind == AssetKind.PortableExe
+                // .zip 与 .7z 都是压缩包，必须走本程序解压后再校验入口的绿色安装路径，
+                // 不能交给外部安装器去猜。
+                _ => extension is ".zip" or ".7z" || asset.Kind == AssetKind.PortableExe
                     || DefaultAssetSelectionPolicy.IsRecognizedPortable(asset, $"{app.Owner}/{app.Repo}"),
             };
             string relative;
@@ -168,10 +175,12 @@ public sealed class AppInstallService : IAppInstallService
                 SafePath(root);
                 stage = Path.Combine(root, ".githubstore-stage-" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(stage);
-                if (extension == ".zip")
+                if (extension is ".zip" or ".7z")
                 {
                     Report(AppInstallPhase.Extracting);
-                    await ExtractAsync(package, stage, ct).ConfigureAwait(false);
+                    // 两种格式共用同一套路径、链接与展开量保护；7z 由 bsdtar 解压后再逐项复核。
+                    if (extension == ".zip") await ExtractAsync(package, stage, ct).ConfigureAwait(false);
+                    else await Extract7zAsync(package, stage, _bsdtar(), ct).ConfigureAwait(false);
                 }
                 else File.Copy(package, Path.Combine(stage, asset.Name), overwrite: false);
                 Report(AppInstallPhase.Verifying);
@@ -321,6 +330,7 @@ public sealed class AppInstallService : IAppInstallService
         var probe = extension is ".zip" or ".7z"
             ? asset with { Name = Path.GetFileNameWithoutExtension(asset.Name) + "-windows-portable" + extension, Installer = InstallerKind.Portable }
             : asset;
+        // 7z 已由 bsdtar 支持；仍要求本机存在该工具，否则在下载前就明确失败。
         if (DefaultAssetSelectionPolicy.Select(new[] { probe }, architecture, $"{app.Owner}/{app.Repo}") is null)
             throw new InstallException("install_incompatible_asset");
         if (!string.IsNullOrWhiteSpace(asset.Digest)) _ = NormalizeDigest(asset.Digest);
@@ -378,6 +388,106 @@ public sealed class AppInstallService : IAppInstallService
             }
             if (written != entry.Length) throw new InstallException("install_invalid_archive");
         }
+    }
+
+    /// <summary>
+    /// 用系统自带的 bsdtar（libarchive）解压 7z。找不到该工具时返回 null，调用方据此明确失败。
+    /// 只信任 System32 下的固定路径，不使用 PATH，避免解析到被替换的可执行文件。
+    /// </summary>
+    private static string? FindBsdtar()
+    {
+        var system = Environment.GetFolderPath(Environment.SpecialFolder.System);
+        if (string.IsNullOrEmpty(system)) return null;
+        var candidate = Path.Combine(system, "tar.exe");
+        return File.Exists(candidate) ? candidate : null;
+    }
+
+    /// <summary>
+    /// 7z 解压：先让 bsdtar 只列出条目名做路径安全检查，再解压到隔离的临时目录，
+    /// 最后逐项校验并搬入 stage。ZIP 已有的路径、链接、重复名和展开量保护在这里同样生效，
+    /// 不能因为换了格式就跳过任何一项。
+    /// </summary>
+    private static async Task Extract7zAsync(string package, string stage, string? tar, CancellationToken ct)
+    {
+        if (tar is null) throw new InstallException("install_7z_unsupported");
+        SafePath(package);
+        // 解压到 stage 的同级临时目录，全部校验通过后再搬入，避免半成品被当成安装结果。
+        var scratch = Path.Combine(Path.GetDirectoryName(stage)!, ".githubstore-7z-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(scratch);
+        try
+        {
+            // 先列出：条目名与大小在解压前校验，恶意归档不会先落盘。
+            var listing = await RunCaptureAsync(tar, ["-tf", package], ct).ConfigureAwait(false);
+            if (listing.ExitCode != 0) throw new InstallException("install_invalid_archive");
+            var names = listing.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => line.TrimEnd('\r')).ToArray();
+            if (names.Length > MaximumEntries) throw new InstallException("install_archive_limit");
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var name in names)
+            {
+                ct.ThrowIfCancellationRequested();
+                var normalized = name.Replace('\\', '/').TrimEnd('/');
+                if (normalized.Length == 0) continue;
+                var parts = normalized.Split('/');
+                // 与 ZIP 相同的逐段校验：绝对路径、上跳、保留名、ADS、结尾点或空格一律拒绝。
+                if (parts.Any(part => !SafeSegment(part)) || normalized.Contains(':', StringComparison.Ordinal)
+                    || !seen.Add(string.Join('/', parts)))
+                    throw new InstallException("install_unsafe_archive");
+            }
+            var extract = await RunCaptureAsync(tar, ["-xf", package, "-C", scratch], ct).ConfigureAwait(false);
+            if (extract.ExitCode != 0) throw new InstallException("install_invalid_archive");
+            await CommitExtractedAsync(scratch, stage, ct).ConfigureAwait(false);
+        }
+        finally { CleanupOwned(scratch); }
+    }
+
+    /// <summary>
+    /// 把已验证的临时目录内容搬入 stage，并复核 bsdtar 可能创建的链接与展开量。
+    /// 这里不直接信任解压结果：符号链接、重解析点和超量文件都在提交前拒绝。
+    /// </summary>
+    private static async Task CommitExtractedAsync(string scratch, string stage, CancellationToken ct)
+    {
+        var pending = new Stack<string>();
+        pending.Push(SafePath(scratch));
+        var visited = 0;
+        long total = 0;
+        while (pending.Count > 0)
+        {
+            ct.ThrowIfCancellationRequested();
+            var current = pending.Pop();
+            foreach (var item in Directory.EnumerateFileSystemEntries(current))
+            {
+                if (++visited > MaximumEntries) throw new InstallException("install_archive_limit");
+                SafePath(item);
+                var attributes = File.GetAttributes(item);
+                // 任何链接都可能把写入引向 stage 之外，一律拒绝而不是跟随。
+                if ((attributes & FileAttributes.ReparsePoint) != 0) throw new InstallException("install_unsafe_archive");
+                if ((attributes & FileAttributes.Directory) != 0) { pending.Push(item); continue; }
+                var length = new FileInfo(item).Length;
+                if (length < 0 || length > MaximumExpandedBytes - total) throw new InstallException("install_archive_limit");
+                total += length;
+                var relative = Path.GetRelativePath(scratch, item);
+                var destination = SafePath(Path.Combine(stage, relative));
+                Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+                File.Move(item, destination, overwrite: false);
+            }
+        }
+        await Task.CompletedTask.ConfigureAwait(false);
+    }
+
+    /// <summary>运行 bsdtar 并捕获输出；只用于格式识别与解压，不经过 shell。</summary>
+    private static async Task<(int ExitCode, string Output)> RunCaptureAsync(string fileName, string[] arguments, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        var start = new ProcessStartInfo
+        {
+            FileName = fileName, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false,
+        };
+        foreach (var argument in arguments) start.ArgumentList.Add(argument);
+        using var process = Process.Start(start) ?? throw new InstallException("install_invalid_archive");
+        var output = await process.StandardOutput.ReadToEndAsync(ct).ConfigureAwait(false);
+        await process.WaitForExitAsync(ct).ConfigureAwait(false);
+        return (process.ExitCode, output);
     }
 
     private static async Task<string> SelectExecutableAsync(string directory, CatalogApp app,

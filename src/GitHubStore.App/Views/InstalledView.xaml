@@ -80,6 +80,10 @@
                         <Button Content="{Binding Text[InstalledRepair]}" Click="OnRepairClick"
                                 IsEnabled="{Binding CanRepair}" HorizontalAlignment="Stretch"
                                 AutomationProperties.AutomationId="RepairExecutableButton" />
+                        <!-- 回退只在确实保留了上一版本时出现；失败保留当前版本。 -->
+                        <Button Content="{Binding Text[InstalledRollback]}" Click="OnRollbackClick"
+                                IsEnabled="{Binding CanRollback}" HorizontalAlignment="Stretch"
+                                AutomationProperties.AutomationId="RollbackButton" />
                         <!-- 点击后先二次确认，再由 ViewModel 调用服务层启动卸载器。 -->
                         <Button x:Name="UninstallButton" Content="{Binding Text[InstalledUninstall]}"
                                 Click="OnUninstallClick"

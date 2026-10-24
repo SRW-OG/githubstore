@@ -1,0 +1,1191 @@
+using System.Buffers.Binary;
+using System.IO.Compression;
+using System.Security.Cryptography;
+using GitHubStore.App.Services.Installation;
+using GitHubStore.App.Services.Preferences;
+using GitHubStore.Core.Abstractions;
+using GitHubStore.Core.Catalog;
+using Xunit;
+using CatalogApp = GitHubStore.Core.Abstractions.App;
+using Version = GitHubStore.Core.Abstractions.Version;
+
+namespace GitHubStore.Core.Tests;
+
+/// <summary>
+/// 版本比较纯逻辑。这里只断言"能不能判定"和方向，不断言任何 UI 文案。
+/// 贯穿始终的取向：无法比较一律 <see cref="VersionRelation.Different"/>，绝不 Newer。
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class VersionComparerTests
+{
+    [Theory]
+    [InlineData("1.0.0", "1.0.0")]
+    [InlineData("v1.0.0", "1.0.0")]
+    [InlineData("V1.0.0", "v1.0.0")]
+    [InlineData("1.0", "1.0.0")]
+    [InlineData("1.2.3+build.5", "1.2.3")]
+    [InlineData("1.0.0-RC1", "1.0.0-rc1")]
+    public void EqualVersionsNormalizeCasePrefixAndMissingSegments(string installed, string candidate) =>
+        Assert.Equal(VersionRelation.Same, VersionComparer.RelateText(installed, candidate));
+
+    [Theory]
+    [InlineData("1.0.0", "1.0.1")]
+    [InlineData("1.0.0", "1.1.0")]
+    [InlineData("1.0.0", "2.0.0")]
+    [InlineData("1.9.0", "1.10.0")]
+    [InlineData("1.0.0-alpha", "1.0.0")]
+    [InlineData("1.0.0-alpha", "1.0.0-beta")]
+    [InlineData("1.0.0-alpha.1", "1.0.0-alpha.2")]
+    [InlineData("20240115", "2024.01.16")]
+    [InlineData("v2.3.4", "V2.3.5")]
+    public void NewerCandidatesAreNewer(string installed, string candidate) =>
+        Assert.Equal(VersionRelation.Newer, VersionComparer.RelateText(installed, candidate));
+
+    [Theory]
+    [InlineData("1.0.1", "1.0.0")]
+    [InlineData("2.0.0", "1.9.9")]
+    [InlineData("1.0.0", "1.0.0-alpha")]
+    [InlineData("1.0.0-beta", "1.0.0-alpha")]
+    [InlineData("20240115", "2023.12.31")]
+    public void OlderCandidatesAreOlderAndNeverNewer(string installed, string candidate)
+    {
+        Assert.Equal(VersionRelation.Older, VersionComparer.RelateText(installed, candidate));
+        Assert.NotEqual(VersionRelation.Newer, VersionComparer.RelateText(installed, candidate));
+    }
+
+    [Theory]
+    [InlineData("1.0", "1.0.0")]
+    [InlineData("1.0.0-rc.1", "1.0.0-rc.1")]
+    [InlineData("20240115", "20240115")]
+    public void PrereleaseAndDateFormsAreComparable(string installed, string candidate) =>
+        Assert.True(VersionComparer.CompareText(installed, candidate).Comparable);
+
+    [Theory]
+    // 完全不同的不可解析文本：只能得出"不同"，不能得出"更新"。
+    [InlineData("nightly", "canary")]
+    [InlineData("nightly-2024", "nightly-2025")]
+    [InlineData("release", "release-2")]
+    // 一侧可解析、另一侧不可解析：不可比较。
+    [InlineData("1.0.0", "latest")]
+    [InlineData("1.0.0", "2024")]
+    [InlineData("1.0.0", "")]
+    [InlineData("1.0.0", null)]
+    // 数字方案与日期方案之间没有可靠序关系。
+    [InlineData("1.0.0", "2024.01.15")]
+    [InlineData("2024.01.15", "1.0.0")]
+    // 歧义/越界形式：宁可判为不同，也不猜。
+    [InlineData("1.0.0", "1.0.0.0.1")]
+    [InlineData("1.0.0", "1.0.0-")]
+    [InlineData("1.0.0", "1.0.0-a..b")]
+    public void UnparsableAndMismatchedVersionsAreDifferentNeverNewer(string installed, string? candidate)
+    {
+        var relation = VersionComparer.RelateText(installed, candidate);
+        Assert.Equal(VersionRelation.Different, relation);
+        Assert.NotEqual(VersionRelation.Newer, relation);
+        var comparison = VersionComparer.CompareText(installed, candidate);
+        Assert.False(comparison.Comparable);
+        Assert.Equal(0, comparison.Result);
+    }
+
+    [Theory]
+    [InlineData("nightly")]
+    [InlineData("build-42")]
+    [InlineData("release")]
+    public void OpaqueTextIsNeverComparableEvenAgainstItself(string text)
+    {
+        // 不可解析文本一律"不可比较"，即使两段文本完全相同：没有任何依据说明
+        // "nightly" 与 "nightly" 是同一发行版的不同版本，判定等价会让调用方误以为"已是最新"。
+        // 调用方若要更新这种安装，只能由用户显式发起，并如实说明"版本无法比较"。
+        var relation = VersionComparer.RelateText(text, text);
+        Assert.Equal(VersionRelation.Different, relation);
+        Assert.NotEqual(VersionRelation.Newer, relation);
+        Assert.False(VersionComparer.CompareText("v" + text, text).Comparable);
+    }
+
+    [Fact]
+    public void OpaqueInstalledReceiptUsesRawTextNotTheSchemeField()
+    {
+        // 本程序自己的安装流程写入 Opaque + 原始标签，因此不能把 Scheme 当成"声明不可比较"。
+        var receipt = new Version { Raw = "1.4.2", Scheme = VersionScheme.Opaque };
+        Assert.Equal(VersionRelation.Newer, VersionComparer.Relate(receipt, "1.4.3"));
+    }
+
+    [Fact]
+    public void StructuredPartsAreOnlyUsedWhenRawTextIsUnparsable()
+    {
+        // Raw 可解析时以 Raw 为准：登记里过期的 Parts 不能覆盖它。
+        var receipt = new Version { Raw = "2.0.0", Scheme = VersionScheme.Semver, Parts = new long[] { 1, 0, 0 } };
+        Assert.Equal(VersionRelation.Newer, VersionComparer.Relate(receipt, "2.0.1"));
+
+        // Raw 不可解析（例如被截断的标签）时，才退回登记里可信的结构化字段。
+        var fallback = new Version { Raw = "v", Scheme = VersionScheme.Semver, Parts = new long[] { 1, 2, 0 } };
+        Assert.Equal(VersionRelation.Newer, VersionComparer.Relate(fallback, "1.3.0"));
+        Assert.Equal(VersionRelation.Older, VersionComparer.Relate(fallback, "1.1.0"));
+        Assert.Equal(VersionRelation.Same, VersionComparer.Relate(fallback, "1.2.0.0"));
+    }
+
+    [Fact]
+    public void CompareResultSignMeansCandidateMinusInstalled()
+    {
+        Assert.True(VersionComparer.CompareText("1.0.0", "1.0.1").Result > 0);
+        Assert.True(VersionComparer.CompareText("1.0.1", "1.0.0").Result < 0);
+        Assert.Equal(0, VersionComparer.CompareText("1.0.1", "1.0.1").Result);
+    }
+
+    [Fact]
+    public void EmptyBuildMetadataIsNotVersions()
+    {
+        Assert.Equal(VersionRelation.Different, VersionComparer.RelateText("", "1.0.0"));
+        Assert.Equal(VersionRelation.Different, VersionComparer.RelateText("   ", "1.0.0"));
+        Assert.Equal(VersionRelation.Different, VersionComparer.RelateText("1.0.0", "+"));
+        // 按 SemVer 规则，+build 元数据不参与比较：只有 "+" 没有核心版本仍然不是版本。
+        Assert.Equal(VersionRelation.Same, VersionComparer.RelateText("1.0.0", "1.0.0+build.7"));
+    }
+
+    [Fact]
+    public void ExtremelyLongVersionTextIsNotGuessed()
+    {
+        var huge = new string('9', 300);
+        Assert.Equal(VersionRelation.Different, VersionComparer.RelateText("1.0.0", huge));
+        // 单段超长数字不解析，避免溢出与臆测。
+        Assert.Equal(VersionRelation.Different, VersionComparer.RelateText("1.0.0", "1.0." + new string('9', 20)));
+    }
+
+    [Fact]
+    public void NumericPrereleaseIdentifiersSortNumericallyNotLexically()
+    {
+        // 字符串比较会把 alpha.10 排在 alpha.9 之前；数值比较才是对的。
+        Assert.Equal(VersionRelation.Newer, VersionComparer.RelateText("1.0.0-alpha.9", "1.0.0-alpha.10"));
+        Assert.Equal(VersionRelation.Older, VersionComparer.RelateText("1.0.0-alpha.10", "1.0.0-alpha.9"));
+    }
+
+    [Fact]
+    public void NullInstalledVersionIsNotComparable()
+    {
+        var comparison = VersionComparer.Compare(null!, "1.0.0");
+        Assert.False(comparison.Comparable);
+        Assert.Equal(VersionRelation.Different, VersionComparer.Relate(null!, "1.0.0"));
+    }
+}
+
+/// <summary>
+/// 便携更新/回滚。全部使用真实临时目录与假下载器/假登记器，
+/// 不联网、不启动任何进程、不接触真实用户安装。
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class PortableUpgradeTests
+{
+    [Fact]
+    public async Task SuccessfulUpdateKeepsInstallIdAndPointsAtNewVersion()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "old");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("new")));
+        var progress = new List<PortableUpgradePhase>();
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0"), new SyncProgress<PortableUpgradeProgress>(p => progress.Add(p.Phase)));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(install.InstallId, result.InstallId);
+        Assert.Equal("1.1.0", result.DisplayVersion);
+        Assert.Equal(Pe("new"), await File.ReadAllBytesAsync(result.ExecutablePath!));
+        Assert.Equal(PortableUpgradePhase.Completed, progress.Last());
+
+        // 登记必须仍是同一条：InstallId / AppId / 来源身份 / 安装时间都不变。
+        var receipt = Assert.Single(f.Launcher.Receipts);
+        Assert.Equal(install.InstallId, receipt.InstallId);
+        Assert.Equal(install.AppId, receipt.AppId);
+        Assert.Equal(install.Source.SourceId, receipt.Source.SourceId);
+        Assert.Equal(install.Source.PackageId, receipt.Source.PackageId);
+        Assert.Equal(install.InstalledAt, receipt.InstalledAt);
+        Assert.Equal("1.1.0", receipt.DisplayVersion);
+        Assert.Equal("1.1.0", receipt.Version.Raw);
+        Assert.Equal(result.ExecutablePath, receipt.ExePath);
+        Assert.True(receipt.UpdatedAt >= install.UpdatedAt);
+        // 同一个 InstallId 只有一条登记，更新不能变成"装了两份"。
+        Assert.Single(await f.Launcher.ListAsync());
+    }
+
+    [Fact]
+    public async Task SuccessfulUpdateLeavesNoStagingDirectoryAndRetainsExactlyOneBackup()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-stage-*"));
+        var backups = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
+        Assert.Single(backups);
+        Assert.Equal(Pe("v1"), await File.ReadAllBytesAsync(Path.Combine(backups[0], "Tool.exe")));
+        // journal 只在更新进行中存在，成功后必须消失。
+        Assert.False(f.Service().HasPendingRecovery(f.InstallId));
+    }
+
+    [Fact]
+    public async Task OlderCandidateIsRefusedAndNothingChanges()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("2.0.0", "Tool.exe", "current");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("downgrade")));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.0.0"));
+
+        Assert.Equal(PortableUpgradeErrorCodes.NotAnUpgrade, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Equal("current", Text(f.Target, "Tool.exe"));
+        // 登记没有被改动：版本与入口都还是旧的。
+        Assert.Equal("2.0.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
+        Assert.Equal(install.ExePath, Assert.Single(f.Launcher.Receipts).ExePath);
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+    }
+
+    [Fact]
+    public async Task SameVersionIsRefusedWithoutReplacingAnything()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "current");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("same")));
+
+        var result = await f.Service().UpdateAsync(f.Request("v1.0.0"));
+
+        Assert.Equal(PortableUpgradeErrorCodes.AlreadyCurrent, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Equal("current", Text(f.Target, "Tool.exe"));
+    }
+
+    [Fact]
+    public async Task UnparsableVersionProceedsBecauseTheUpdateIsUserInitiated()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("nightly", "Tool.exe", "old");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("new")));
+
+        // 版本无法比较（Different）时既不谎报"有更新"，也不能反过来把用户挡在门外。
+        var result = await f.Service().UpdateAsync(f.Request("canary"));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(Pe("new"), await File.ReadAllBytesAsync(Path.Combine(f.Target, "Tool.exe")));
+        Assert.Equal("canary", Assert.Single(f.Launcher.Receipts).DisplayVersion);
+    }
+
+    [Fact]
+    public async Task NonPortableInstallerReceiptIsRefusedWithoutTouchingFiles()
+    {
+        using var f = new Fixture();
+        // EXE/MSI 安装器的登记：不满足 StoreOwnedInstallation.OwnsExtractedFiles。
+        var receipt = await f.SeedAsync("1.0.0", "Tool.exe", "installed", installer: InstallerKind.Inno, strategy: Strategy.Custom);
+        f.Download.Bytes = Zip(("Tool.exe", Pe("new")));
+
+        var result = await f.Service().UpdateAsync(f.Request("2.0.0"));
+
+        Assert.Equal(PortableUpgradeErrorCodes.NotPortable, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Equal("installed", Text(receipt.TargetDir!, "Tool.exe"));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-stage-*"));
+    }
+
+    [Theory]
+    // StoreOwnedInstallation.OwnsExtractedFiles 的判据是“Green 策略 或 Portable 安装方式”，
+    // 因此这里覆盖的是两者都不满足的形状；(Portable, Custom) 其实满足条件，不属于本用例。
+    [InlineData(InstallerKind.Msi, Strategy.Custom)]
+    [InlineData(InstallerKind.Nsis, Strategy.Default)]
+    [InlineData(InstallerKind.Inno, Strategy.Default)]
+    [InlineData(InstallerKind.Squirrel, Strategy.Default)]
+    [InlineData(InstallerKind.Burn, Strategy.Default)]
+    [InlineData(InstallerKind.Zip, Strategy.Default)]
+    [InlineData(InstallerKind.Unknown, Strategy.Default)]
+    public async Task EveryNonStoreOwnedShapeIsRefused(InstallerKind installer, Strategy strategy)
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "installed", installer: installer, strategy: strategy);
+        Assert.Equal(PortableUpgradeErrorCodes.NotPortable, (await f.Service().UpdateAsync(f.Request("2.0.0"))).ErrorCode);
+        Assert.Null(f.Download.Last);
+    }
+
+    [Fact]
+    public async Task UnknownInstallIdIsRefusedBeforeAnyDownload()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "installed");
+        var request = f.Request("2.0.0") with { InstallId = "does-not-exist" };
+
+        var result = await f.Service().UpdateAsync(request);
+
+        Assert.Equal(PortableUpgradeErrorCodes.InstallationNotFound, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+    }
+
+    [Fact]
+    public async Task RequestForADifferentAppIdIsRefused()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "installed");
+        var other = new CatalogApp
+        {
+            Id = new(new(Guid.NewGuid()), new("owner/other")), SourceRevision = 1,
+            DisplayName = "Other", Owner = "owner", Repo = "other",
+        };
+        var asset = new Asset { InstallerId = "asset-1", ReleaseKey = "release-2", Name = "Tool.zip", DownloadUrl = "https://example.com/Tool.zip" };
+        var request = new PortableUpgradeRequest
+        {
+            InstallId = install.InstallId, App = other,
+            Release = new() { AppId = other.Id, Key = "release-2", TagName = "2.0.0", Assets = new[] { asset } },
+            Asset = asset,
+        };
+
+        Assert.Equal(PortableUpgradeErrorCodes.IdentityMismatch, (await f.Service().UpdateAsync(request)).ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-stage-*"));
+    }
+
+    [Fact]
+    public async Task RegistrationFailureRestoresPreviousFilesAndPreviousReceipt()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("replacement")));
+        // 只拒绝“新版本”那次登记：还原写回旧登记必须能成功，否则测的就不是还原路径了。
+        f.Launcher.OnRegister = installing =>
+        {
+            if (installing.Version.Raw == "1.1.0") throw new IOException("registration rejected");
+        };
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0"));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(PortableUpgradeErrorCodes.RegistrationFailed, result.ErrorCode);
+        Assert.True(result.FilesRestored);
+        Assert.False(result.FilesMayRemain);
+        // 文件回到旧版本。
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+        // 登记也回到旧版本：入口、版本、UpdatedAt 都与更新前完全一致。
+        var receipt = Assert.Single(f.Launcher.Receipts);
+        Assert.Equal(install, receipt);
+        // 还原完成后不留备份与 journal。
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.False(f.Service().HasPendingRecovery(install.InstallId));
+    }
+
+    [Fact]
+    public async Task FailureAfterBackupRestoresFilesAndReceiptAtEveryStage()
+    {
+        foreach (var phase in new[]
+        {
+            PortableUpgradePhase.BackingUp, PortableUpgradePhase.Swapping, PortableUpgradePhase.Registering,
+        })
+        {
+            using var f = new Fixture();
+            var install = await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+            f.Download.Bytes = Zip(("Tool.exe", Pe("replacement")));
+            var fired = false;
+            var service = f.Service(checkpoint: (current, _) =>
+            {
+                if (current == phase && !fired) { fired = true; throw new IOException("injected failure"); }
+                return Task.CompletedTask;
+            });
+
+            var result = await service.UpdateAsync(f.Request("1.1.0"));
+
+            Assert.False(result.Succeeded);
+            Assert.True(result.FilesRestored, $"phase={phase} code={result.ErrorCode}");
+            Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+            Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+            Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+            Assert.False(service.HasPendingRecovery(install.InstallId));
+        }
+    }
+
+    [Fact]
+    public async Task CancellationDuringStagingLeavesOldInstallIntact()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("replacement")));
+        using var cts = new CancellationTokenSource();
+        var service = f.Service(checkpoint: (phase, _) =>
+        {
+            // 解包阶段取消：此时目标目录与登记都还没被碰过。
+            if (phase == PortableUpgradePhase.Extracting) cts.Cancel();
+            return Task.CompletedTask;
+        });
+
+        var result = await service.UpdateAsync(f.Request("1.1.0"), ct: cts.Token);
+
+        Assert.Equal(PortableUpgradeErrorCodes.Cancelled, result.ErrorCode);
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-stage-*"));
+        Assert.False(service.HasPendingRecovery(install.InstallId));
+    }
+
+    [Fact]
+    public async Task CancellationAfterBackupStillRestoresThePreviousInstall()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("replacement")));
+        using var cts = new CancellationTokenSource();
+        var service = f.Service(checkpoint: (phase, _) =>
+        {
+            // 备份已经开始（目标目录已被改名），此时取消必须仍然把旧版本换回来。
+            if (phase == PortableUpgradePhase.Swapping) cts.Cancel();
+            return Task.CompletedTask;
+        });
+
+        var result = await service.UpdateAsync(f.Request("1.1.0"), ct: cts.Token);
+
+        Assert.Equal(PortableUpgradeErrorCodes.Cancelled, result.ErrorCode);
+        Assert.True(result.FilesRestored);
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.False(service.HasPendingRecovery(install.InstallId));
+    }
+
+    [Fact]
+    public async Task CorruptOrMissingExecutableInTheCandidateNeverReplacesTheInstall()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        f.Download.Bytes = Zip(("Tool.exe", new byte[] { 1, 2, 3 }));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0"));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+        Assert.Single(f.Launcher.Receipts);
+    }
+
+    [Fact]
+    public async Task FakeDownloaderIntegrityIsIndependentlyChecked()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        var request = f.Request("1.1.0");
+
+        // 断言里的资产必须同时出现在 Release.Assets 中，否则请求本身就不合法，
+        // 根本走不到校验环节——那样测的就不是完整性校验了。
+        var checksum = await f.Service().UpdateAsync(f.Rebind(request, request.Asset with { Digest = new string('0', 64) }));
+        Assert.Equal(PortableUpgradeErrorCodes.ChecksumMismatch, checksum.ErrorCode);
+
+        var length = await f.Service().UpdateAsync(f.Rebind(request, request.Asset with { Size = f.Download.Bytes.Length + 1 }));
+        Assert.Equal(PortableUpgradeErrorCodes.LengthMismatch, length.ErrorCode);
+
+        var invalidDigest = await f.Service().UpdateAsync(f.Rebind(request, request.Asset with { Digest = "sha512:arbitrary" }));
+        Assert.Equal(PortableUpgradeErrorCodes.InvalidDigest, invalidDigest.ErrorCode);
+
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+        Assert.Single(f.Launcher.Receipts);
+    }
+
+    [Theory]
+    [InlineData("../escape.exe")]
+    [InlineData("dir/../../escape.exe")]
+    [InlineData("C:/absolute.exe")]
+    public async Task UnsafeArchiveNamesNeverReplaceTheInstall(string name)
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        f.Download.Bytes = Zip((name, Pe("evil")));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0"));
+
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafeArchive, result.ErrorCode);
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+        Assert.False(File.Exists(Path.Combine(f.Root, "escape.exe")));
+        Assert.False(File.Exists(Path.Combine(f.Base, "escape.exe")));
+    }
+
+    [Fact]
+    public async Task ZipSymlinkEntryIsRejected()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        using var memory = new MemoryStream();
+        using (var zip = new ZipArchive(memory, ZipArchiveMode.Create, true))
+        {
+            var entry = zip.CreateEntry("link.exe");
+            entry.ExternalAttributes = unchecked((int)0xa1ff0000);
+            using var output = entry.Open();
+            output.Write(Pe("link"));
+        }
+        f.Download.Bytes = memory.ToArray();
+
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafeArchive, (await f.Service().UpdateAsync(f.Request("1.1.0"))).ErrorCode);
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+    }
+
+    [Theory]
+    [InlineData("Tool.7z")]
+    [InlineData("Tool.exe")]
+    [InlineData("Tool.msi")]
+    [InlineData("Tool-linux.zip")]
+    [InlineData("Tool-symbols.zip")]
+    public async Task CandidateAssetsThatAreNotPortableAreRefusedBeforeDownload(string name)
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0", shear: name));
+
+        Assert.False(result.Succeeded);
+        Assert.Null(f.Download.Last);
+        Assert.Equal("previous", Text(f.Target, "Tool.exe"));
+    }
+
+    [Fact]
+    public async Task PortableSingleFileExeCandidateIsSupportedWithoutExecution()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+        f.Download.Bytes = Pe("standalone");
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0", shear: "Tool-portable.exe"));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        var receipt = Assert.Single(f.Launcher.Receipts);
+        Assert.Equal(install.InstallId, receipt.InstallId);
+        Assert.Equal(Pe("standalone"), await File.ReadAllBytesAsync(receipt.ExePath!));
+    }
+
+    [Fact]
+    public async Task UpdateKeepsTheExistingEntryPointInsteadOfPickingAnotherProgram()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "bin/Client.exe", "previous");
+        // 新版多了一个更"像产品名"的入口，但旧登记的入口仍然存在，应继续使用它。
+        f.Download.Bytes = Zip(("bin/Client.exe", Pe("client2")), ("Tool.exe", Pe("other")));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0"));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.EndsWith(Path.Combine("bin", "Client.exe"), result.ExecutablePath);
+        Assert.Equal(Pe("client2"), await File.ReadAllBytesAsync(result.ExecutablePath!));
+    }
+
+    [Fact]
+    public async Task ConfiguredExecutableRelativePathWinsOverTheOldEntryPoint()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Old.exe", "previous");
+        f.Download.Bytes = Zip(("Old.exe", Pe("old2")), ("nested/Client.exe", Pe("client2")));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0") with { ExecutableRelativePath = "nested/Client.exe" });
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.EndsWith(Path.Combine("nested", "Client.exe"), result.ExecutablePath);
+    }
+
+    [Theory]
+    [InlineData("../outside.exe")]
+    [InlineData("C:/outside.exe")]
+    [InlineData("bin/Client.dll")]
+    public async Task InvalidConfiguredExecutablePathIsRefusedBeforeDownload(string path)
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "previous");
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0") with { ExecutableRelativePath = path });
+
+        Assert.Equal(PortableUpgradeErrorCodes.InvalidRequest, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+    }
+
+    [Fact]
+    public async Task RollbackRestoresTheRetainedPreviousVersionAndReceipt()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+
+        var rollback = await f.Service().RollbackAsync(install.InstallId);
+
+        Assert.True(rollback.Succeeded, rollback.ErrorCode);
+        Assert.Equal(install.InstallId, rollback.InstallId);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        // 登记回到旧版本，且仍然是同一条 InstallId。
+        var receipt = Assert.Single(f.Launcher.Receipts);
+        Assert.Equal(install.InstallId, receipt.InstallId);
+        Assert.Equal("1.0.0", receipt.Version.Raw);
+        Assert.Equal("1.0.0", receipt.DisplayVersion);
+        Assert.Equal(install.ExePath, receipt.ExePath);
+        // 保留备份在回滚后被消费掉，不能再次回滚。
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        var again = await f.Service().RollbackAsync(install.InstallId);
+        Assert.False(again.Succeeded);
+        Assert.Contains(again.ErrorCode, new[] { PortableUpgradeErrorCodes.RollbackNotAvailable, PortableUpgradeErrorCodes.RollbackUnsafePath });
+    }
+
+    [Fact]
+    public async Task RollbackWithoutAnyBackupIsRefused()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+
+        var result = await f.Service().RollbackAsync(install.InstallId);
+
+        Assert.Equal(PortableUpgradeErrorCodes.RollbackNotAvailable, result.ErrorCode);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Single(f.Launcher.Receipts);
+    }
+
+    [Fact]
+    public async Task RollbackRefusesNonPortableReceipt()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1", installer: InstallerKind.Msi, strategy: Strategy.Custom);
+
+        Assert.Equal(PortableUpgradeErrorCodes.RollbackNotPortable, (await f.Service().RollbackAsync(install.InstallId)).ErrorCode);
+    }
+
+    [Fact]
+    public async Task RollbackRefusesUnknownInstallId()
+    {
+        using var f = new Fixture();
+        Assert.Equal(PortableUpgradeErrorCodes.RollbackInstallationNotFound, (await f.Service().RollbackAsync("nope")).ErrorCode);
+    }
+
+    [Fact]
+    public async Task SecondSuccessfulUpdateKeepsOnlyTheMostRecentRollbackTarget()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v3")));
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.2.0"))).Succeeded);
+
+        // 只保留一份"上一个版本"：磁盘占用有上限，回滚深度为 1（如实记录）。
+        var backups = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
+        Assert.Single(backups);
+        Assert.Equal(Pe("v2"), await File.ReadAllBytesAsync(Path.Combine(backups[0], "Tool.exe")));
+
+        Assert.True((await f.Service().RollbackAsync(install.InstallId)).Succeeded);
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+    }
+
+    [Fact]
+    public async Task JournalRecoveryRestoresPreviousVersionAfterSimulatedCrash()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        // 崩溃注入：进程在"新目录已就位、登记还没写"的那一刻被强杀，
+        // 更新流程不做任何还原，现场留给启动恢复。
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        // 现场：journal 还在，目标目录是"半新"的，登记仍是旧版本。
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+        Assert.Equal("1.0.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
+
+        var recovered = await f.Service().RecoverAsync();
+
+        Assert.Equal(1, recovered.Examined);
+        Assert.Equal(1, recovered.Restored);
+        Assert.Equal(0, recovered.Failed);
+        // 文件与登记一起回到崩溃前的状态。
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.False(crashed.HasPendingRecovery(install.InstallId));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+    }
+
+    [Fact]
+    public async Task JournalRecoveryRestoresAfterCrashDuringSwapping()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Swapping
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+
+        // 这一阶段旧目录已经改名成备份、目标位置还是空的：恢复必须把它换回来。
+        var recovered = await f.Service().RecoverAsync();
+
+        Assert.Equal(1, recovered.Restored);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+    }
+
+    [Fact]
+    public async Task RecoveryReportsUnrelatedHealthyStateAsEmpty()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        var result = await f.Service().RecoverAsync();
+        Assert.Equal(0, result.Examined);
+        Assert.Equal(0, result.Restored);
+        Assert.Equal(0, result.Failed);
+    }
+
+    [Fact]
+    public async Task RecoveryNeverRestoresAnAlreadyCommittedUpdate()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var service = f.Service();
+        Assert.True((await service.UpdateAsync(f.Request("1.1.0"))).Succeeded);
+
+        // 人为制造"已提交的 journal 没能删掉"：下次启动绝不能据此把新版本还原回去。
+        var journal = service.GetJournalPath(install.InstallId);
+        Assert.False(File.Exists(journal));
+
+        var recovered = await service.RecoverAsync();
+        Assert.Equal(0, recovered.Examined);
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+    }
+
+    [Fact]
+    public async Task CorruptJournalIsReportedAndLeavesTheInstallAlone()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        var service = f.Service();
+        var journal = service.GetJournalPath(install.InstallId);
+        Directory.CreateDirectory(Path.GetDirectoryName(journal)!);
+        await File.WriteAllTextAsync(journal, "{ this is not valid json");
+
+        var recovered = await service.RecoverAsync();
+
+        Assert.Equal(1, recovered.Examined);
+        Assert.Equal(1, recovered.Failed);
+        Assert.Contains(PortableUpgradeErrorCodes.RecoveryJournalInvalid, recovered.ErrorCodes);
+        // 损坏的 journal 指向不了任何可信路径：一个文件都不动，也不删这个文件。
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.True(File.Exists(journal));
+    }
+
+    [Fact]
+    public async Task RollbackDuringPendingJournalRestoresAndConsumesIt()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+
+        // 用户在有未完成 journal 时点回滚：这就是一次还原，结果必须是旧版本。
+        var rollback = await f.Service().RollbackAsync(install.InstallId);
+
+        Assert.True(rollback.Succeeded, rollback.ErrorCode);
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.False(crashed.HasPendingRecovery(install.InstallId));
+    }
+
+    [Fact]
+    public async Task FailedReceiptRestoreKeepsTheJournalAndARetryFinishesTheJob()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
+            ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
+        await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+        var backupsBefore = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
+        Assert.Single(backupsBefore);
+
+        // 恢复时文件能换回旧版本，但登记写入失败（索引只读）：必须如实报告失败，
+        // <em>不</em>删除 journal——否则这条安装的登记就会永远停留在“新版本”，再无自愈机会。
+        f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
+        var recovered = await f.Service().RecoverAsync();
+
+        Assert.Equal(1, recovered.Failed);
+        Assert.Contains(PortableUpgradeErrorCodes.ReceiptRestoreFailed, recovered.ErrorCodes);
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
+        // 崩溃点在“写登记之前”，所以登记本来就没被改成新版本；换回文件后磁盘上是
+        // “旧文件 + 旧登记”，本身已自洽子。但登记写入这一步确实报了错，本程序无法证明
+        // 它到底有没有落盘，因此必须保守地保留 journal，让下一次启动重试后再确认。
+        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal("1.0.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
+
+        // 索引恢复可写后重试：这一次必须成功（重试本身没有副作用），并且收敛到“无 journal”。
+        f.Launcher.OnRegister = null;
+        var retry = await f.Service().RecoverAsync();
+
+        Assert.Equal(1, retry.Examined);
+        Assert.Equal(0, retry.Failed);
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.False(crashed.HasPendingRecovery(install.InstallId));
+    }
+
+    [Fact]
+    public async Task UnmanagedSiblingDirectoriesAreNeverDeleted()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        // 安装根目录下的邻居：不属于本次更新，任何路径下都不许被删。
+        var neighbour = Directory.CreateDirectory(Path.Combine(f.Root, "Neighbour")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(neighbour, "keep.txt"), "keep");
+        var unrelated = Directory.CreateDirectory(Path.Combine(f.Root, ".githubstore-stage-not-ours")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(unrelated, "keep.txt"), "keep");
+        var outside = Directory.CreateDirectory(Path.Combine(f.Base, "outside")).FullName;
+        await File.WriteAllTextAsync(Path.Combine(outside, "keep.txt"), "keep");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+
+        Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        Assert.True((await f.Service().RollbackAsync(f.InstallId)).Succeeded);
+
+        Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(neighbour, "keep.txt")));
+        Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(unrelated, "keep.txt")));
+        Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(outside, "keep.txt")));
+        Assert.True(Directory.Exists(outside));
+    }
+
+    [Fact]
+    public async Task TargetOutsideTheInstallRootIsRefused()
+    {
+        using var f = new Fixture();
+        // 登记指向安装根目录之外（且是根目录的兄弟）：这类登记绝不能成为被替换的对象。
+        var outside = Directory.CreateDirectory(Path.Combine(f.Base, "elsewhere")).FullName;
+        await File.WriteAllBytesAsync(Path.Combine(outside, "Tool.exe"), Pe("outside"));
+        f.Launcher.Receipts.Add(f.Receipt("1.0.0", outside, Path.Combine(outside, "Tool.exe")));
+
+        var result = await f.Service().UpdateAsync(f.Request("1.1.0"));
+
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafePath, result.ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Equal(Pe("outside"), await File.ReadAllBytesAsync(Path.Combine(outside, "Tool.exe")));
+    }
+
+    [Fact]
+    public async Task RootLevelTargetOrReservedDirectoryNameIsRefused()
+    {
+        using var f = new Fixture();
+        var reserved = Directory.CreateDirectory(Path.Combine(f.Root, ".githubstore-backup-forged")).FullName;
+        await File.WriteAllBytesAsync(Path.Combine(reserved, "Tool.exe"), Pe("forged"));
+        f.Launcher.Receipts.Add(f.Receipt("1.0.0", reserved, Path.Combine(reserved, "Tool.exe")));
+
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafePath, (await f.Service().UpdateAsync(f.Request("1.1.0"))).ErrorCode);
+        Assert.Equal(Pe("forged"), await File.ReadAllBytesAsync(Path.Combine(reserved, "Tool.exe")));
+    }
+
+    [Fact]
+    public async Task MissingTargetDirectoryIsReportedInsteadOfGuessing()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        File.Delete(Path.Combine(f.Target, "Tool.exe"));
+
+        Assert.Equal(PortableUpgradeErrorCodes.TargetMissing, (await f.Service().UpdateAsync(f.Request("1.1.0"))).ErrorCode);
+        Assert.Null(f.Download.Last);
+        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+    }
+
+    [Fact]
+    public async Task EmptyInstallRootRefusesEveryOperation()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        // 空字符串表示该启动器不管理安装根目录：无法证明任何目录归本程序所有。
+        var service = f.Service(root: () => string.Empty);
+
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafePath, (await service.UpdateAsync(f.Request("1.1.0"))).ErrorCode);
+        Assert.Equal(PortableUpgradeErrorCodes.RollbackUnsafePath, (await service.RollbackAsync(f.InstallId)).ErrorCode);
+        Assert.Null(f.Download.Last);
+    }
+
+    [Theory]
+    [InlineData(@"\\server\share\apps")]
+    [InlineData(@"C:\apps\..\escape")]
+    public async Task UnsafeInstallRootsAreRefusedBeforeDownload(string root)
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafePath, (await f.Service(root: () => root).UpdateAsync(f.Request("1.1.0"))).ErrorCode);
+        Assert.Null(f.Download.Last);
+    }
+
+    [Fact]
+    public async Task ConcurrentUpdateReturnsBusyWithoutTouchingAnything()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var first = f.Service(checkpoint: async (phase, _) =>
+        {
+            if (phase != PortableUpgradePhase.Extracting) return;
+            entered.TrySetResult();
+            await release.Task;
+        }).UpdateAsync(f.Request("1.1.0"));
+        await entered.Task;
+        try
+        {
+            using var other = new Fixture();
+            await other.SeedAsync("1.0.0", "Tool.exe", "v1");
+            Assert.Equal(PortableUpgradeErrorCodes.Busy, (await other.Service().UpdateAsync(other.Request("1.1.0"))).ErrorCode);
+            Assert.Null(other.Download.Last);
+        }
+        finally { release.TrySetResult(); }
+        Assert.True((await first).Succeeded);
+    }
+
+    [Fact]
+    public async Task CancelledTokenBeforeStartReturnsCancelledWithoutSideEffects()
+    {
+        using var f = new Fixture();
+        await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        Assert.Equal(PortableUpgradeErrorCodes.Cancelled, (await f.Service().UpdateAsync(f.Request("1.1.0"), ct: cts.Token)).ErrorCode);
+        Assert.Null(f.Download.Last);
+    }
+
+    [Fact]
+    public async Task JournalLivesUnderTheAppDataDirectoryAndIsNamedByInstallIdHash()
+    {
+        using var f = new Fixture();
+        var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        var path = f.Service().GetJournalPath(install.InstallId);
+
+        Assert.StartsWith(Path.Combine(f.Data, "upgrade-journal") + Path.DirectorySeparatorChar, path);
+        Assert.Equal(".json", Path.GetExtension(path));
+        // 安装 ID 本身不能出现在路径里：否则它可以借 ID 越界。
+        Assert.DoesNotContain(install.InstallId, Path.GetFileName(path), StringComparison.Ordinal);
+        Assert.Equal(64, Path.GetFileNameWithoutExtension(path).Length);
+    }
+
+    [Fact]
+    public void JournalPathRejectsUnusableInstallId()
+    {
+        using var f = new Fixture();
+        Assert.Throws<ArgumentException>(() => f.Service().GetJournalPath("  "));
+        Assert.Throws<ArgumentException>(() => f.Service().GetJournalPath(new string('a', 257)));
+    }
+
+    [Fact]
+    public async Task RealLauncherAcceptsBothUpdatedAndRestoredReceipts()
+    {
+        using var f = new Fixture();
+        // 用真实的 ManagedAppLauncher 走一遍：更新与回滚写出的登记都必须被它接受。
+        var launcher = new GitHubStore.App.Services.Launcher.ManagedAppLauncher(f.Data, f.Root, (_, _) => true);
+        var installId = Guid.NewGuid().ToString("N");
+        var target = Directory.CreateDirectory(Path.Combine(f.Root, "Tool")).FullName;
+        await File.WriteAllBytesAsync(Path.Combine(target, "Tool.exe"), Pe("v1"));
+        await launcher.RegisterCompletedInstallAsync(new InstallRecord
+        {
+            InstallId = installId, AppId = f.App.Id,
+            Source = new SourceBinding
+            {
+                SourceId = f.App.Id.SourceId, PackageId = f.App.Id.PackageId, SourceRevision = 1,
+                SourceEntryUrl = new Uri("https://github.com/owner/tool"), InstallerId = "asset-1",
+                ArtifactUrl = new Uri("https://example.com/Tool.zip"),
+            },
+            ReleaseKey = "release-1", Origin = Origin.Store, Channel = Channel.Http,
+            Strategy = Strategy.Green, Installer = InstallerKind.Portable,
+            Version = new Version { Raw = "1.0.0", Scheme = VersionScheme.Opaque }, DisplayVersion = "1.0.0",
+            TargetDir = target, ExePath = Path.Combine(target, "Tool.exe"), State = InstallState.Done,
+            InstalledAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow,
+        }, "Tool");
+        f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
+        var service = new PortableUpgradeService(f.Download, launcher, f.Preferences, f.Data,
+            installRootProvider: () => f.Root);
+
+        var update = await service.UpdateAsync(f.Request("1.1.0", installId));
+        Assert.True(update.Succeeded, update.ErrorCode);
+        Assert.Equal("1.1.0", Assert.Single(await launcher.ListAsync()).DisplayVersion);
+
+        var rollback = await service.RollbackAsync(installId);
+        Assert.True(rollback.Succeeded, rollback.ErrorCode);
+        var restored = await launcher.GetAsync(installId);
+        Assert.Equal("1.0.0", restored!.DisplayVersion);
+        Assert.True(File.Exists(restored.ExePath));
+    }
+
+    /// <summary>
+    /// 读回 <see cref="Pe"/> 写入的标记文本。标记刻意放在 PE 头部之后（偏移 128），
+    /// 因为可执行文件校验只读文件头，标记不能干扰它。
+    /// </summary>
+    private static string Text(string directory, string name)
+    {
+        var bytes = File.ReadAllBytes(Path.Combine(directory, name));
+        return System.Text.Encoding.UTF8.GetString(bytes, 128, bytes.Length - 128);
+    }
+
+    private static byte[] Pe(string marker)
+    {
+        var bytes = new byte[128 + marker.Length];
+        bytes[0] = (byte)'M'; bytes[1] = (byte)'Z';
+        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(60), 64);
+        bytes[64] = (byte)'P'; bytes[65] = (byte)'E';
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(68), 0x8664);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(86), 2);
+        System.Text.Encoding.UTF8.GetBytes(marker).CopyTo(bytes, 128);
+        return bytes;
+    }
+
+    private static byte[] Zip(params (string Name, byte[] Bytes)[] files)
+    {
+        using var memory = new MemoryStream();
+        using (var zip = new ZipArchive(memory, ZipArchiveMode.Create, true))
+            foreach (var file in files)
+            {
+                var entry = zip.CreateEntry(file.Name, CompressionLevel.Fastest);
+                using var stream = entry.Open();
+                stream.Write(file.Bytes);
+            }
+        return memory.ToArray();
+    }
+
+    private sealed class Fixture : IDisposable
+    {
+        private readonly string _base = Path.Combine(Path.GetTempPath(), "GitHubStore-upgrade-tests-" + Guid.NewGuid().ToString("N"));
+        public string Base => _base;
+        public string Root => Path.Combine(_base, "apps");
+        public string Data => Path.Combine(_base, "data");
+        public string Target => Path.Combine(Root, "Tool");
+        public string InstallId { get; private set; } = string.Empty;
+        public FakeDownload Download { get; } = new();
+        public FakeLauncher Launcher { get; } = new();
+        public PreferencesService Preferences { get; }
+        public CatalogApp App { get; } = new()
+        {
+            Id = new(new(Guid.NewGuid()), new("owner/tool")), SourceRevision = 3,
+            DisplayName = "Tool", Owner = "owner", Repo = "tool",
+        };
+
+        public Fixture()
+        {
+            Directory.CreateDirectory(_base);
+            Preferences = new(Path.Combine(Data, "preferences.json"));
+        }
+
+        public InstallRecord Receipt(string version, string target, string executable,
+            InstallerKind installer = InstallerKind.Portable, Strategy strategy = Strategy.Green)
+        {
+            // 未经过 SeedAsync 的用例也要有一条合法的安装 ID：请求用它来定位登记。
+            if (string.IsNullOrEmpty(InstallId)) InstallId = Guid.NewGuid().ToString("N");
+            return new InstallRecord
+            {
+            InstallId = InstallId, AppId = App.Id,
+            Source = new SourceBinding
+            {
+                SourceId = App.Id.SourceId, PackageId = App.Id.PackageId, SourceRevision = 1,
+                SourceEntryUrl = new Uri("https://github.com/owner/tool"), InstallerId = "asset-0",
+                ArtifactUrl = new Uri("https://example.com/Tool.zip"), ArtifactSha256 = new string('a', 64),
+            },
+            ReleaseKey = "release-0", Origin = Origin.Store, Channel = Channel.Http,
+            Strategy = strategy, Installer = installer,
+            Version = new Version { Raw = version, Scheme = VersionScheme.Opaque }, DisplayVersion = version,
+            TargetDir = target, ExePath = executable, State = InstallState.Done,
+            InstalledAt = DateTimeOffset.Parse("2024-01-01T00:00:00Z", System.Globalization.CultureInfo.InvariantCulture),
+            UpdatedAt = DateTimeOffset.Parse("2024-01-01T00:00:00Z", System.Globalization.CultureInfo.InvariantCulture),
+            };
+        }
+
+        /// <summary>写入一条真实的便携安装目录与登记，返回登记原文供断言比对。</summary>
+        public async Task<InstallRecord> SeedAsync(string version, string relativeExecutable, string marker,
+            InstallerKind installer = InstallerKind.Portable, Strategy strategy = Strategy.Green)
+        {
+            InstallId = Guid.NewGuid().ToString("N");
+            Directory.CreateDirectory(Root);
+            var target = Directory.CreateDirectory(Target).FullName;
+            var executable = Path.Combine(target, relativeExecutable);
+            Directory.CreateDirectory(Path.GetDirectoryName(executable)!);
+            await File.WriteAllBytesAsync(executable, Pe(marker));
+            var receipt = Receipt(version, target, executable, installer, strategy);
+            Launcher.Receipts.Add(receipt);
+            return receipt;
+        }
+
+        public PortableUpgradeService Service(Func<string>? root = null,
+            Func<PortableUpgradePhase, CancellationToken, Task>? checkpoint = null) =>
+            new(Download, Launcher, Preferences, Data, root ?? (() => Root), checkpoint: checkpoint);
+
+        /// <summary>替换资产时必须同时更新 Release.Assets，否则请求不合法（构建如实的输入）。</summary>
+        public PortableUpgradeRequest Rebind(PortableUpgradeRequest request, Asset asset) =>
+            request with { Asset = asset, Release = request.Release with { Assets = new[] { asset } } };
+
+        public PortableUpgradeRequest Request(string tag, string? installId = null, string shear = "Tool.zip")
+        {
+            var asset = new Asset
+            {
+                InstallerId = "asset-1", ReleaseKey = "release-1", Name = shear,
+                DownloadUrl = "https://example.com/" + shear,
+            };
+            return new()
+            {
+                InstallId = installId ?? InstallId, App = App,
+                Release = new() { AppId = App.Id, Key = "release-1", TagName = tag, Assets = new[] { asset } },
+                Asset = asset,
+            };
+        }
+
+        public void Dispose()
+        {
+            try { if (Directory.Exists(_base)) Directory.Delete(_base, true); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
+    }
+
+    private sealed class FakeDownload : IDownloadService
+    {
+        public byte[] Bytes { get; set; } = Zip(("Tool.exe", Pe("default")));
+        public string? Error { get; set; }
+        public int Calls { get; private set; }
+        public DownloadRequest? Last { get; private set; }
+        public IReadOnlyList<DownloadEngine> AvailableEngines => new[] { DownloadEngine.Http };
+        public Task<bool> ProbeAria2Async(CancellationToken ct = default) => Task.FromResult(false);
+
+        public async Task<DownloadResult> DownloadAsync(DownloadRequest request, IProgress<DownloadProgress>? progress = null,
+            CancellationToken ct = default)
+        {
+            Last = request;
+            Calls++;
+            if (Error is not null) return DownloadResult.Failure(Error);
+            await File.WriteAllBytesAsync(request.TargetPath, Bytes, ct);
+            return DownloadResult.Success(request.Source, request.TargetPath, Bytes.Length, request.Engine);
+        }
+    }
+
+    /// <summary>
+    /// 只保存登记与列表的假实现，语义与 ManagedAppLauncher 的按 InstallId 替换一致：
+    /// 同一条 InstallId 不会变成两条记录，因此"更新"不能伪装成"多装了一份"。
+    /// </summary>
+    private sealed class FakeLauncher : IManagedAppLauncher
+    {
+        public event EventHandler? Changed { add { } remove { } }
+        public List<InstallRecord> Receipts { get; } = new();
+        public Action<InstallRecord>? OnRegister { get; set; }
+        public string InstallRoot { get; set; } = string.Empty;
+
+        public Task<IReadOnlyList<LauncherApp>> ListAsync(CancellationToken ct = default) =>
+            Task.FromResult<IReadOnlyList<LauncherApp>>(Receipts.Select(receipt => new LauncherApp
+            {
+                InstallId = receipt.InstallId, AppId = receipt.AppId, DisplayName = "Tool",
+                InstallDirectory = receipt.TargetDir!, ExecutablePath = receipt.ExePath!,
+                DisplayVersion = receipt.DisplayVersion, InstalledAt = receipt.InstalledAt,
+            }).ToArray());
+
+        public Task<InstallRecord?> GetAsync(string installId, CancellationToken ct = default) =>
+            Task.FromResult(Receipts.FirstOrDefault(receipt => receipt.InstallId == installId));
+
+        public Task RegisterCompletedInstallAsync(InstallRecord installation, string displayName, CancellationToken ct = default)
+        {
+            ct.ThrowIfCancellationRequested();
+            OnRegister?.Invoke(installation);
+            var index = Receipts.FindIndex(receipt => receipt.InstallId == installation.InstallId);
+            if (index >= 0) Receipts[index] = installation; else Receipts.Add(installation);
+            return Task.CompletedTask;
+        }
+
+        public Task UnregisterAsync(string installId, CancellationToken ct = default) => throw new NotSupportedException();
+        public Task<LauncherLaunchResult> LaunchAsync(string installId, CancellationToken ct = default) => throw new NotSupportedException();
+    }
+}

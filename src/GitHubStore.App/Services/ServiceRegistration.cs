@@ -60,6 +60,11 @@ public static class ServiceRegistration
         // 移除服务由本服务在内部构造：它需要安装根目录校验删除目标，而启动器是同一个单例。
         services.AddSingleton<IInstalledProgramService>(sp =>
             new ManagedInstalledProgramService(sp.GetRequiredService<IManagedAppLauncher>()));
+        // 绿色安装的升级/回滚服务：只处理本程序解包出来的安装，安装器类应用由各自的安装器负责。
+        services.AddSingleton(sp => new GitHubStore.App.Services.Installation.PortableUpgradeService(
+            sp.GetRequiredService<IDownloadService>(), sp.GetRequiredService<IManagedAppLauncher>(),
+            sp.GetRequiredService<PreferencesService>(), DataDirectory,
+            packageCache: sp.GetRequiredService<PackageCacheService>()));
         services.AddSingleton<IToolManager>(_ => new ManagedToolManager(DataDirectory,
             new BundledToolPackageSource(typeof(ServiceRegistration).Assembly, "GitHubStore.Tools.tools.manifest.json"),
             WindowsSystemToolLocator.ResolveWingetAsync));
@@ -97,7 +102,10 @@ public static class ServiceRegistration
             sp.GetRequiredService<IManagedAppLauncher>(), sp.GetRequiredService<LocalizationService>(),
             sp.GetRequiredService<ICatalogService>()));
         services.AddSingleton<SettingsViewModel>();
-        services.AddSingleton<InstalledViewModel>();
+        services.AddSingleton(sp => new InstalledViewModel(
+            sp.GetRequiredService<IInstalledProgramService>(), sp.GetRequiredService<LocalizationService>(),
+            sp.GetRequiredService<GitHubStore.App.Services.Ai.IAiAssistantService>(),
+            sp.GetRequiredService<GitHubStore.App.Services.Installation.PortableUpgradeService>()));
         services.AddTransient<AddRepositoryViewModel>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<MainPage>();

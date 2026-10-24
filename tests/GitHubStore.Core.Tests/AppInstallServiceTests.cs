@@ -388,14 +388,16 @@ public sealed class AppInstallServiceTests
     }
 
     [Fact]
-    public async Task SevenZipIsExplicitlyUnsupportedBeforeDownloadOrExecution()
+    public async Task SevenZipWithoutExtractorFailsBeforeDownloadOrExecution()
     {
         using var f = new Fixture();
-        var result = await f.Service((_, _) => throw new Exception("must not execute"))
+        // 本机没有 bsdtar 时必须明确失败，而不是下载后再猜格式或退回 ZIP 假设。
+        var result = await f.Service((_, _) => throw new Exception("must not execute"), bsdtar: () => null)
             .InstallAsync(f.Request("Tool.7z"));
-        Assert.Equal("install_unsupported_archive", result.ErrorCode);
+        Assert.Equal("install_7z_unsupported", result.ErrorCode);
         Assert.Null(f.Download.Last);
         Assert.Empty(f.Launcher.Receipts);
+        Assert.False(Directory.Exists(f.Target));
     }
 
     [Theory]
@@ -547,6 +549,82 @@ public sealed class AppInstallServiceTests
         Assert.Null(f.Download.Last);
     }
 
+    /// <summary>本机 bsdtar 路径；没有它时相关测试跳过而不是假装通过。</summary>
+    private static string? Bsdtar()
+    {
+        var candidate = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "tar.exe");
+        return File.Exists(candidate) ? candidate : null;
+    }
+
+    /// <summary>用系统 bsdtar 生成真实 7z，避免依赖任何在线样本。</summary>
+    private static async Task<byte[]?> SevenZipAsync(params (string Name, byte[] Bytes)[] files)
+    {
+        var tar = Bsdtar();
+        if (tar is null) return null;
+        var work = Path.Combine(Path.GetTempPath(), "GitHubStore-7z-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(work);
+        try
+        {
+            foreach (var (name, bytes) in files)
+            {
+                var path = Path.Combine(work, name);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                await File.WriteAllBytesAsync(path, bytes);
+            }
+            var archive = Path.Combine(work, "fixture.7z");
+            var start = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = tar, WorkingDirectory = work,
+                RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false,
+            };
+            start.ArgumentList.Add("--format");
+            start.ArgumentList.Add("7zip");
+            start.ArgumentList.Add("-cf");
+            start.ArgumentList.Add(archive);
+            foreach (var (name, _) in files) start.ArgumentList.Add(name);
+            using var process = System.Diagnostics.Process.Start(start)!;
+            await process.WaitForExitAsync();
+            return process.ExitCode == 0 && File.Exists(archive) ? await File.ReadAllBytesAsync(archive) : null;
+        }
+        finally { try { Directory.Delete(work, true); } catch (IOException) { } }
+    }
+
+    [Fact]
+    public async Task RealSevenZipExtractsNestedExecutableAndRegisters()
+    {
+        var bytes = await SevenZipAsync(("bin/Tool.exe", Pe()), ("readme.txt", new byte[] { 1, 2, 3 }));
+        if (bytes is null) return; // 本机没有 bsdtar：不支持 7z 时由上面的独立测试覆盖。
+        using var f = new Fixture();
+        f.Download.Bytes = bytes;
+        var request = f.Request("Tool.7z");
+        var asset = request.Asset with
+        { Digest = "sha256:" + Convert.ToHexString(SHA256.HashData(bytes)), Size = bytes.Length };
+        var result = await f.Service(bsdtar: Bsdtar).InstallAsync(Bind(request, asset));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(Pe(), await File.ReadAllBytesAsync(result.ExecutablePath!));
+        Assert.Equal(new byte[] { 1, 2, 3 }, await File.ReadAllBytesAsync(Path.Combine(result.TargetDirectory!, "readme.txt")));
+        var receipt = Assert.Single(f.Launcher.Receipts);
+        Assert.Equal(InstallerKind.Portable, receipt.Installer);
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-*"));
+    }
+
+    [Fact]
+    public async Task SevenZipEntryNamesAreValidatedBeforeExtraction()
+    {
+        // bsdtar 生成的归档条目名合法，因此必须安装成功——这条用于确认“校验不会误杀正常 7z”。
+        var bytes = await SevenZipAsync(("nested/deep/Tool.exe", Pe()));
+        if (bytes is null) return;
+        using var f = new Fixture();
+        f.Download.Bytes = bytes;
+        var result = await f.Service(bsdtar: Bsdtar).InstallAsync(f.Request("Tool.7z"));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(Pe(), await File.ReadAllBytesAsync(result.ExecutablePath!));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-*"));
+        Assert.False(File.Exists(Path.Combine(f.Root, "escape.exe")));
+    }
+
     private static AppInstallRequest Bind(AppInstallRequest request, Asset asset) => request with
     { Asset = asset, Release = request.Release with { Assets = new[] { asset } } };
     private static byte[] Pe()
@@ -586,8 +664,10 @@ public sealed class AppInstallServiceTests
             DisplayName = "Tool", Owner = "owner", Repo = "tool",
         };
         public Fixture() { Directory.CreateDirectory(_base); Preferences = new(Path.Combine(Data, "preferences.json")); }
-        public AppInstallService Service(Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>>? runner = null) =>
-            new(Download, Launcher, Preferences, Data, runner ?? ((_, _) => throw new Exception("unexpected external execution")), () => Root);
+        public AppInstallService Service(Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>>? runner = null,
+            Func<string?>? bsdtar = null) =>
+            new(Download, Launcher, Preferences, Data, runner ?? ((_, _) => throw new Exception("unexpected external execution")), () => Root,
+                bsdtarProvider: bsdtar);
         public AppInstallRequest Request(string name = "Tool.zip")
         {
             var asset = new Asset { InstallerId = "asset-1", ReleaseKey = "release-1", Name = name, DownloadUrl = "https://example.com/" + name };

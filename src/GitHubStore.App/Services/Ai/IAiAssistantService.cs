@@ -56,7 +56,7 @@ public sealed class AiAssistantService : IAiAssistantService
         {
             ["task"] = request.Task.ToString(), ["question"] = request.Question,
             ["operationContext"] = request.Context,
-            ["clientCapabilities"] = "First installation; ZIP/portable EXE/interactive EXE/MSI; configurable release channel and package rules; managed portable removal, registered Windows uninstallers and explicit receipt-only forgetting; no 7z extraction, upgrade or rollback yet. AI suggests and explains; it never executes actions.",
+            ["clientCapabilities"] = "First installation; ZIP and 7z archives, portable EXE and interactive EXE/MSI; configurable release channel and package rules; managed portable removal, registered Windows uninstallers and explicit receipt-only forgetting. Portable update and rollback are being implemented separately; do not claim they are available. AI suggests and explains; it never executes actions.",
         };
         string instruction;
         switch (request.Task)

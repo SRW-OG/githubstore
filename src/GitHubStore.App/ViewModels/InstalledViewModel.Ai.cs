@@ -181,7 +181,12 @@ public sealed partial class InstalledViewModel
         RefreshAiCommands();
     }
     partial void OnIsBusyChanged(bool value) => RefreshAiCommands();
-    partial void OnSelectedProgramChanged(InstalledProgram? value) => CancelAiAnalysis(clearResult: true);
+    partial void OnSelectedProgramChanged(InstalledProgram? value)
+    {
+        CancelAiAnalysis(clearResult: true);
+        // 回退入口必须跟着选中项变化，不能残留上一个应用的可用状态。
+        RefreshRollbackAvailability();
+    }
 
     private void RefreshAiLanguage()
     {

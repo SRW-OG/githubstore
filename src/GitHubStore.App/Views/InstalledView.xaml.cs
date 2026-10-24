@@ -76,6 +76,28 @@ public sealed partial class InstalledView : UserControl
         catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledRegistrationRemovalFailed"]; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
+    private async void OnRollbackClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { } program) return;
+        try
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = viewModel.Text["InstalledRollbackTitle"],
+                Content = viewModel.Text.Format("InstalledRollbackConfirm", program.DisplayName)
+                    + "\n\n" + viewModel.Text["InstalledRollbackHint"],
+                PrimaryButtonText = viewModel.Text["InstalledRollback"],
+                CloseButtonText = viewModel.Text["Cancel"],
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                await viewModel.RollbackConfirmedAsync(program);
+        }
+        catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledRollbackFailed"]; }
+    }
+
     /// <summary>
     /// 定位主程序并修复入口路径。文件由系统选择器指定，且只改记录中的入口路径，
     /// 不移动、不删除任何文件；选择器不可用或用户取消时不做任何改动。

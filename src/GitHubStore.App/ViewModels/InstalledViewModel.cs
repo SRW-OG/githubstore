@@ -10,18 +10,22 @@ namespace GitHubStore.App.ViewModels;
 public sealed partial class InstalledViewModel : ObservableObject, IDisposable
 {
     private readonly IInstalledProgramService _service;
+    private readonly GitHubStore.App.Services.Installation.PortableUpgradeService? _upgrades;
     private readonly CancellationTokenSource _lifetime = new();
     private CancellationTokenSource? _scanCancellation;
     private int _scanVersion;
     private bool _uninstallInProgress;
     private bool _disposed;
     private bool _loadedOnce;
+    private string? _rollbackInstallId;
 
     public InstalledViewModel(IInstalledProgramService service, LocalizationService text,
-        GitHubStore.App.Services.Ai.IAiAssistantService? aiAssistant = null)
+        GitHubStore.App.Services.Ai.IAiAssistantService? aiAssistant = null,
+        GitHubStore.App.Services.Installation.PortableUpgradeService? upgrades = null)
     {
         _service = service;
         _aiAssistant = aiAssistant;
+        _upgrades = upgrades;
         Text = text;
         Text.LanguageChanged += OnLanguageChanged;
     }
@@ -37,7 +41,8 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection), nameof(SelectedName), nameof(SelectedPublisher),
         nameof(SelectedVersion), nameof(SelectedLocation), nameof(CanUninstall), nameof(CanRemoveRegistration),
-        nameof(CanRepair), nameof(SelectedStatusText), nameof(HasStatusWarning), nameof(SelectedRegistrationText))]
+        nameof(CanRepair), nameof(SelectedStatusText), nameof(HasStatusWarning), nameof(SelectedRegistrationText),
+        nameof(CanRollback))]
     private InstalledProgram? _selectedProgram;
 
     public bool HasSelection => SelectedProgram is not null;
@@ -264,6 +269,66 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
         if (!_disposed) RefreshAiLanguage();
         if (!_disposed && !string.IsNullOrEmpty(StatusMessage) && !IsBusy)
             StatusMessage = Text.Format("InstalledCount", _all.Count);
+    }
+
+    /// <summary>
+    /// 是否有可回退的上一版本。回退由用户显式触发，且只在保留记录仍存在时为真。
+    /// </summary>
+    public bool CanRollback => !_disposed && !IsBusy && _upgrades is not null
+        && SelectedProgram?.Status == InstalledStatus.Installed
+        && _rollbackInstallId == SelectedProgram.SourceKeyPath;
+
+    /// <summary>
+    /// 回退到上一版本。只适用于本程序解包的绿色安装；失败时保留当前版本并如实报错。
+    /// </summary>
+    public async Task<bool> RollbackConfirmedAsync(InstalledProgram program, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        if (_disposed || IsBusy || _uninstallInProgress || _upgrades is null) return false;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _lifetime.Token);
+        _uninstallInProgress = true;
+        IsBusy = true;
+        try
+        {
+            ErrorMessage = string.Empty;
+            StatusMessage = string.Empty;
+            var result = await _upgrades.RollbackAsync(program.SourceKeyPath, cancellation.Token);
+            if (_disposed || cancellation.IsCancellationRequested) return false;
+            if (result.Succeeded)
+            {
+                await RescanAsync(ct);
+                if (!_disposed) StatusMessage = Text.Format("InstalledRollbackApplied", program.DisplayName);
+                return true;
+            }
+            ErrorMessage = result.ErrorCode == GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.RollbackNotAvailable
+                ? Text["InstalledRollbackUnavailable"]
+                : Text["InstalledRollbackFailed"];
+            return false;
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { return false; }
+        catch (Exception)
+        {
+            if (!_disposed) ErrorMessage = Text["InstalledRollbackFailed"];
+            return false;
+        }
+        finally
+        {
+            _uninstallInProgress = false;
+            if (!_disposed) IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// 记录当前选中项是否有可回退版本，供界面决定是否显示回退入口。
+    /// 这里只读取保留记录的存在性，不读取任何注册表或执行任何命令。
+    /// </summary>
+    private void RefreshRollbackAvailability()
+    {
+        _rollbackInstallId = null;
+        if (_upgrades is not null && SelectedProgram is { Origin: RegistryOrigin.StoreInstall } program
+            && _upgrades.HasRetainedPreviousVersion(program.SourceKeyPath))
+            _rollbackInstallId = program.SourceKeyPath;
+        OnPropertyChanged(nameof(CanRollback));
     }
 
     /// <summary>

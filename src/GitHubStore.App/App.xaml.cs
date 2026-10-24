@@ -25,13 +25,19 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    // 恢复必须 await：它是文件写入操作，同步等待会在 UI 线程上死锁（VSTHRD002）。
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100",
+        Justification = "WinUI 的 OnLaunched 只能是 void；内部捕获全部异常，不会抛出未处理异常。")]
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         StartupDiagnostics.Log("OnLaunched start.");
         try
         {
             _services = ServiceRegistration.CreateProvider();
             StartupDiagnostics.Log("DI provider created.");
+            // 上次升级若在切换途中中断，必须在读取任何安装记录之前先恢复旧版本，
+            // 否则界面会先展示一个可能已被移动过的安装。
+            await RecoverInterruptedUpgradeAsync(_services);
             _window = _services.GetRequiredService<MainWindow>();
             MainWindow = _window;
             StartupDiagnostics.Log("MainWindow constructed.");
@@ -44,6 +50,24 @@ public partial class App : Application
             StartupDiagnostics.ShowFatal("创建主窗口失败", ex);
             CrashLog.Write(ex);
             Exit();
+        }
+    }
+
+    /// <summary>
+    /// 尽力完成上次中断的升级恢复。恢复失败不能阻止程序启动，但也绝不谎称已恢复：
+    /// 调用方（此处为启动流程）只记录结果，界面的安装状态会如实显示为“无法核对”。
+    /// </summary>
+    private static async Task RecoverInterruptedUpgradeAsync(IServiceProvider services)
+    {
+        try
+        {
+            var upgrades = services.GetRequiredService<GitHubStore.App.Services.Installation.PortableUpgradeService>();
+            var result = await upgrades.RecoverAsync();
+            StartupDiagnostics.Log($"Upgrade recovery: examined={result.Examined} restored={result.Restored} cleaned={result.CleanedUp} failed={result.Failed}.");
+        }
+        catch (Exception ex)
+        {
+            StartupDiagnostics.Log("Upgrade recovery failed: " + ex.GetType().Name);
         }
     }
 
