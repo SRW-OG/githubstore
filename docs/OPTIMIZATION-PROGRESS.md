@@ -44,9 +44,11 @@
 
 ## 既有交付
 
-0.1.7 历史源码提交 5b90d53，发布版 [GitHubStore v0.1.7](https://github.com/SRW-OG/githubstore/releases/tag/v0.1.7)。安装包 SHA-256：`e1d757a518c4758fdadcae6195bcedb76f318990e36196483aafef92d51ec194`。这份旧安装包不包含本轮修复。
+0.1.7 历史源码提交 5b90d53，发布版 [GitHubStore v0.1.7](https://github.com/SRW-OG/githubstore/releases/tag/v0.1.7)。该旧安装包不包含本轮修复。
 
-已有基础：可配置版本与选包规则、无AI可用的添加向导、入口修复、ZIP/便携EXE安装、HTTP校验续传、持久化队列服务、官方正式版自更新检查与校验。基础服务存在不代表所有界面及故障路径已验收。
+**本轮交付：0.1.8**，源码提交 `2d76c0d` 已推送 `origin/main`，[GitHubStore v0.1.8](https://github.com/SRW-OG/githubstore/releases/tag/v0.1.8) 已发布，含 `GitHubStore-Setup-0.1.8-win-x64.exe` 与同名 `.sha256`（两者摘要一致）。安装包 SHA-256：`bcfcb986744b0d6a6fbe74de096e9776f1c22e6fe8c102bdd7a64a7d7f1dc00c`，版本戳 `0.1.8.0`。
+
+已有基础：可配置版本与选包规则、无AI可用的添加向导、入口修复、ZIP/便携EXE安装、HTTP校验续传、持久化队列、官方正式版自更新检查与校验、绿色安装升级与回退、软件库离线自检与完整本地备份导出、软件库规则编辑。
 
 ## 验收约定
 
