@@ -59,6 +59,44 @@
                                    AutomationProperties.AutomationId="LibraryToolStatusText" />
                         <TextBlock Text="{Binding LibraryToolError}" TextWrapping="Wrap"
                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <TextBlock Text="{Binding LibraryExportPath}" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+                        <Button Content="{Binding Text[LibraryEditorLoad]}" Command="{Binding LoadLibraryEditorCommand}"
+                                IsEnabled="{Binding CanRunLibraryTools}" AutomationProperties.AutomationId="LoadLibraryEditorButton" />
+                        <Expander Header="{Binding Text[LibraryEditorTitle]}" HorizontalAlignment="Stretch" AutomationProperties.AutomationId="LibraryEditorExpander">
+                            <StackPanel DataContext="{Binding LibraryEditor}" Spacing="8">
+                                <TextBlock Text="{Binding Text[LibraryEditorHint]}" TextWrapping="Wrap" />
+                                <ComboBox Header="{Binding Text[LibraryEditorRepository]}" ItemsSource="{Binding Entries}"
+                                          DisplayMemberPath="Name" SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+                                          IsEnabled="{Binding CanEdit}" AutomationProperties.AutomationId="LibraryEditorRepository" />
+                                <ComboBox Header="{Binding Text[WizardReleaseChannel]}" ItemsSource="{Binding Channels}" DisplayMemberPath="Name"
+                                          SelectedItem="{Binding Channel, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[WizardPinnedTag]}" Text="{Binding PinnedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <ComboBox Header="{Binding Text[WizardInstallFormat]}" ItemsSource="{Binding Formats}" DisplayMemberPath="Name"
+                                          SelectedItem="{Binding Format, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[WizardExecutable]}" Text="{Binding ExecutablePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <TextBlock Text="{Binding Text[LibraryEditorPatterns]}" TextWrapping="Wrap" />
+                                <CheckBox Content="x64" IsChecked="{Binding UseX64Rule, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorX64Include]}" AcceptsReturn="True" Text="{Binding X64Include, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorX64Exclude]}" AcceptsReturn="True" Text="{Binding X64Exclude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <CheckBox Content="ARM64" IsChecked="{Binding UseArm64Rule, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorArmInclude]}" AcceptsReturn="True" Text="{Binding Arm64Include, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorArmExclude]}" AcceptsReturn="True" Text="{Binding Arm64Exclude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <CheckBox Content="x86" IsChecked="{Binding UseX86Rule, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorX86Include]}" AcceptsReturn="True" Text="{Binding X86Include, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorX86Exclude]}" AcceptsReturn="True" Text="{Binding X86Exclude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <CheckBox Content="{Binding Text[LibraryEditorAnyRule]}" IsChecked="{Binding UseAnyRule, Mode=TwoWay}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorAnyInclude]}" AcceptsReturn="True" Text="{Binding AnyInclude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorAnyExclude]}" AcceptsReturn="True" Text="{Binding AnyExclude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <TextBox Header="{Binding Text[LibraryEditorPreserve]}" AcceptsReturn="True" Text="{Binding PreservePaths, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="{Binding Text[LibraryEditorPreview]}" Command="{Binding PreviewPolicyCommand}" IsEnabled="{Binding CanEdit}" AutomationProperties.AutomationId="LibraryEditorPreview" />
+                                    <Button Content="{Binding Text[LibraryEditorSave]}" Command="{Binding SavePolicyCommand}" IsEnabled="{Binding CanSave}" AutomationProperties.AutomationId="LibraryEditorSave" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding Preview}" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                <TextBlock Text="{Binding Status}" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
+                            </StackPanel>
+                        </Expander>
                         <ItemsControl ItemsSource="{Binding LibraryDiagnostics}"
                                       Visibility="{Binding HasLibraryDiagnostics, Converter={StaticResource BooleanToVisibility}}"
                                       AutomationProperties.AutomationId="LibraryDiagnosticsList">

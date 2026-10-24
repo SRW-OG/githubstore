@@ -24,6 +24,12 @@ public sealed record DownloadQueueOptions
 
     /// <summary>退避上限，避免长时间不推进队列。</summary>
     public TimeSpan MaximumBackoff { get; init; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// 关闭时等待工作循环收束的上限。超时后不再释放同步原语，而是等它真正结束再释放，
+    /// 见 <see cref="DownloadQueueService.DisposeAsync"/>。测试可注入较小值以免真的等待。
+    /// </summary>
+    public TimeSpan ShutdownTimeout { get; init; } = TimeSpan.FromSeconds(10);
 }
 
 /// <summary>
@@ -611,27 +617,79 @@ public sealed class DownloadQueueService : IDownloadQueueService, IAsyncDisposab
         // 与 StopAsync 一致：取消在锁外执行，避免回调重新进入本类时与门互等。
         if (pendingCancel) CancelQuietly(linked);
 
-        JobOutcome outcome;
+        // 最外层 try/finally 覆盖从执行到收束的全部路径：无论中途发生什么（包括致命异常向上传播），
+        // 都必须给等待中的暂停/取消命令发信号，否则 StopAsync 会永久 await。
         try
         {
-            outcome = await ExecuteAsync(job, linked.Token).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            outcome = Cancelled();
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        {
-            outcome = new JobOutcome(false, DownloadJobState.Failed, DownloadErrorCodes.TargetNotWritable, null);
-        }
-        try
-        {
-            await SettleAsync(job, outcome).ConfigureAwait(false);
+            JobOutcome outcome;
+            try
+            {
+                outcome = await ExecuteAsync(job, linked.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                outcome = Cancelled();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                outcome = new JobOutcome(false, DownloadJobState.Failed, DownloadErrorCodes.TargetNotWritable, null);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                // 未预期异常：任务仍必须收束为失败，而不是让控制流跳过 Settle 与信号。
+                // 原始异常内容只进 Trace，绝不写入队列状态或泄漏到界面。
+                // 已知的下载失败类别已在上面分别处理；这里只兜住“意料之外”的那一类。
+                System.Diagnostics.Trace.WriteLine(ex);
+                outcome = new JobOutcome(false, DownloadJobState.Failed, DownloadQueueErrorCodes.UnexpectedFailure, null);
+            }
+            // SettleAsync 内部可能因持久化失败而抛异常；即使如此，也不改变“任务必须收束”这一要求。
+            try
+            {
+                await SettleAsync(job, outcome).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OutOfMemoryException)
+            {
+                System.Diagnostics.Trace.WriteLine(ex);
+                await FailSafelyAsync(job).ConfigureAwait(false);
+            }
         }
         finally
         {
             linked.Dispose();
             completion.TrySetResult();
+        }
+    }
+
+    /// <summary>
+    /// 收束失败时的兜底：把任务置为失败并尽力广播，避免它永远停在 Downloading。
+    /// 只处理非致命异常；OOM 等致命异常继续向上传播，不被吞掉。
+    /// </summary>
+    private async Task FailSafelyAsync(Job job)
+    {
+        try
+        {
+            await _gate.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+            try
+            {
+                if (job.State == DownloadJobState.Downloading)
+                {
+                    job.State = DownloadJobState.Failed;
+                    job.ErrorCode = DownloadQueueErrorCodes.UnexpectedFailure;
+                    job.Message = null;
+                    job.UpdatedAt = DateTimeOffset.UtcNow;
+                    PublishSnapshotLocked();
+                }
+            }
+            finally
+            {
+                _gate.Release();
+            }
+            RaiseJobChanged(job.Id);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // 兜底路径本身也可能失败（例如门已释放）；只记录，绝不让它遮蔽原始收束失败。
+            System.Diagnostics.Trace.WriteLine(ex);
         }
     }
 
@@ -979,6 +1037,16 @@ public sealed class DownloadQueueService : IDownloadQueueService, IAsyncDisposab
         }
     }
 
+    /// <summary>
+    /// 关闭队列：先请求取消，再等待工作循环收束。
+    /// <para>
+    /// 关键约束：绝不释放工作循环仍可能使用的同步原语（<see cref="_gate"/>、<see cref="_signal"/>、<see cref="_lifetime"/>）。
+    /// 一个不响应取消的下载器会让工作循环在超时之后仍在运行，此时若照常释放，
+    /// 它随后在 <c>finally</c> 里调用 <c>_gate.Release()</c> 就会抛 <see cref="ObjectDisposedException"/>，
+    /// 变成无人观察的后台异常。因此超时后改为把释放延后到工作循环真正结束，
+    /// 并在那时观察它的异常。代价是资源会短暂多存活一段时间——这比制造 ObjectDisposedException 更安全。
+    /// </para>
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;
@@ -986,18 +1054,62 @@ public sealed class DownloadQueueService : IDownloadQueueService, IAsyncDisposab
         try { await _lifetime.CancelAsync().ConfigureAwait(false); }
         catch (ObjectDisposedException) { }
         Signal();
-        if (_worker is { } worker)
+        var worker = _worker;
+        if (worker is null)
         {
-            try { await worker.WaitAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false); }
-            catch (Exception ex) when (ex is TimeoutException or OperationCanceledException)
-            {
-                // 关闭不阻塞界面；工作循环在此之前已尽力把状态持久化。
-                System.Diagnostics.Trace.WriteLine(ex);
-            }
+            ReleaseSynchronizationPrimitives();
+            return;
         }
+        try
+        {
+            await worker.WaitAsync(_options.ShutdownTimeout).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            // 工作循环仍在运行：延后释放，等它真正结束并观察其异常。
+            // 存入字段而不是丢弃：既让关闭过程可被测试确定性地等待，也显式观察该任务。
+            DeferredRelease = ReleaseSynchronizationPrimitivesWhenWorkerCompletesAsync(worker);
+            return;
+        }
+        catch (Exception ex)
+        {
+            // 工作循环以异常结束：它已不再运行，可以安全释放。
+            System.Diagnostics.Trace.WriteLine(ex);
+        }
+        ReleaseSynchronizationPrimitives();
+    }
+
+    /// <summary>
+    /// 工作循环任务。仅供测试观察关闭期间的收束行为（是否以异常结束），不参与产品逻辑。
+    /// </summary>
+    internal Task? WorkerCompletion => _worker;
+
+    /// <summary>
+    /// 关闭超时后用于延后释放同步原语的任务；未超时时为 null。仅供测试确定性等待，不参与产品逻辑。
+    /// </summary>
+    internal Task? DeferredRelease { get; private set; }
+
+    private void ReleaseSynchronizationPrimitives()
+    {
         _lifetime.Dispose();
         _gate.Dispose();
         _signal.Dispose();
+    }
+
+    /// <summary>
+    /// 等待工作循环真正结束后再释放同步原语。同时观察其异常，避免变成 UnobservedTaskException。
+    /// 刻意不阻塞调用方，也不使用同步等待。
+    /// </summary>
+    // VSTHRD003：worker 是本类自己创建的字段（见 RunWorkerAsync 的启动点），不是外部传入的
+    // 陌生任务；这里 await 它正是为了在它真正结束后才释放同步原语，属于本类内部的收束，
+    // 不存在该规则要防的“等待外部任务造成意外死锁”。
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD003",
+        Justification = "worker 由本类启动并持有；此处等待它结束是为了延后释放其仍在使用的同步原语，非等待外部任务。")]
+    private async Task ReleaseSynchronizationPrimitivesWhenWorkerCompletesAsync(Task worker)
+    {
+        try { await worker.ConfigureAwait(false); }
+        catch (Exception ex) { System.Diagnostics.Trace.WriteLine(ex); }
+        ReleaseSynchronizationPrimitives();
     }
 
     private readonly record struct JobOutcome(bool Cancelled, DownloadJobState State, string? ErrorCode, string? Message);

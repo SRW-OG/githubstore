@@ -756,6 +756,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        _libraryEditor?.Dispose();
         _catalogLibraryLifetime.Cancel();
         _catalogLibraryLifetime.Dispose();
         _selfUpdateCancellation?.Cancel();

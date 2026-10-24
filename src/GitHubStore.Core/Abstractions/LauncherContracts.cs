@@ -34,13 +34,14 @@ public sealed record LauncherApp
 }
 
 /// <summary>
-/// 一条已登记安装的核对结果。四种状态互斥且含义不同：
+/// 一条已登记安装的核对结果。状态互斥且含义不同：
 /// <see cref="Installed"/> 表示登记与入口文件一致；<see cref="NeedsRepair"/> 表示登记存在但入口
 /// 文件已缺失（可以定位修复，绝不能当成未安装）；<see cref="Unknown"/> 表示索引本身读不出来，
 /// 此时无法判断任何一条登记，调用方必须按"无法核对"处理；<see cref="NotInstalled"/> 只表示
-/// 索引可读且确实没有对应登记。
+/// 索引可读且确实没有对应登记。<see cref="RecoveryRequired"/> 表示存在待核对的升级日志，
+/// 即使入口文件有效也不能启动或修改登记，应先完成恢复。
 /// </summary>
-public enum InstalledStatus { Unknown, NotInstalled, Installed, NeedsRepair }
+public enum InstalledStatus { Unknown, NotInstalled, Installed, NeedsRepair, RecoveryRequired }
 
 public sealed record LauncherLaunchResult(bool Started, string? ErrorCode = null);
 

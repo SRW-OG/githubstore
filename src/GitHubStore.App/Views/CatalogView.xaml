@@ -142,7 +142,7 @@
                     </StackPanel>
                 </Expander>
             </StackPanel>
-            <!-- 命名此面板，任务模板才能用 ElementName 找到队列命令（模板自身的 DataContext 是单个任务）。 -->
+            <!-- 每个任务自己暴露 Text 与五个命令，模板不需要 ElementName 跨命名域绑定。 -->
             <StackPanel x:Name="DownloadQueuePanel" DataContext="{Binding Downloads}" Spacing="4" Visibility="Collapsed">
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -172,23 +172,25 @@
                                         <Run Text="{Binding StateLabel}" />
                                         <Run Text=" · " />
                                         <Run Text="{Binding SizeText}" />
-                                        <Run Text="{Binding Detail}" />
                                     </TextBlock>
+                                    <!-- 说明文字单独一行：为空时不留下多余的分隔符。 -->
+                                    <TextBlock Text="{Binding Detail}" FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                     <TextBlock Text="{Binding ErrorText}" FontSize="11" TextWrapping="Wrap"
                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                                 </StackPanel>
                                 <ProgressBar Grid.Column="1" Width="90" Minimum="0" Maximum="100" Value="{Binding Percent}"
                                              VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                                    <Button Content="{Binding Text[DownloadQueuePause]}" Command="{Binding DataContext.PauseJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                    <Button Content="{Binding Text[DownloadQueuePause]}" Command="{Binding PauseCommand}"
                                             Visibility="{Binding CanPause, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
-                                    <Button Content="{Binding Text[DownloadQueueResume]}" Command="{Binding DataContext.ResumeJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                    <Button Content="{Binding Text[DownloadQueueResume]}" Command="{Binding ResumeCommand}"
                                             Visibility="{Binding CanResume, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
-                                    <Button Content="{Binding Text[DownloadQueueCancel]}" Command="{Binding DataContext.CancelJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                    <Button Content="{Binding Text[DownloadQueueCancel]}" Command="{Binding CancelCommand}"
                                             Visibility="{Binding CanCancel, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
-                                    <Button Content="{Binding Text[DownloadQueueRetry]}" Command="{Binding DataContext.RetryJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                    <Button Content="{Binding Text[DownloadQueueRetry]}" Command="{Binding RetryCommand}"
                                             Visibility="{Binding CanRetry, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2" />
-                                    <Button Content="{Binding Text[DownloadQueueRemove]}" Command="{Binding DataContext.RemoveJobCommand, ElementName=DownloadQueuePanel}" CommandParameter="{Binding}"
+                                    <Button Content="{Binding Text[DownloadQueueRemove]}" Command="{Binding RemoveCommand}"
                                             Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibility}}" FontSize="11" Padding="6,2"
                                             ToolTipService.ToolTip="{Binding Text[DownloadQueueRemoveHint]}" />
                                 </StackPanel>

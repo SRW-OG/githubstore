@@ -5,11 +5,12 @@ using GitHubStore.Core.Abstractions;
 namespace GitHubStore.Core.Catalog;
 
 /// <summary>
-/// 把当前本地软件库导出成可再次同步的 <c>schemaVersion 1</c> 文件。
+/// 把有来源证据的条目导出成可公开同步的 <c>schemaVersion 1</c> 文件。
+/// 完整本地库（含手动条目、全部release）应使用 <see cref="ExportLocalAsync"/>。
 /// 导出只做格式转换与校验，不访问网络、不修改任何安装或设置。
 /// 远端维护的证据字段原样保留：导出不是重新核验，不能凭空生成来源证据。
 /// </summary>
-public static class CatalogLibraryExporter
+public static partial class CatalogLibraryExporter
 {
     private static readonly JsonSerializerOptions Json = new()
     {
@@ -111,8 +112,13 @@ public static class CatalogLibraryExporter
 
     private static object? BuildReleaseSnapshot(AppDetail entry)
     {
-        var release = entry.Releases.FirstOrDefault();
-        if (release is null) return null;
+        var release = entry.PackagePolicy is null ? entry.Releases.FirstOrDefault()
+            : DefaultAssetSelectionPolicy.SelectRelease(entry);
+        if (release is null)
+        {
+            if (entry.Releases.Count > 0) throw new RepositoryCatalogException("invalid_response");
+            return null;
+        }
         return new
         {
             tag_name = release.TagName,

@@ -26,6 +26,7 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
     private readonly Func<string>? _installRootProvider;
     private string _root => _installRootProvider is null ? _fixedRoot : NormalizeLocalPath(_installRootProvider());
     private readonly string _manifestPath;
+    private readonly string _dataDirectory;
     private readonly SemaphoreSlim _gate;
     private readonly Func<string, string, bool> _processStarter;
 
@@ -35,7 +36,8 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
         _fixedRoot = NormalizeLocalPath(installRoot ?? @"C:\githubapps");
         _installRootProvider = installRootProvider;
-        _manifestPath = Path.Combine(Path.GetFullPath(dataDirectory), "managed-apps.json");
+        _dataDirectory = Path.GetFullPath(dataDirectory);
+        _manifestPath = Path.Combine(_dataDirectory, "managed-apps.json");
         _gate = Gates.GetOrAdd(_manifestPath, _ => new SemaphoreSlim(1, 1));
         _processStarter = processStarter ?? StartProcess;
     }
@@ -59,6 +61,8 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
             {
                 ct.ThrowIfCancellationRequested();
                 var installation = entry.Installation;
+                var pending = HasPendingRecovery(installation.InstallId);
+                var available = !pending && IsAvailable(installation);
                 result.Add(new LauncherApp
                 {
                     InstallId = installation.InstallId,
@@ -68,10 +72,9 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
                     ExecutablePath = installation.ExePath!,
                     DisplayVersion = installation.DisplayVersion ?? installation.Version.Raw,
                     InstalledAt = installation.InstalledAt,
-                    IsAvailable = IsAvailable(installation),
-                    // 索引本身可读时只有两种结果：入口文件可核验，或登记存在但入口文件缺失。
-                    // 索引不可读会在 ReadAsync 抛出，调用方按其约定显示“无法核对”，不能当成未安装。
-                    Status = IsAvailable(installation) ? InstalledStatus.Installed : InstalledStatus.NeedsRepair,
+                    IsAvailable = available,
+                    Status = pending ? InstalledStatus.RecoveryRequired
+                        : available ? InstalledStatus.Installed : InstalledStatus.NeedsRepair,
                     // 只有本程序自己解包出来的便携/绿色安装才允许由本程序删除文件。
                     StoreManagedRemoval = StoreOwnedInstallation.OwnsExtractedFiles(installation),
                     // 本程序用合法产品码执行的 MSI：UI 据此显示“用产品码卸载”，而不是“启动第三方卸载器”。
@@ -146,6 +149,7 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         try
         {
             var entries = await ReadAsync(ct).ConfigureAwait(false);
+            if (HasPendingRecovery(installId)) throw new LauncherException("launcher_recovery_required");
             var next = entries.Where(e => !string.Equals(e.Installation.InstallId, installId, StringComparison.Ordinal)).ToArray();
             if (next.Length == entries.Length) return;
             await WriteAsync(next, ct).ConfigureAwait(false);
@@ -168,6 +172,7 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         try
         {
             var entries = await ReadAsync(ct).ConfigureAwait(false);
+            if (HasPendingRecovery(installId)) return new(false, "launcher_recovery_required");
             var index = Array.FindIndex(entries, e => string.Equals(e.Installation.InstallId, installId, StringComparison.Ordinal));
             if (index < 0) return new(false, "launcher_not_found");
             var existing = entries[index].Installation;
@@ -203,6 +208,7 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         {
             // Always reread persisted data by ID; a UI snapshot is never an executable launch request.
             var entries = await ReadAsync(ct).ConfigureAwait(false);
+            if (HasPendingRecovery(installId)) return new(false, "launcher_recovery_required");
             var entry = entries.SingleOrDefault(e => string.Equals(e.Installation.InstallId, installId, StringComparison.Ordinal));
             if (entry is null) return new(false, "launcher_not_found");
             var installation = ValidateInstallation(entry.Installation);
@@ -223,6 +229,9 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         catch (LauncherException ex) { return new(false, ex.Code); }
         finally { _gate.Release(); }
     }
+
+    private bool HasPendingRecovery(string installId) =>
+        GitHubStore.App.Services.Installation.PortableRecoveryState.RequiresRecovery(_dataDirectory, installId);
 
     private async Task<Entry[]> ReadAsync(CancellationToken ct)
     {

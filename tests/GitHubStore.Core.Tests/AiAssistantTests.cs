@@ -116,8 +116,8 @@ public sealed class AiAssistantTests
             Assert.Contains("tool-windows-x64-portable.zip", request.UserPrompt);
             Assert.Contains("tool-windows-x64.exe", request.UserPrompt);
             Assert.Contains("Requires Windows 11", request.UserPrompt);
-            // 7z 已由系统 bsdtar 支持，因此这里断言的是当前真实能力边界，而不是旧的不支持说法。
-            Assert.Contains("ZIP and 7z archives", request.UserPrompt);
+            // External tar cannot enforce the required pre-extraction safety limits.
+            Assert.Contains("ZIP archives (no 7z extraction)", request.UserPrompt);
             Assert.Contains("do not claim they are available", request.UserPrompt);
             Assert.Contains("not verified compatibility", request.SystemPrompt);
             return "Package explanation";

@@ -16,7 +16,8 @@ public static class CuratedCatalogLoader
         {
             using var document = await JsonDocument.ParseAsync(stream, cancellationToken: ct).ConfigureAwait(false);
             var root = document.RootElement;
-            if (root.GetProperty("schemaVersion").GetInt32() != 1
+            if (root.TryGetProperty("format", out _)
+                || root.GetProperty("schemaVersion").GetInt32() != 1
                 || root.GetProperty("entries").ValueKind != JsonValueKind.Array)
                 throw new JsonException("Invalid curated catalog schema.");
             var entries = new List<AppDetail>();
@@ -44,7 +45,20 @@ public static class CuratedCatalogLoader
                     try { PackagePolicyValidator.Validate(policy); }
                     catch (RepositoryCatalogException ex) { throw new JsonException("Invalid package policy.", ex); }
                 }
-                entries.Add(detail with { Curation = curation, PackagePolicy = policy });
+                string? description = null;
+                if (value.TryGetProperty("descriptionOverride", out var descriptionOverride)
+                    && descriptionOverride.ValueKind != JsonValueKind.Null)
+                {
+                    description = descriptionOverride.GetString();
+                    if (description is null || description.Length > 4000
+                        || description.Any(c => char.IsControl(c) && c is not ('\n' or '\r' or '\t')))
+                        throw new JsonException("Invalid description override.");
+                }
+                entries.Add(detail with
+                {
+                    Curation = curation, PackagePolicy = policy, DescriptionOverride = description,
+                    App = detail.App with { Description = description ?? detail.App.Description },
+                });
             }
             return Array.AsReadOnly(entries.ToArray());
         }

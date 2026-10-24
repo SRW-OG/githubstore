@@ -665,10 +665,25 @@ public sealed class DownloadQueueTests
     public async Task Remove_RefusesNonTerminalJobs()
     {
         using var directory = new TempDirectory();
-        await using var queue = CreateQueue(directory);
+        // 用可控阻塞的替身把任务稳定停在非终态：默认的瞬时替身可能在 Pause 到达前就已完成，
+        // 那样 Remove 反而会合法成功，测试也就失去了意义。
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var fake = new ScriptedDownload(async (request, _, ct) =>
+        {
+            entered.SetResult();
+            await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+            return WriteTarget(request, Payload);
+        });
+        await using var queue = CreateQueue(directory, downloads: fake);
 
         var enqueued = await queue.EnqueueAsync(Request(directory) with { FileName = "queued.zip" });
-        await queue.PauseAsync(enqueued.JobId);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var paused = await queue.PauseAsync(enqueued.JobId);
+
+        // 先确认任务确实停在非终态，再验证移除被拒；不依赖调度时序假设。
+        Assert.True(paused.Succeeded, paused.ErrorCode);
+        Assert.Equal(DownloadJobState.Paused, paused.Job!.State);
+        Assert.False(paused.Job.IsTerminal);
 
         var result = await queue.RemoveAsync(enqueued.JobId);
 
@@ -720,12 +735,24 @@ public sealed class DownloadQueueTests
     public async Task QueueFile_IsWrittenUnderTheConfiguredPathAndSurvivesReopening()
     {
         using var directory = new TempDirectory();
+        // 可控阻塞的替身：默认的瞬时替身可能在 Pause 到达前就跑完，那样任务会合法地变成
+        // Completed，持久化出来的就不是我们想验证的 Paused。这里明确等到任务真的开始再暂停。
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var fake = new ScriptedDownload(async (request, _, ct) =>
+        {
+            entered.SetResult();
+            await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+            return WriteTarget(request, Payload);
+        });
         Guid enqueued;
-        await using (var queue = CreateQueue(directory))
+        await using (var queue = CreateQueue(directory, downloads: fake))
         {
             enqueued = (await queue.EnqueueAsync(Request(directory))).JobId;
-            // 队列已开始执行，先暂停以免任务在关闭前跑完而改变状态。
-            await queue.PauseAsync(enqueued);
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var paused = await queue.PauseAsync(enqueued);
+            // 明确断言暂停成功且确实处于 Paused，而不是靠调度时序碰运气。
+            Assert.True(paused.Succeeded, paused.ErrorCode);
+            Assert.Equal(DownloadJobState.Paused, paused.Job!.State);
         }
 
         var queueFile = directory.Combine("download-queue.json");
@@ -790,6 +817,150 @@ public sealed class DownloadQueueTests
             DownloadErrorCodes.Aria2NotConfigured, DownloadErrorCodes.Aria2NotFound, null,
         })
             Assert.False(DownloadQueueService.IsTransientFailure(code));
+    }
+
+    // ------------------------------------------------------------------ 未预期异常
+
+    [Fact]
+    public async Task UnexpectedDependencyException_StillSettlesTheJobInsteadOfHangingInDownloadingAsync()
+    {
+        using var directory = new TempDirectory();
+        // 抛出未知异常类型：修复前 outcome 永不赋值，控制流会跳过 Settle 与信号，
+        // 任务将永远停在 Downloading（本测试会超时），且 StopAsync 会永久等待。
+        var fake = new ScriptedDownload((_, _, _) =>
+            throw new InvalidOperationException("unexpected dependency failure"));
+        await using var queue = CreateQueue(directory, downloads: fake);
+
+        var enqueued = await queue.EnqueueAsync(Request(directory));
+        await WaitForTerminalAsync(queue, enqueued.JobId);
+
+        var job = Assert.Single(queue.Jobs);
+        Assert.Equal(DownloadJobState.Failed, job.State);
+        Assert.Equal(DownloadQueueErrorCodes.UnexpectedFailure, job.ErrorCode);
+        // 原始异常内容绝不进入队列状态（Message 也不承载异常文本）。
+        Assert.Null(job.Message);
+        // 未知失败不参与瞬态重试：只尝试一次。
+        Assert.Equal(1, fake.Calls);
+    }
+
+    [Fact]
+    public async Task UnexpectedDependencyException_DoesNotStopTheWorker_SoLaterJobsStillRunAsync()
+    {
+        using var directory = new TempDirectory();
+        var secondStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var fake = new ScriptedDownload((request, call, _) =>
+        {
+            if (call == 1) throw new InvalidOperationException("boom");
+            secondStarted.TrySetResult();
+            return Task.FromResult(WriteTarget(request, Payload));
+        });
+        await using var queue = CreateQueue(directory, downloads: fake);
+
+        // 每个任务必须有各自独立的目标路径：只改 FileName 会让两个任务都写同一个 app.zip，
+        // 于是断言的文件根本不会被创建。
+        await queue.EnqueueAsync(Request(directory) with { FileName = "one.zip", TargetPath = directory.Combine("one.zip") });
+        await queue.EnqueueAsync(Request(directory) with { FileName = "two.zip", TargetPath = directory.Combine("two.zip") });
+
+        // 工作循环必须在一次未预期异常后继续存活，否则后续任务永远不执行。
+        await secondStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        await WaitUntilAsync(() => queue.Jobs.Count == 2 && queue.Jobs.All(j => j.IsTerminal),
+            () => "Not all jobs reached a terminal state.");
+
+        Assert.Equal(2, fake.Calls);
+        Assert.Equal(DownloadJobState.Failed, queue.Jobs[0].State);
+        Assert.Equal(DownloadJobState.Completed, queue.Jobs[1].State);
+        Assert.True(File.Exists(directory.Combine("two.zip")));
+    }
+
+    [Fact]
+    public async Task Commands_AfterAnUnexpectedFailure_ReturnPromptlyInsteadOfHangingAsync()
+    {
+        using var directory = new TempDirectory();
+        var fake = new ScriptedDownload((_, _, _) => throw new InvalidOperationException("boom"));
+        await using var queue = CreateQueue(directory, downloads: fake);
+
+        var enqueued = await queue.EnqueueAsync(Request(directory));
+        await WaitForTerminalAsync(queue, enqueued.JobId);
+
+        // 任务已收束，命令立即返回明确结果；修复前 completion 永不被信号，这里会一直等待。
+        var pause = await queue.PauseAsync(enqueued.JobId).WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.False(pause.Succeeded);
+        Assert.Equal(DownloadQueueErrorCodes.InvalidState, pause.ErrorCode);
+
+        var retry = await queue.RetryAsync(enqueued.JobId).WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.True(retry.Succeeded, retry.ErrorCode);
+    }
+
+    // ------------------------------------------------------------------ 关闭（DisposeAsync）
+
+    [Fact]
+    public async Task DisposeAsync_WhenTheWorkerOutlivesTheShutdownTimeout_DoesNotDisposePrimitivesItStillUsesAsync()
+    {
+        using var directory = new TempDirectory();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        // 刻意忽略取消令牌：模拟一个响应取消很慢的下载器，让工作循环活过关闭超时。
+        var fake = new ScriptedDownload(async (request, _, _) =>
+        {
+            entered.SetResult();
+            await release.Task;
+            return WriteTarget(request, Payload);
+        });
+        var queue = CreateQueue(directory, downloads: fake,
+            options: o => o with { ShutdownTimeout = TimeSpan.FromMilliseconds(50) });
+        await queue.EnqueueAsync(Request(directory));
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var worker = queue.WorkerCompletion!;
+
+        await queue.DisposeAsync();
+
+        // 关闭超时后工作循环仍在运行：此时绝不能让同步原语被释放，
+        // 否则它随后在 finally 里 Release() 就会抛 ObjectDisposedException。
+        Assert.False(worker.IsCompleted);
+        // 释放被延后，尚未完成。
+        var deferred = queue.DeferredRelease;
+        Assert.NotNull(deferred);
+        Assert.False(deferred!.IsCompleted);
+
+        // 放行下载器：工作循环必须能正常收尾——这正是“原语仍可用”的证据。
+        release.SetResult();
+        await deferred.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // 收尾过程本身不能抛异常（不响应取消的下载器会让它在 finally 里 Release）。
+        Assert.True(deferred.IsCompletedSuccessfully);
+        Assert.Null(deferred.Exception);
+        Assert.True(worker.IsCompletedSuccessfully);
+        Assert.Null(worker.Exception);
+    }
+
+    [Fact]
+    public async Task DisposeAsync_WithAnIdleWorker_CompletesAndStopsTheWorkerAsync()
+    {
+        using var directory = new TempDirectory();
+        var queue = CreateQueue(directory,
+            options: o => o with { ShutdownTimeout = TimeSpan.FromSeconds(10) });
+        await queue.InitializeAsync();
+        var worker = queue.WorkerCompletion!;
+
+        await queue.DisposeAsync();
+
+        // 空闲的工作循环会立刻响应取消，因此关闭是有界的、不需要走延后释放那条路径。
+        Assert.True(worker.IsCompleted);
+        Assert.True(worker.IsCompletedSuccessfully);
+    }
+
+    [Fact]
+    public async Task AfterDisposeAsync_DisposingAgainIsASafeNoOpAsync()
+    {
+        using var directory = new TempDirectory();
+        var queue = CreateQueue(directory);
+        await queue.InitializeAsync();
+
+        await queue.DisposeAsync();
+        await queue.DisposeAsync();
+
+        // 重复关闭必须是安全的空操作，而不是对已释放原语的二次释放。
+        Assert.True(queue.WorkerCompletion!.IsCompletedSuccessfully);
     }
 
     // ------------------------------------------------------------------ 测试基础设施

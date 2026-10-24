@@ -92,7 +92,7 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
         StatusMessage = string.Empty;
         if (!item.IsAvailable)
         {
-            ErrorMessage = Text["LauncherExecutableMissing"];
+            ErrorMessage = item.RequiresRecovery ? Text["LauncherRecoveryRequired"] : Text["LauncherExecutableMissing"];
             return;
         }
         IsLaunching = true;
@@ -178,6 +178,7 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
 
     private string ErrorCodeText(string? code) => Text[code switch
     {
+        "launcher_recovery_required" => "LauncherRecoveryRequired",
         "launcher_executable_missing" => "LauncherExecutableMissing",
         "launcher_invalid_path" or "launcher_unsafe_path" or "launcher_path_unavailable" or "launcher_invalid_installation" => "LauncherInvalidPath",
         "launcher_not_found" => "LauncherEntryMissing",
@@ -220,6 +221,8 @@ public sealed class LauncherItemViewModel(LauncherApp app, LocalizationService t
     public string ExecutablePath => app.ExecutablePath;
     public bool IsAvailable => app.IsAvailable;
     public string Version => app.DisplayVersion ?? string.Empty;
-    public string AvailabilityText => app.IsAvailable ? text["LauncherLaunch"] : text["LauncherUnavailable"];
+    public bool RequiresRecovery => app.Status == InstalledStatus.RecoveryRequired;
+    public string AvailabilityText => RequiresRecovery ? text["LauncherRecoveryRequired"]
+        : app.IsAvailable ? text["LauncherLaunch"] : text["LauncherUnavailable"];
     public string Tooltip => app.DisplayName + "\n" + app.ExecutablePath;
 }

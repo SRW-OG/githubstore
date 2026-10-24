@@ -60,8 +60,9 @@ public sealed record InstalledProgram
     public bool CanRepairExecutable => Status == InstalledStatus.NeedsRepair
         && Origin == RegistryOrigin.StoreInstall && !string.IsNullOrWhiteSpace(SourceKeyPath);
 
-    public bool CanUninstall => StoreManagedRemoval || StorePerformedMsiRemoval
-        || !string.IsNullOrWhiteSpace(EffectiveUninstallString);
+    public bool CanUninstall => Status != InstalledStatus.RecoveryRequired
+        && (StoreManagedRemoval || StorePerformedMsiRemoval
+            || !string.IsNullOrWhiteSpace(EffectiveUninstallString));
 }
 
 public enum RegistryOrigin { Hklm64, Hklm32, Hkcu, GreenInstall, StoreInstall }

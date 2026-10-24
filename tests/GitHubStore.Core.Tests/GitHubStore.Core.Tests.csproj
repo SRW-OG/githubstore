@@ -27,6 +27,8 @@
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\AddRepositoryViewModel.cs" Link="ViewModels\AddRepositoryViewModel.cs" />
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\SettingsViewModel.cs" Link="ViewModels\SettingsViewModel.cs" />
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\SettingsViewModel.CatalogLibrary.cs" Link="ViewModels\SettingsViewModel.CatalogLibrary.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\SettingsViewModel.LibraryTools.cs" Link="ViewModels\SettingsViewModel.LibraryTools.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\ViewModels\LibraryPolicyEditorViewModel.cs" Link="ViewModels\LibraryPolicyEditorViewModel.cs" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Preferences\AppPreferences.cs" Link="Services\Preferences\AppPreferences.cs" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Preferences\PreferencesService.cs" Link="Services\Preferences\PreferencesService.cs" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Preferences\StorageLocations.cs" Link="Services\Preferences\StorageLocations.cs" />

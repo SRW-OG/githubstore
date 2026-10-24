@@ -80,7 +80,12 @@ public sealed partial class CatalogView : UserControl, IDisposable
             PopulateSortSelector();
             UpdateSortSelection();
             UpdateFeedback();
-            if (ViewModel is { } vm) await vm.RefreshCardsAsync(_viewLifetime.Token);
+            if (ViewModel is { } vm)
+            {
+                // 先恢复持久化队列（含上次中断的任务），再加载目录卡片。
+                if (vm.Downloads is { } downloads) await downloads.InitializeQueueAsync(_viewLifetime.Token);
+                await vm.RefreshCardsAsync(_viewLifetime.Token);
+            }
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { ReportError(ex); }
@@ -149,6 +154,8 @@ public sealed partial class CatalogView : UserControl, IDisposable
         PopulateSortSelector();
         UpdateSortSelection();
         OnDetailChanged();
+        // 队列任务的状态标签是在事件到达时算好的，切语言后必须重算，否则会停留在旧语言。
+        ViewModel?.Downloads?.RefreshLocalization();
         UpdateFeedback();
     }
 
@@ -404,7 +411,8 @@ public sealed partial class CatalogView : UserControl, IDisposable
         panel.Children.Add(selector);
         var download = BoundButton("Text[DownloadSelectedAsset]", null, "DownloadSelectedAssetButton");
         Bind(download, Button.IsEnabledProperty, nameof(vm.HasSelectedAsset));
-        download.Click += OnDownloadSelectedAssetClick;
+        // 仅“下载”入口走持久化队列；安装流程仍走各自的安装服务，两者互不影响。
+        download.Click += OnEnqueueSelectedAssetClick;
         var installButton = BoundButton("Text[InstallSelectedAsset]", null, "InstallSelectedAssetButton");
         Bind(installButton, Button.IsEnabledProperty, nameof(vm.CanInstallSelected));
         installButton.Click += (_, _) => { if (vm.CanInstallSelected && vm.CreateInstallRequest() is { } request) install(request); };
@@ -538,10 +546,24 @@ public sealed partial class CatalogView : UserControl, IDisposable
         RenderMarkdown(_releaseImpactHost, ViewModel?.ReleaseImpactMarkdown);
     }
 
+    /// <summary>
+    /// 仅“下载（不安装）”入口：加入持久化队列，因此多个下载会串行排队、重启后仍可恢复。
+    /// 安装按钮不使用此路径。
+    /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "Download event; exceptions caught.")]
-    private async void OnDownloadSelectedAssetClick(object sender, RoutedEventArgs args)
+    private async void OnEnqueueSelectedAssetClick(object sender, RoutedEventArgs args)
     {
-        try { if (ViewModel is { Downloads: { } downloads, SelectedAsset: { } selected }) await downloads.DownloadAsync(selected.Asset); }
+        try
+        {
+            if (ViewModel is { Downloads: { } downloads, SelectedAsset: { } selected })
+            {
+                // 入队是持久的应用级操作：切换导航不应取消它，因此刻意不绑定视图生命周期令牌。
+                await downloads.InitializeQueueAsync(CancellationToken.None);
+                if (_disposed) return;
+                await downloads.EnqueueAsync(selected.Asset);
+            }
+        }
+        catch (OperationCanceledException) { }
         catch (Exception ex) { ReportError(ex); }
     }
 

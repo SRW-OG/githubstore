@@ -144,8 +144,8 @@ public sealed partial class SettingsView : UserControl, IDisposable
         try
         {
             var picker = new Windows.Storage.Pickers.FileSavePicker();
-            picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
-            picker.SuggestedFileName = "catalog";
+            picker.FileTypeChoices.Add("GitHubStore local catalog backup", new List<string> { ".json" });
+            picker.SuggestedFileName = "githubstore-local-backup";
             if (App.MainWindow is { } window)
                 WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
             var file = await picker.PickSaveFileAsync();

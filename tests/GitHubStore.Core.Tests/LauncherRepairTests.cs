@@ -20,6 +20,46 @@ public sealed class LauncherRepairTests : IDisposable
     public LauncherRepairTests() => Directory.CreateDirectory(_base);
 
     [Fact]
+    public async Task PendingRecoveryBlocksLaunchAndReceiptMutationsEvenWhenExecutableIsValid()
+    {
+        var starts = 0;
+        var launcher = new ManagedAppLauncher(Data, Root, (_, _) => { starts++; return true; });
+        var receipt = await RegisterAsync(launcher, "Tool.exe");
+        var originalManifest = await File.ReadAllBytesAsync(Path.Combine(Data, "managed-apps.json"));
+        var journal = GitHubStore.App.Services.Installation.PortableRecoveryState.JournalPath(Data, receipt.InstallId);
+        Directory.CreateDirectory(Path.GetDirectoryName(journal)!);
+        await File.WriteAllTextAsync(journal, "corrupt or legacy recovery data");
+
+        var item = Assert.Single(await launcher.ListAsync());
+        Assert.Equal(InstalledStatus.RecoveryRequired, item.Status);
+        Assert.False(item.IsAvailable);
+        Assert.Equal("launcher_recovery_required", (await launcher.LaunchAsync(receipt.InstallId)).ErrorCode);
+        Assert.Equal("launcher_recovery_required", (await launcher.RepairExecutableAsync(receipt.InstallId, receipt.AppId, receipt.ExePath!)).ErrorCode);
+        var unregister = await Assert.ThrowsAsync<LauncherException>(() => launcher.UnregisterAsync(receipt.InstallId));
+        Assert.Equal("launcher_recovery_required", unregister.Code);
+        Assert.Equal(0, starts);
+        Assert.NotNull(await launcher.GetAsync(receipt.InstallId));
+        Assert.Equal(originalManifest, await File.ReadAllBytesAsync(Path.Combine(Data, "managed-apps.json")));
+        var inventory = Assert.Single(await new ManagedInstalledProgramService(launcher).ScanAsync());
+        Assert.Equal(InstalledStatus.RecoveryRequired, inventory.Status);
+        Assert.False(inventory.CanUninstall);
+        Assert.False(inventory.CanRepairExecutable);
+        Assert.True(File.Exists(receipt.ExePath));
+    }
+
+    [Fact]
+    public async Task OtherInstallJournalDoesNotBlockThisInstallation()
+    {
+        var launcher = new ManagedAppLauncher(Data, Root, (_, _) => true);
+        var receipt = await RegisterAsync(launcher, "Tool.exe");
+        var journal = GitHubStore.App.Services.Installation.PortableRecoveryState.JournalPath(Data, "unrelated-installation");
+        Directory.CreateDirectory(Path.GetDirectoryName(journal)!);
+        await File.WriteAllTextAsync(journal, "unrelated");
+        Assert.Equal(InstalledStatus.Installed, Assert.Single(await launcher.ListAsync()).Status);
+        Assert.True((await launcher.LaunchAsync(receipt.InstallId)).Started);
+    }
+
+    [Fact]
     public async Task RepairUpdatesOnlyEntryPathAndKeepsIdentityAndMetadata()
     {
         var launcher = new ManagedAppLauncher(Data, Root, (_, _) => true);

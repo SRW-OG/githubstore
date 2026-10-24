@@ -156,4 +156,10 @@ public static class DownloadQueueErrorCodes
     public const string CacheRecordFailed = "download_queue_cache_record_failed";
     /// <summary>队列大小或单文件大小超出上限。</summary>
     public const string LimitExceeded = "download_queue_limit_exceeded";
+    /// <summary>
+    /// 下载依赖抛出了未预期异常（不属于任何已知下载失败类别，例如 InvalidOperationException）。
+    /// 任务按失败收束，原始异常内容不进入队列状态、也不泄漏给界面。
+    /// 刻意不参与瞬态重试：“未知”不构成重试理由，重复执行可能放大副作用。
+    /// </summary>
+    public const string UnexpectedFailure = "download_queue_unexpected_failure";
 }
