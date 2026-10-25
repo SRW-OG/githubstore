@@ -10,13 +10,13 @@
 |---|---|
 | App | 页面、ViewModel、组合根、设置与本地化；下载、安装、注册表卸载、进程、AI、趋势源和 Markdown 渲染实现 |
 | Core | 不可变领域模型与服务契约、GitHub 目录、选包规则、命令行拆分等纯逻辑 |
-| Platform.Win32 | 运行环境、DPI、窗口操作与 CurrentUser DPAPI 凭据保护 |
+| Platform.Win32 | 运行环境、DPI、窗口操作、CurrentUser DPAPI 凭据保护与只读 PE 图标提取 |
 | Core.Tests | 引用 Core、Platform.Win32，并链接部分 App 服务、ViewModel 和纯规则源码进行测试 |
 
 ```mermaid
 flowchart LR
     App[App：界面与服务实现] --> Core[Core：契约与纯逻辑]
-    App --> Win32[Platform.Win32：窗口与 DPAPI]
+    App --> Win32[Platform.Win32：窗口、DPAPI 与 PE 图标读取]
     Tests[Core.Tests] --> Core
     Tests --> Win32
     Linked[部分 App 源码] -. 编译链接 .-> Tests
@@ -37,8 +37,9 @@ Core 不引用 App 或 Platform.Win32；Platform.Win32 当前也不引用 Core�
 | 启动器与已安装 | 只读本商店成功安装回执；支持搜索、刷新和启动，安装成功后登记；不展示系统全部软件，不创建桌面 `.lnk` |
 | 卸载 | 自行解包的安装按受管目录移除；第三方安装匹配并调用 Windows 注册卸载入口 |
 | AI | 中文 README、摘要、用途搜索、选包/版本解释、失败诊断、已安装问答和趋势点评；需用户配置模型 |
-| winget | 自动定位 Windows App Installer，保留静态精选来源；尚无 winget 下载或安装流程 |
-| 未实现 | 自动升级、回滚、安装目录迁移、安全 7z 自动解压、P2P；后续事项见 [路线图](ROADMAP.md) |
+| winget | 自动定位 Windows App Installer；静态精选、实时搜索、精确 ID 详情和独立交互式安装，不纳入商店受管安装登记 |
+| 升级与回退 | 已安装页接通受支持绿色/便携安装的更新检查、显式升级与上一版本回退；不覆盖外部 EXE/MSI 应用升级 |
+| 未实现 | 安装目录迁移、安全 7z 自动解压、后台静默更新、P2P；后续事项见 [路线图](ROADMAP.md) |
 
 界面存在调用路径不代表每个第三方安装包、网络服务或设备均已验收。
 
@@ -91,7 +92,21 @@ Core 不引用 App 或 Platform.Win32；Platform.Win32 当前也不引用 Core�
 
 [ManagedAppLauncher](../src/GitHubStore.App/Services/Launcher/ManagedAppLauncher.cs) 读写 `managed-apps.json`，只接受 `Origin.Store`、`State.Done` 且具有真实来源绑定的回执。分类取自目录，缺失时归“其他”。
 
-启动时按安装 ID 重读登记，校验安装根一级子目录内的 EXE、祖先重解析点及文件存在性，再以 `UseShellExecute=false` 启动；图标由 Windows 缩略图 API 读取。清单原子写入，读取失败不以空清单覆盖原文件。
+启动时按安装 ID 重读登记，校验安装根一级子目录内的 EXE、祖先重解析点及文件存在性，再以 `UseShellExecute=false` 启动，工作目录为 EXE 所在目录。启动后观察 4 秒：观察期内非零退出返回失败；零退出允许单实例转交；仍存活则报告已启动。这只覆盖短期异常退出，不证明应用已完成初始化或之后持续运行。观察期间保持启动任务未完成，界面阻止重叠点击。清单原子写入，读取失败不以空清单覆盖原文件。
+
+[ExecutableIconReader](../src/GitHubStore.Platform.Win32/Shell/ExecutableIconReader.cs) 使用 `PEReader` 只读本机文件的 `RT_GROUP_ICON`（14）与 `RT_ICON`（3），支持数字/字符串资源名和语言变体；优先 `IDI_ICON1`、`MAINICON`、`APPICON`，再按尺寸、色深、载荷长度选最佳图像，重建单帧 ICO。读取有文件大小、资源大小、帧数和目录条目预算，不加载目标程序集或执行目标程序。[图标控件](../src/GitHubStore.App/Views/LauncherAppIcon.cs) 后台提取后交给 WinUI 解码，失败时依次退回 Windows 缩略图和本地通用字形。
+
+实际 DevToys EXE 与 DLL 都含原生品牌图标，KeePassXC EXE 的 `IDI_ICON1` 是应用图标、`IDI_KDBX` 是文档图标，已验证真实文件提取。DevToys 的 WebView2 `0x800700AA` 启动崩溃仍未解决；品牌图标提取修复与该启动故障是两项独立问题。WinUI 中最终显示效果仍待视觉验收。
+
+### winget 独立查询与安装
+
+[软件源页面](../src/GitHubStore.App/Views/SourcesView.xaml) 顶部保留 GitHub 仓库添加区，下方是 winget 搜索框及左侧结果、右侧详情。静态精选明确标注为内置条目；选中条目后按精确包 ID 查询实时详情，切换选择时隔离旧请求结果。缺失的说明、许可、发布者或链接不会用猜测值补齐。
+
+[WingetService](../src/GitHubStore.App/Services/Winget/WingetService.cs) 通过统一工具管理器定位 CLI，各参数单独传入进程。详情命令为 `winget show --id <ID> --exact --source winget --accept-source-agreements --disable-interactivity --locale en-US`，限时 30 秒。[详情解析器](../src/GitHubStore.App/Services/Winget/WingetDetailsParser.cs) 要求输出标题中的包 ID 与请求匹配，兼容英文、中文字段及多行描述/发行说明，在安装器区段前停止；`--locale en-US` 选择清单内容语言，不保证 CLI 字段标签变成英文。
+
+用户点击“通过 winget 安装”后执行 `winget install --id <ID> --exact --source winget --accept-source-agreements --accept-package-agreements --interactive --disable-interactivity`。包 ID 先校验；同一应用进程内只允许一个后台安装请求，并发请求直接返回忙。保留原生安装向导，可能请求 UAC；不指定 `--location`、`--scope`、`--force` 或 `--silent`，不强制使用商店安装根，也不写 `managed-apps.json` 或商店安装流水，不复用 `packages-v1` 安装包缓存。
+
+安装进程限时 30 分钟；调用方取消会传播取消异常，[进程执行器](../src/GitHubStore.App/Services/Processes/ProcessRunner.cs) 在取消或超时时尝试终止其拥有的进程树。提权或脱离进程树的安装器可能继续，取消不保证回滚。仅进程正常退出且原始退出码为 `0`、`3010`、`1641` 时报告成功，后两者标记需要重启；其他非零 winget 状态不猜测映射为成功，不自动重启系统。界面提供不定进度状态和完成后的输出，输出清除 ANSI 控制序列并截取最多 8,000 字符；它不是实时日志或百分比进度。
 
 ### 下载引擎选择
 
@@ -141,6 +156,8 @@ winget 从当前用户注册的 Windows App Installer 定位，必要时用 Wind
 
 ## 4. 验证边界
 
-构建、自动测试与真实安装/卸载的具体版本、结果和证据统一记录于 [开发与验证](../DEVELOPMENT.md)，本页不重复测试数量。软件库核验只覆盖所列元数据与来源范围，不等于逐款安装或安全审计。
+构建、自动测试与真实安装/卸载的具体版本、结果和证据统一记录于 [开发与验证](../DEVELOPMENT.md)。软件库核验只覆盖所列元数据与来源范围，不等于逐款安装或安全审计。
 
-当前安装只支持首次安装，不覆盖已有目标；外部安装器可忽略预填目录或提前返回，取消等待也不等于终止或回滚。安装成功必须核验目标入口，登记失败保留文件并提示残留。目录迁移、逐款安装器兼容性及各网络服务和架构的验收仍见 [待办](ROADMAP.md)。
+GitHub 包的首次安装不覆盖已有目标；受支持绿色/便携安装已接通显式升级和上一版本回退，使用暂存、目录切换、回执更新与恢复日志，具体支持边界见 [安装说明](INSTALLATION.md#升级与回退绿色便携安装) 和 [优化实施记录](OPTIMIZATION-PROGRESS.md)。该能力不等于所有已安装应用均可自动更新：外部 EXE/MSI 升级、声明 PreservePaths 的保留式升级、目录迁移等仍有限制。外部安装器可忽略预填目录或提前返回，取消等待不等于回滚；GitHub 安装成功仍须核验目标入口，登记失败保留文件并提示残留。
+
+本轮综合验证为 1,750 项测试通过，已从实际 DevToys/KeePassXC 文件提取并核对图标；测试数量不替代真实使用验收。当前尚未执行真实 winget 软件安装，启动器新图标在 WinUI 中尚未完成视觉验收，DevToys WebView2 启动失败仍待调查。

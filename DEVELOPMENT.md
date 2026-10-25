@@ -58,7 +58,7 @@ pwsh -File scripts\run-desktop.ps1 -Configuration Debug
 按 [Windows 安装包说明](packaging/README.md) 准备 Inno Setup 6，再运行：
 
 ```powershell
-pwsh -File scripts\build-installer.ps1 -Version 0.1.2 -CompilerPath 'C:\Path\To\ISCC.exe'
+pwsh -File scripts\build-installer.ps1 -Version 0.1.14 -CompilerPath 'C:\Path\To\ISCC.exe'
 ```
 
 版本号按实际发布递增。脚本生成自包含 Release 安装包和 SHA256 文件，写入 `dist`；已存在的同版本安装包不会被静默覆盖。
@@ -143,8 +143,28 @@ pwsh -File scripts\build-installer.ps1 -Version 0.1.2 -CompilerPath 'C:\Path\To\
 - 真实界面验收（部署构建 `FE8270574B3F4644`）：在“图形设计”中通过“下载所选包（不安装）”真实下载 3.9 MiB 到缓存；设置页“目录设置”显示“下载缓存：1 个文件，共 3.9 MiB”；点击“清空全部下载缓存”并确认后显示“已删除 2 项缓存，释放 3.9 MiB。已安装程序不受影响。”，占用回到 0。截图 `artifacts/cache-acceptance/ui/`。
 - 仍待验证：进程重启后复用、切换缓存根后的旧目录处理、部分删除失败与占用文件残留的界面提示。已记入 [开发计划](docs/ROADMAP.md)。
 
+## 2026-10-24 至 2026-10-25：0.1.9–0.1.14
+
+近期功能记录见 [更新日志](docs/CHANGELOG.md)。本轮最终代码的验证：
+
+| 阶段 | 完整回归结果 | 主要覆盖 |
+|---|---|---|
+| 0.1.9–0.1.10 | 1686 通过 | 每周榜内联脚本数据解析、启动早期异常退出反馈及已有回归 |
+| 0.1.11 | 1712 通过 | winget 详情命令、中文/英文标签、多行说明、身份校验、缓存和旧响应隔离 |
+| 0.1.13 | 1740 通过 | winget 独立安装参数、无路径/范围限制、并发、取消、超时及结果反馈 |
+| 0.1.14 | 1750 通过 | PE 图标数字/命名资源、语言、高分辨率帧选择、损坏文件及既有功能回归 |
+
+- 最终回归 0 失败、0 跳过，报告 `artifacts/test-results/launcher-icons.json`；winget 详情与安装的阶段报告分别为 `winget-details-final.json`、`winget-install-final.json`，位于同一测试结果目录。
+- Windows x64 Release 客户端编译 0 警告、0 错误，自包含安装包生成成功；最终版本戳 `0.1.14.0`，安装包 SHA-256 `2a8ab476a9888076ff351cd316303d8929954ec634549da662135f7bf5fb2321`。
+- 真实元数据查询：`winget show` 成功取得本机 7-Zip 的包身份、版本、发布者、许可证、主页和发行说明。`--locale en-US` 不会保证 CLI 标签转为英文，因此保留中文标签回归。此项不等同于真实 winget 安装通过。
+- 安装命令和界面状态通过模拟进程边界测试；本轮没有实际安装第三方 winget 软件，UAC、不同安装器和取消后的系统状态未完成实机验收。
+- 生产图标读取器实际读取本机 DevToys/KeePassXC EXE，分别取得 512×512 紫色 PRE 图标和 256×256 绿色钥匙图标，成功解码并查看；图像提取结果位于 `artifacts/icon-probe/`。未把提取结果当成 WinUI 界面截图。独立桌面测试未取得可靠的目标窗口截图，安装后视觉验收仍待完成。
+- DevToys 的 WebView2 `0x800700AA` 启动崩溃仍未解决，图标修复和启动失败提示不能作为崩溃修复证据。
+- 本机曾出现安装器 Temp 目录 Error 5，诊断没有确认需要修改的目录权限，因此没有进行权限变更。用户后来已安装 0.1.13；尚未完成 0.1.14 覆盖安装验收。
+- `artifacts` 内含隔离测试数据与本机诊断，仅保留在本地，不纳入公开源码或 Release 附件。
+
 ## 验证范围
 
-当前已有软件目录、同步及离线缓存、设置独立保存、下载完整性、安装登记、ZIP 解压路径防护、启动器和 Markdown 等自动测试。本机完成过安装包的隔离安装、启动、自带运行库加载和卸载保留数据验收。
+当前已有软件目录、同步及离线缓存、设置独立保存、下载完整性、安装登记、ZIP 解压路径防护、启动器、winget 查询/安装边界、PE 图标与 Markdown 等自动测试。本机完成过早期安装包的隔离安装、启动、自带运行库加载和卸载保留数据验收；该历史结果不替代当前版本验收。
 
-程序测试通过不等于逐款第三方软件安装兼容性验收；7z、升级/回滚、ARM64 运行，以及 aria2 / Xget / winget 的完整公网链路仍按 [开发计划](docs/ROADMAP.md) 单独验证。GUI 或安装器测试使用合成数据与独立目录，不卸载用户日常软件。
+程序测试通过不等于逐款第三方软件安装兼容性验收；7z、真实绿色升级/回退、ARM64 运行，以及 aria2 / Xget / winget 的完整公网链路仍按 [开发计划](docs/ROADMAP.md) 单独验证。GUI 或安装器测试使用合成数据与独立目录，不卸载用户日常软件。

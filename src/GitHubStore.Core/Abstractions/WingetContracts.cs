@@ -11,6 +11,10 @@ public sealed record WingetPackage
     public string? Description { get; init; }
     public string? License { get; init; }
     public string? Homepage { get; init; }
+    public string? PublisherUrl { get; init; }
+    public string? LicenseUrl { get; init; }
+    public string? ReleaseNotes { get; init; }
+    public string? ReleaseNotesUrl { get; init; }
     /// <summary>是否为“常用软件”精选条目。</summary>
     public bool IsFeatured { get; init; }
     /// <summary>静态内置条目；不是实时 winget 查询结果，也未验证当前版本或可用性。</summary>
@@ -41,6 +45,36 @@ public interface IWingetService
 
     /// <summary>按关键字搜索 winget 仓库；失败返回错误结果，调用方取消抛出 OperationCanceledException。</summary>
     Task<WingetSearchResult> SearchAsync(string query, int limit = 30, CancellationToken ct = default);
+
+    /// <summary>Install using winget's native installer; this does not create a managed Store receipt.</summary>
+    Task<WingetInstallResult> InstallAsync(string id, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult(new WingetInstallResult { ErrorCode = WingetErrorCodes.CommandFailed });
+    }
+
+    /// <summary>Read live metadata for an exact package ID; missing fields remain null.</summary>
+    Task<WingetDetailsResult> GetDetailsAsync(string id, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult(new WingetDetailsResult { ErrorCode = WingetErrorCodes.InvalidOutput });
+    }
+}
+
+public sealed record WingetInstallResult
+{
+    public bool Succeeded { get; init; }
+    public string? ErrorCode { get; init; }
+    public int? ExitCode { get; init; }
+    public string? Output { get; init; }
+    public bool RebootRequired { get; init; }
+}
+
+public sealed record WingetDetailsResult
+{
+    public WingetPackage? Package { get; init; }
+    public bool Succeeded { get; init; }
+    public string? ErrorCode { get; init; }
 }
 
 public sealed record WingetSearchResult
@@ -54,6 +88,8 @@ public sealed record WingetSearchResult
 
 public static class WingetErrorCodes
 {
+    public const string Busy = "winget_busy";
+    public const string InvalidPackageId = "winget_invalid_package_id";
     public const string NotInstalled = "winget_not_installed";
     public const string CommandFailed = "winget_command_failed";
     public const string TimedOut = "winget_timed_out";

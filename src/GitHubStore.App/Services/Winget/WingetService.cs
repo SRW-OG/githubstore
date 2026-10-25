@@ -7,9 +7,11 @@ using GitHubStore.Core.Abstractions;
 
 namespace GitHubStore.App.Services.Winget;
 
-/// <summary>Read-only winget-source queries. Caller cancellation always propagates.</summary>
+/// <summary>Winget-source queries and independent native installs. Caller cancellation always propagates.</summary>
 public sealed class WingetService : IWingetService
 {
+    private static readonly TimeSpan InstallTimeout = TimeSpan.FromMinutes(30);
+    private static readonly SemaphoreSlim InstallGate = new(1, 1);
     private static readonly TimeSpan ProbeTimeout = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan SearchTimeout = TimeSpan.FromSeconds(30);
 
@@ -110,6 +112,78 @@ public sealed class WingetService : IWingetService
 
         LastSearchError = $"{error}: {Describe("search", result)}";
         return new WingetSearchResult { ErrorCode = error, ExitCode = result.ExitCode, Diagnostic = LastSearchError };
+    }
+
+    public async Task<WingetInstallResult> InstallAsync(string id, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (!WingetDetailsParser.IsSafeId(id)) return new() { ErrorCode = WingetErrorCodes.InvalidPackageId };
+        if (!await InstallGate.WaitAsync(0, ct).ConfigureAwait(false)) return new() { ErrorCode = WingetErrorCodes.Busy };
+        try
+        {
+            ProcessResult result;
+            try
+            {
+                result = await RunAsync(
+                    ["install", "--id", id, "--exact", "--source", "winget", "--accept-source-agreements", "--accept-package-agreements", "--interactive", "--disable-interactivity"],
+                    InstallTimeout, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
+            {
+                ct.ThrowIfCancellationRequested();
+                return new()
+                {
+                    ErrorCode = IsMissing(ex) ? WingetErrorCodes.NotInstalled : WingetErrorCodes.CommandFailed,
+                    Output = InstallOutput(ex.Message),
+                };
+            }
+            ct.ThrowIfCancellationRequested();
+            // Raw Windows installer success codes may request a restart. All other nonzero
+            // winget statuses remain failures; do not infer success from localized console text.
+            var succeeded = result.Outcome == ProcessOutcome.Exited && result.ExitCode is 0 or 3010 or 1641;
+            return new()
+            {
+                Succeeded = succeeded,
+                ErrorCode = succeeded ? null : ErrorCode(result) ?? WingetErrorCodes.CommandFailed,
+                ExitCode = result.ExitCode,
+                Output = InstallOutput(string.Join("\n", new[] { result.StandardOutput, result.StandardError, result.Diagnostic }.Where(value => !string.IsNullOrWhiteSpace(value)))),
+                RebootRequired = succeeded && result.ExitCode is 3010 or 1641,
+            };
+        }
+        finally { InstallGate.Release(); }
+    }
+
+    private static string? InstallOutput(string? output)
+    {
+        if (string.IsNullOrWhiteSpace(output)) return null;
+        var clean = WingetTableParser.CleanOutput(output).Trim();
+        if (clean.Length == 0) return null;
+        return clean.Length <= 8000 ? clean : clean[..8000];
+    }
+
+    public async Task<WingetDetailsResult> GetDetailsAsync(string id, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (!WingetDetailsParser.IsSafeId(id))
+            return new() { ErrorCode = WingetErrorCodes.InvalidPackageId };
+        ProcessResult result;
+        try
+        {
+            result = await RunAsync(
+                ["show", "--id", id, "--exact", "--source", "winget", "--accept-source-agreements", "--disable-interactivity", "--locale", "en-US"],
+                SearchTimeout, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+            ct.ThrowIfCancellationRequested();
+            return new() { ErrorCode = IsMissing(ex) ? WingetErrorCodes.NotInstalled : WingetErrorCodes.CommandFailed };
+        }
+        ct.ThrowIfCancellationRequested();
+        var error = ErrorCode(result);
+        if (error is not null) return new() { ErrorCode = error };
+        return WingetDetailsParser.TryParse(result.StandardOutput, id, out var package)
+            ? new() { Succeeded = true, Package = package }
+            : new() { ErrorCode = WingetErrorCodes.InvalidOutput };
     }
 
     internal static IReadOnlyList<WingetPackage> ParseSearchOutput(string output, int limit) =>

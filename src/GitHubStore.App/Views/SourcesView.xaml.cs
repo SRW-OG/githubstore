@@ -8,6 +8,31 @@ public sealed partial class SourcesView : UserControl
 {
     public SourcesView() => InitializeComponent();
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI 选择事件；查询失败由视图模型呈现。")]
+    private async void OnWingetSelectionChanged(object sender, SelectionChangedEventArgs args)
+    {
+        if (ViewModel is { } viewModel && sender is ListView list)
+            await viewModel.LoadDetailsAsync(list.SelectedItem as GitHubStore.Core.Abstractions.WingetPackage);
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI 点击事件；查询失败由视图模型呈现。")]
+    private async void OnWingetDetailsRetry(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is { } viewModel) await viewModel.LoadDetailsAsync(viewModel.SelectedPackage);
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI 安装点击事件；安装错误由视图模型呈现。")]
+    private async void OnWingetInstallClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is { } viewModel) await viewModel.InstallSelectedAsync();
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI 取消点击事件；观察正在运行的取消任务。")]
+    private async void OnWingetCancelInstallClick(object sender, RoutedEventArgs args)
+    {
+        if (ViewModel is { } viewModel) await viewModel.CancelInstallAsync();
+    }
+
     private SourcesViewModel? ViewModel => DataContext as SourcesViewModel;
 
     /// <summary>手动添加对话框由页面承载，避免视图各自持有服务。</summary>
