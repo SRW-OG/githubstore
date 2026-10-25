@@ -96,7 +96,7 @@ Core 不引用 App 或 Platform.Win32；Platform.Win32 当前也不引用 Core�
 
 [ExecutableIconReader](../src/GitHubStore.Platform.Win32/Shell/ExecutableIconReader.cs) 使用 `PEReader` 只读本机文件的 `RT_GROUP_ICON`（14）与 `RT_ICON`（3），支持数字/字符串资源名和语言变体；优先 `IDI_ICON1`、`MAINICON`、`APPICON`，再按尺寸、色深、载荷长度选最佳图像，重建单帧 ICO。读取有文件大小、资源大小、帧数和目录条目预算，不加载目标程序集或执行目标程序。[图标控件](../src/GitHubStore.App/Views/LauncherAppIcon.cs) 后台提取后交给 WinUI 解码，失败时依次退回 Windows 缩略图和本地通用字形。
 
-实际 DevToys EXE 与 DLL 都含原生品牌图标，KeePassXC EXE 的 `IDI_ICON1` 是应用图标、`IDI_KDBX` 是文档图标，已验证真实文件提取。DevToys 的 WebView2 `0x800700AA` 启动崩溃仍未解决；品牌图标提取修复与该启动故障是两项独立问题。WinUI 中最终显示效果仍待视觉验收。
+实际 DevToys EXE 与 DLL 都含原生品牌图标，KeePassXC EXE 的 `IDI_ICON1` 是应用图标、`IDI_KDBX` 是文档图标，已验证真实文件提取。2026-10-25 14:25（Asia/Shanghai），用户真实使用后确认 0.1.14 本轮验收通过，DevToys WebView2 `0x800700AA` 启动崩溃问题已解决，启动器图标显示不再列为待验收。该状态来自用户确认；本次文档更新没有新增代理实机复现、根因结论或修复补丁，也不将图标提取改动认定为崩溃根因修复。
 
 ### winget 独立查询与安装
 
@@ -160,4 +160,4 @@ winget 从当前用户注册的 Windows App Installer 定位，必要时用 Wind
 
 GitHub 包的首次安装不覆盖已有目标；受支持绿色/便携安装已接通显式升级和上一版本回退，使用暂存、目录切换、回执更新与恢复日志，具体支持边界见 [安装说明](INSTALLATION.md#升级与回退绿色便携安装) 和 [优化实施记录](OPTIMIZATION-PROGRESS.md)。该能力不等于所有已安装应用均可自动更新：外部 EXE/MSI 升级、声明 PreservePaths 的保留式升级、目录迁移等仍有限制。外部安装器可忽略预填目录或提前返回，取消等待不等于回滚；GitHub 安装成功仍须核验目标入口，登记失败保留文件并提示残留。
 
-本轮综合验证为 1,750 项测试通过，已从实际 DevToys/KeePassXC 文件提取并核对图标；测试数量不替代真实使用验收。当前尚未执行真实 winget 软件安装，启动器新图标在 WinUI 中尚未完成视觉验收，DevToys WebView2 启动失败仍待调查。
+本轮综合验证为 1,750 项测试通过，已从实际 DevToys/KeePassXC 文件提取并核对图标。2026-10-25 14:25（Asia/Shanghai），用户确认 0.1.14 本轮真实使用验收通过、DevToys 启动崩溃问题已解决；此前的“图标显示待验收、启动故障待调查”状态已关闭。此次依据为用户确认，没有新增代理复现或根因分析。该确认不代表 winget 的超时、UAC 拒绝、取消、全部安装器及跨设备矩阵均已实测，扩展场景仍按 [路线图](ROADMAP.md) 补充。

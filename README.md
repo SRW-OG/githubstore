@@ -58,7 +58,9 @@ Windows GitHub 软件目录与管理客户端，使用 **C# / .NET 8 + WinUI 3**
 - **winget 图形管理**：在“软件源”搜索 winget 仓库，选择结果查看详细资料，并显式点击安装；安装位置与向导交由 winget 和软件处理，不写入托管安装回执，因此不会出现在 GitHubStore 启动器或托管“已安装”列表。内置 8 个精选条目仍标注为静态清单。取消会停止所持有的进程任务，不保证撤销安装器已经做出的系统更改。具体边界见 [winget 安装说明](docs/INSTALLATION.md#winget-独立安装)。
 - **绿色/便携升级与回退**：已安装页提供显式检查、升级与上一版本回退；仅覆盖受支持的 ZIP/便携 EXE，保留深度为一版。外部 EXE/MSI 升级、7z、目录迁移及声明保留路径的更新不支持，真实升级兼容性仍待专项验收。
 
-**仍需验证或尚未提供：** 真实 winget 下载安装与 UAC/取消兼容性、独立的 winget 已安装列表/升级/卸载管理、启动器图标修复的安装后视觉验收、7z 自动安装、EXE/MSI 逐款兼容性、P2P、aria2 公网下载与代理完整验收、Xget 真实网络加速、外部安装器升级和目录迁移。DevToys 的 WebView2 `0x800700AA` 启动崩溃尚未解决；0.1.14 修复的是图标读取，不是该崩溃。系统缺少或禁止 Windows App Installer 时，winget 会报告不可用。工具来源与许可证见 [第三方声明](src/GitHubStore.App/Assets/Tools/THIRD-PARTY-NOTICES.md)。
+**用户验收确认（2026-10-25）：** 用户反馈近期版本验收已完成，DevToys 启动崩溃问题已解决。此状态依据用户实机反馈记录；自动测试与图标资源提取的证据另见 [开发与验证](DEVELOPMENT.md)。
+
+**仍需扩展验证或尚未提供：** 不同安装器与设备上的 UAC/取消兼容性、独立的 winget 已安装列表/升级/卸载管理、7z 自动安装、EXE/MSI 逐款兼容性、P2P、aria2 公网下载与代理完整验收、Xget 真实网络加速、外部安装器升级和目录迁移。系统缺少或禁止 Windows App Installer 时，winget 会报告不可用。工具来源与许可证见 [第三方声明](src/GitHubStore.App/Assets/Tools/THIRD-PARTY-NOTICES.md)。
 
 ## 文档入口
 
