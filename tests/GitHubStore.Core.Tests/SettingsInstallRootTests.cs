@@ -12,6 +12,7 @@ public sealed class SettingsInstallRootTests
     public async Task ExistingManagedAppsProtectRootButAllowCacheChangeAndKeepDraft()
     {
         using var fixture = new Fixture();
+        await fixture.Preferences.SaveAsync(new AppPreferences { Language = "zh-CN" });
         var registry = new Registry { HasApp = true };
         using var vm = new SettingsViewModel(fixture.Preferences, new LocalizationService("zh-CN"), registry);
         await vm.InitializeAsync();
@@ -43,6 +44,7 @@ public sealed class SettingsInstallRootTests
     public async Task InProgressInstallationProtectsRootWithoutExistingReceipt()
     {
         using var fixture = new Fixture();
+        await fixture.Preferences.SaveAsync(new AppPreferences { Language = "zh-CN" });
         var text = new LocalizationService("zh-CN");
         using var installation = new InstallationViewModel(new PendingInstaller(), text);
         using var settings = new SettingsViewModel(fixture.Preferences, text, new Registry(), installation);

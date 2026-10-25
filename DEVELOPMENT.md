@@ -161,6 +161,7 @@ pwsh -File scripts\build-installer.ps1 -Version 0.1.14 -CompilerPath 'C:\Path\To
 - 生产图标读取器实际读取本机 DevToys/KeePassXC EXE，分别取得 512×512 紫色 PRE 图标和 256×256 绿色钥匙图标，成功解码并查看；图像提取结果位于 `artifacts/icon-probe/`。未把提取结果当成 WinUI 界面截图。独立桌面测试未取得可靠的目标窗口截图，安装后视觉验收仍待完成。
 - DevToys 的 WebView2 `0x800700AA` 启动崩溃仍未解决，图标修复和启动失败提示不能作为崩溃修复证据。
 - 本机曾出现安装器 Temp 目录 Error 5，诊断没有确认需要修改的目录权限，因此没有进行权限变更。用户后来已安装 0.1.13；尚未完成 0.1.14 覆盖安装验收。
+- 发布时英文 GitHub runner 暴露 7 项既有设置测试的系统语言依赖：测试初始化加载 `Language=system` 后覆盖了构造时的中文设置，但断言仍固定中文。现为相关测试显式保存 `Language=zh-CN`，不修改产品语言逻辑；该补充仅影响测试和文档，不改变已生成的 0.1.14 安装包。远端结果以对应 GitHub Actions 运行记录为准。
 - `artifacts` 内含隔离测试数据与本机诊断，仅保留在本地，不纳入公开源码或 Release 附件。
 
 ## 验证范围

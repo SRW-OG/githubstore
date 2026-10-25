@@ -52,6 +52,7 @@ public sealed class CatalogLibrarySettingsTests
     public async Task SyncSavesAddressAndReportsCountAndRefreshEvent()
     {
         using var fixture = new Fixture();
+        await fixture.Preferences.SaveAsync(new AppPreferences { Language = "zh-CN" });
         var sync = new FakeSync();
         var text = new LocalizationService("zh-CN");
         using var vm = new SettingsViewModel(fixture.Preferences, text, librarySync: sync);
@@ -157,6 +158,7 @@ public sealed class CatalogLibrarySettingsTests
     public async Task ActiveSyncRejectsDuplicateRequestsAndCanBeCancelled()
     {
         using var fixture = new Fixture();
+        await fixture.Preferences.SaveAsync(new AppPreferences { Language = "zh-CN" });
         var sync = new FakeSync
         {
             Run = async (_, ct) =>
@@ -189,6 +191,7 @@ public sealed class CatalogLibrarySettingsTests
     public async Task FailedSyncShowsStableErrorWithoutClaimingSuccess(string code, string message)
     {
         using var fixture = new Fixture();
+        await fixture.Preferences.SaveAsync(new AppPreferences { Language = "zh-CN" });
         var sync = new FakeSync { Run = (_, _) => throw new RepositoryCatalogException(code) };
         using var vm = new SettingsViewModel(fixture.Preferences, new LocalizationService("zh-CN"), librarySync: sync);
         await vm.InitializeAsync();
