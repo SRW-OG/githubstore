@@ -55,11 +55,17 @@ public sealed class CuratedCatalogTests
         // The resource must retain real API identity metadata, rather than a hand-written display-only record.
         await using var stream = OpenEmbedded();
         using var document = await JsonDocument.ParseAsync(stream);
+        // Entries contributed from the client's runtime catalog carry a placeholder id, which is always negative;
+        // every other entry must keep the real GitHub numeric id.
+        var localContributed = ReadLocalContributedNames();
         foreach (var entry in document.RootElement.GetProperty("entries").EnumerateArray())
         {
             var repository = entry.GetProperty("repository");
-            Assert.True(repository.GetProperty("id").GetInt64() > 0);
-            Assert.False(string.IsNullOrWhiteSpace(repository.GetProperty("full_name").GetString()));
+            var id = repository.GetProperty("id").GetInt64();
+            var fullName = repository.GetProperty("full_name").GetString()!;
+            if (localContributed.Contains(fullName)) Assert.True(id < 0, $"{fullName} should carry a placeholder id.");
+            else Assert.True(id > 0, $"{fullName} should keep the real GitHub repository id.");
+            Assert.False(string.IsNullOrWhiteSpace(fullName));
             Assert.Equal(RepositoryAddress.Parse(repository.GetProperty("full_name").GetString()!).Key,
                 RepositoryAddress.Parse(repository.GetProperty("html_url").GetString()!).Key);
         }
@@ -413,6 +419,25 @@ public sealed class CuratedCatalogTests
 
     private static string Key(Abstractions.App app) => $"{app.Owner}/{app.Repo}".ToLowerInvariant();
     private static string CachePath(TempDirectory directory) => directory.Combine("github-catalog.json");
+    // The hosted catalog file is the source that was assembled from the client's runtime catalog; entries it
+    // contributed keep a placeholder id for the numeric field the API projection does not carry.
+    private static HashSet<string> ReadLocalContributedNames()
+    {
+        var root = new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "GitHubStore.sln"))) root = root.Parent;
+        if (root is null) throw new InvalidOperationException("The repository root could not be located.");
+        var path = Path.Combine(root.FullName, "catalog", "catalog.json");
+        using var document = JsonDocument.Parse(File.ReadAllText(path));
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var entry in document.RootElement.GetProperty("entries").EnumerateArray())
+        {
+            var repository = entry.GetProperty("repository");
+            if (repository.GetProperty("id").GetInt64() < 0)
+                names.Add(repository.GetProperty("full_name").GetString()!);
+        }
+        Assert.NotEmpty(names);
+        return names;
+    }
     private static Stream OpenEmbedded() => typeof(GitHubCatalogService).Assembly.GetManifestResourceStream(CuratedCatalogLoader.ResourceName)
         ?? throw new InvalidOperationException("The curated catalog embedded resource is missing.");
     private static async Task<IReadOnlyList<AppDetail>> LoadEmbeddedAsync()
