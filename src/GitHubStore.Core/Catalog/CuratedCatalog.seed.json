@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "curatedAt": "2026-10-27T16:48:15+08:00",
+  "curatedAt": "2026-10-27T17:51:00+08:00",
   "entries": [
     {
       "categoryId": "dev-tools",
@@ -22181,7 +22181,7 @@
       "descriptionOverride": null
     },
     {
-      "categoryId": "network",
+      "categoryId": "security",
       "fetchedAt": "2026-10-22T18:24:22+08:00",
       "repository": {
         "allow_forking": false,

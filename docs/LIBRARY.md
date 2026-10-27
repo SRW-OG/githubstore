@@ -59,7 +59,6 @@
 | 网络 | [qBittorrent](https://github.com/qbittorrent/qBittorrent) | 开源 BitTorrent 客户端，提供图形界面与完整的下载、分类管理。 |
 | 网络 | [SunnyNetTools](https://github.com/qtgolang/SunnyNetTools) | 图形化网络抓包分析工具，支持规则引擎、断点改包与脚本扩展。 |
 | 网络 | [rustdesk](https://github.com/rustdesk/rustdesk) | 可自托管的开源远程桌面工具 |
-| 网络 | [VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 基于 TrueCrypt 的磁盘加密工具，可创建并挂载加密卷。 |
 | 办公效率 | [Pomodoist](https://github.com/Kabanya/Pomodoist) | 开源待办与番茄钟应用，支持自托管与多端同步。 |
 | 办公效率 | [openless](https://github.com/Open-Less/openless) | 语音输入工具，按键说话后在光标处生成整理后的文本。 |
 | 办公效率 | [siyuan](https://github.com/siyuan-note/siyuan) | 本地优先的自托管知识库与笔记工作空间，支持双向链接、块级引用与大纲编辑。 |
@@ -74,6 +73,7 @@
 | 安全隐私 | [ReportGenX](https://github.com/s1g0day/ReportGenX) | 渗透测试报告生成桌面应用，支持模板与插件化输出。 |
 | 安全隐私 | [WG-Win-Check](https://github.com/SECWG/WG-Win-Check) | Windows 应急响应辅助检查工具。 |
 | 安全隐私 | [yakit](https://github.com/yaklang/yakit) | 网络安全综合平台，提供 MITM 被动扫描、漏洞检测等图形化能力。 |
+| 安全隐私 | [VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 基于 TrueCrypt 的磁盘加密工具，可创建并挂载加密卷。 |
 | 系统工具 | [QtScrcpy](https://github.com/barry-ran/QtScrcpy) | 基于 Qt 的安卓设备投屏与控制工具，支持鼠标键盘操作与批量连接。 |
 | 系统工具 | [keepassxc](https://github.com/keepassxreboot/keepassxc) | 跨平台本地密码管理器，集中保存账号密码并支持自动填充。 |
 | 系统工具 | [Winhance](https://github.com/memstechtips/Winhance) | Windows 优化与定制工具，用于调整系统设置、精简预装内容。 |

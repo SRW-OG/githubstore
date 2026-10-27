@@ -65,7 +65,7 @@
 | qBittorrent | [qbittorrent/qBittorrent](https://github.com/qbittorrent/qBittorrent) | 网络 | NOASSERTION | release-5.3.0 | GitHub 官方项目 |
 | SunnyNetTools | [qtgolang/SunnyNetTools](https://github.com/qtgolang/SunnyNetTools) | 网络 | NOASSERTION | v1.0.1 | GitHub 官方项目 |
 | rustdesk | [rustdesk/rustdesk](https://github.com/rustdesk/rustdesk) | 网络 | AGPL-3.0 | 1.5.0 | 知乎、小红书 |
-| VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 网络 | NOASSERTION | VeraCrypt_1.26.30 | GitHub 官方项目 |
+| VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 安全隐私 | NOASSERTION | VeraCrypt_1.26.30 | GitHub 官方项目 |
 | Pomodoist | [Kabanya/Pomodoist](https://github.com/Kabanya/Pomodoist) | 办公效率 | AGPL-3.0 | v1.1.5 | GitHub 官方项目 |
 | openless | [Open-Less/openless](https://github.com/Open-Less/openless) | 办公效率 | AGPL-3.0 | v2.0.1-tauri | GitHub 官方项目 |
 | siyuan | [siyuan-note/siyuan](https://github.com/siyuan-note/siyuan) | 办公效率 | AGPL-3.0 | v3.8.8 | GitHub 官方项目 |
@@ -119,7 +119,7 @@
 | RustGIS | [opengeos/RustGIS](https://github.com/opengeos/RustGIS) | 教育与科学 | Apache-2.0 | v0.4.0 |
 | qBittorrent | [qbittorrent/qBittorrent](https://github.com/qbittorrent/qBittorrent) | 网络 | 见仓库内许可文件 | release-5.3.0 |
 | syncthing | [syncthing/syncthing](https://github.com/syncthing/syncthing) | 系统工具 | MPL-2.0 | v2.1.7 |
-| VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 网络 | 见仓库内许可文件 | VeraCrypt_1.26.30 |
+| VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 安全隐私 | 见仓库内许可文件 | VeraCrypt_1.26.30 |
 
 转换的限制，阅读时必须知道：
 
@@ -127,7 +127,7 @@
 |---|---|
 | 仓库元数据 | 客户端按应用投影保存快照，不含 fork/pages/wiki 等布尔位与数字仓库 ID；这些字段按公开仓库默认值补齐，`id` 写成负值占位并在此处声明，未伪造真实 ID |
 | 分架构选包规则 | 沿用客户端中的 `packagePolicy`；固定标签（Pinned）渠道的策略不导出 |
-| 分类归属 | 按客户端的 `primaryCategory` 写入，新增条目使用原本未启用的 `files`（文件管理）与 `science`（教育与科学）分类 |
+| 分类归属 | 按客户端的 `primaryCategory` 写入，新增条目使用原本未启用的 `files`（文件管理）与 `science`（教育与科学）分类；VeraCrypt 由“网络”改为“安全隐私”，依据其磁盘加密用途 |
 | 收录门槛 | 本批为“在用客户端持有”的软件集合，未重新执行 2026 年发行时间与图形界面筛选；winget-cli 以桌面扩展形式提供图形入口，可按命令行工具对待 |
 | 未执行的操作 | 未逐款安装，未重新核验许可全文与发行资产安全性 |
 
