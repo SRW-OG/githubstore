@@ -68,7 +68,7 @@ Core 不引用 App 或 Platform.Win32；Platform.Win32 当前也不引用 Core�
 
 [同步服务](../src/GitHubStore.Core/Catalog/GitHubCatalogService.LibrarySync.cs) 使用设置中的 `CatalogLibraryUrl`；默认地址为空。支持手动同步和本地展示后的启动后台同步。仅接受 HTTPS JSON，限 30 秒、8 MiB，完整解析校验后才原子更新目录，失败或取消保留旧目录。
 
-远端集合替换已同步/内置集合，手动仓库优先，删除记录保留；安装登记不参与合并。当前每次下载全文件，没有 ETag。格式和维护见 [目录库说明](../catalog/README.md)。
+远端集合替换已同步/内置集合，删除记录保留；安装登记不参与合并。手动条目分两种处理：远端库未收录时整条保留；远端库已收录同一仓库时合并为一条并以远端条目为准（仓库元数据、策展说明、分类归属与策略都取远端，仅保留用户的描述覆盖与多分类选择），手动标记随即取消，同步结果用 `MergedManualCount` 报告合并数量。当前每次下载全文件，没有 ETag。格式和维护见 [目录库说明](../catalog/README.md)。
 
 ### README 与 AI 摘要
 

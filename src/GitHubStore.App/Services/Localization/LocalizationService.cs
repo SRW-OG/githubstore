@@ -202,6 +202,7 @@ public sealed class LocalizationService : INotifyPropertyChanged
             ["SettingsCatalogLibraryIdle"] = ("可使用本地目录，点击“立即同步”会先保存本节配置，再下载目录文件。", "The local catalog is available. Sync now saves this section, then downloads the catalog file."),
             ["SettingsCatalogLibrarySyncing"] = ("正在下载并校验软件目录库…", "Downloading and validating the software catalog…"),
             ["SettingsCatalogLibrarySynced"] = ("同步成功：远端目录包含 {0} 款软件。同步时间：{1}", "Sync complete: {0} apps in the remote catalog. Synced at {1}"),
+            ["SettingsCatalogLibrarySyncedMerged"] = ("同步成功：远端目录包含 {0} 款软件。同步时间：{1}。其中 {2} 款此前手动添加，已改用远端条目，每个仓库只保留一条记录。", "Sync complete: {0} apps in the remote catalog. Synced at {1}. {2} apps previously added manually now come from the remote catalog, keeping one record per repository."),
             ["SettingsCatalogLibraryCancelled"] = ("已取消同步，原目录未更改。", "Synchronization cancelled. The previous catalog is unchanged."),
             ["SettingsCatalogLibraryUrlRequired"] = ("请先填写软件目录库下载地址。", "Enter the software catalog download URL first."),
             ["SettingsCatalogLibraryUrlInvalid"] = ("地址无效：请使用 HTTPS JSON 直链，不包含账号、密码或片段；GitHub 文件请填写 Raw 地址。", "Invalid URL: use a direct HTTPS JSON link without credentials or fragment. For GitHub files, use the Raw URL."),

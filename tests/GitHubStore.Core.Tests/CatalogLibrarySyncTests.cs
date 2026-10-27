@@ -60,7 +60,7 @@ public sealed class CatalogLibrarySyncTests
     public async Task Sync_RemovesOldRemotePreservesManualCollisionAcrossRestartAndEmptyLibrary()
     {
         using var directory = new TempDirectory();
-        var body = Library("Old", "Manual");
+        var body = BuildLibrary("dev-tools", "Old", "Manual");
         var service = Service(directory, new Handler((request, _) => Task.FromResult(
             request.RequestUri!.Host == "api.github.com"
                 ? request.RequestUri.AbsolutePath.EndsWith("/latest") ? new HttpResponseMessage(HttpStatusCode.NotFound)
@@ -68,17 +68,62 @@ public sealed class CatalogLibrarySyncTests
                 : Body(body))));
         await service.AddAsync("fixture/Manual", new CategoryId("office"));
         await service.SyncLibraryAsync(Url);
+        // 远端库现在也包含 Manual：手动记录让位给远端条目，只剩一条，分类跟随远端目录。
         var manual = Assert.Single(await Apps(service), a => a.Repo == "Manual");
-        Assert.Equal(new CategoryId("office"), manual.PrimaryCategory);
-        Assert.Null((await service.GetAppAsync(manual.Id)).Curation);
+        Assert.Equal(new CategoryId("dev-tools"), manual.PrimaryCategory);
+        Assert.NotNull((await service.GetAppAsync(manual.Id)).Curation);
         body = Library("New");
         await service.SyncLibraryAsync(Url);
-        Assert.Equal(new[] { "Manual", "New" }, (await Apps(service)).Select(a => a.Repo).Order().ToArray());
+        Assert.Equal(new[] { "New" }, (await Apps(service)).Select(a => a.Repo).Order().ToArray());
         var restarted = Service(directory, new Handler((_, _) => Task.FromResult(Body(Library()))));
-        Assert.Equal(2, (await Apps(restarted)).Count);
+        Assert.Single(await Apps(restarted));
         await restarted.SyncLibraryAsync(Url);
-        Assert.Equal("Manual", Assert.Single(await Apps(restarted)).Repo);
-        Assert.Equal("Manual", Assert.Single(await Apps(Service(directory))).Repo);
+        Assert.Empty(await Apps(restarted));
+        Assert.Empty(await Apps(Service(directory)));
+    }
+
+    [Fact]
+    public async Task Sync_SharedRepositoryReplacesManualRecordWithOneEntry()
+    {
+        using var directory = new TempDirectory();
+        var body = Library("Manual");
+        var service = Service(directory, new Handler((request, _) => Task.FromResult(
+            request.RequestUri!.Host == "api.github.com"
+                ? request.RequestUri.AbsolutePath.EndsWith("/latest") ? new HttpResponseMessage(HttpStatusCode.NotFound)
+                    : Body(ApiFixture.RepositoryJson("fixture", "Manual"))
+                : Body(body))));
+        // 目录内添加（无发行资产确认），与用户手动添加走同一条手动条目路径。
+        var added = await service.AddCatalogOnlyAsync("fixture/Manual", new CategoryId("office"),
+            new PackagePolicy { InstallFormat = PackageInstallFormat.PortableExecutable }, null, null);
+        var result = await service.SyncLibraryAsync(Url);
+        Assert.Equal(1, result.AppCount);
+        Assert.Equal(1, result.MergedManualCount);
+        var merged = Assert.Single(await Apps(service), a => a.Repo == "Manual");
+        Assert.Equal(added.App.Id, merged.Id);
+        // 分类、策展说明与选包策略都跟随远端目录：本地那份记录不再作为手动条目生效。
+        var detail = await service.GetAppAsync(merged.Id);
+        Assert.Equal(new CategoryId("dev-tools"), detail.App.PrimaryCategory);
+        Assert.NotNull(detail.Curation);
+        Assert.Null(detail.PackagePolicy);
+        Assert.Single(await Apps(service));
+        // 合并后不再算手动条目：远端后续更新可以直接覆盖这条记录。
+        Assert.Equal(0, (await service.SyncLibraryAsync(Url)).MergedManualCount);
+    }
+
+    [Fact]
+    public async Task Sync_KeepsManualRecordThatTheRemoteLibraryDoesNotContain()
+    {
+        using var directory = new TempDirectory();
+        var service = Service(directory, new Handler((request, _) => Task.FromResult(
+            request.RequestUri!.Host == "api.github.com"
+                ? request.RequestUri.AbsolutePath.EndsWith("/latest") ? new HttpResponseMessage(HttpStatusCode.NotFound)
+                    : Body(ApiFixture.RepositoryJson("fixture", "Solo"))
+                : Body(Library()))));
+        await service.AddAsync("fixture/Solo", new CategoryId("office"));
+        var result = await service.SyncLibraryAsync(Url);
+        Assert.Equal(0, result.MergedManualCount);
+        Assert.Equal("Solo", Assert.Single(await Apps(service)).Repo);
+        Assert.Equal("Solo", Assert.Single(await Apps(Service(directory))).Repo);
     }
 
     [Fact]
@@ -256,12 +301,15 @@ public sealed class CatalogLibrarySyncTests
         public override bool CanSeek => false;
     }
 
-    private static string Library(params string[] repos) => JsonSerializer.Serialize(new
+    private static string Library(params string[] repos) => BuildLibrary("dev-tools", repos);
+
+    // 独立命名：与 Library(params string[]) 重载并存时，单参数调用会绑定到分类参数上。
+    private static string BuildLibrary(string categoryId, params string[] repos) => JsonSerializer.Serialize(new
     {
         schemaVersion = 1,
         entries = repos.Select(repo => new
         {
-            categoryId = "dev-tools", fetchedAt = SeedFixture.FetchedAt,
+            categoryId = categoryId, fetchedAt = SeedFixture.FetchedAt,
             repository = JsonSerializer.Deserialize<JsonElement>(ApiFixture.RepositoryJson("fixture", repo)),
             release = (object?)null,
             curation = new AppCuration

@@ -175,15 +175,21 @@ public sealed class PackagePolicyTests
         var app = Assert.Single((await service.BrowseAsync(new CatalogQuery { IncludeArchived = true })).Items);
         var policy = new PackagePolicy { InstallFormat = PackageInstallFormat.PortableArchive, ExecutableRelativePath = "bin/Product.exe" };
         await service.UpdatePackagePolicyAsync(app.Id, policy);
-        await service.SyncLibraryAsync("https://example.com/library.json");
-        Assert.Equal(policy, (await service.GetAppAsync(app.Id)).PackagePolicy);
+        // 编辑本程序选包设置会让条目成为本地记录；远端目录再次收录该仓库时，记录仍保留为同一款软件。
+        var mergedFromLibrary = await service.SyncLibraryAsync("https://example.com/library.json");
+        Assert.Equal(1, mergedFromLibrary.MergedManualCount);
+        var afterSync = await service.GetAppAsync(app.Id);
+        Assert.Equal(app.Id, afterSync.App.Id);
+        Assert.Equal(new CategoryId("dev-tools"), afterSync.App.PrimaryCategory);
+        Assert.NotNull(afterSync.Curation);
         var restarted = new GitHubCatalogService(client, directory.DirectoryPath, includeCuratedSeed: true);
-        Assert.Equal("bin/Product.exe", (await restarted.GetAppAsync(app.Id)).PackagePolicy!.ExecutableRelativePath);
+        Assert.Single((await restarted.BrowseAsync(new CatalogQuery { IncludeArchived = true })).Items);
+        // 清空本地选包设置后，条目重新跟随远端目录的策略（此目录条目自带 Installer 策略）。
         await restarted.UpdatePackagePolicyAsync(app.Id, null);
         await restarted.SyncLibraryAsync("https://example.com/library.json");
-        Assert.Null((await restarted.GetAppAsync(app.Id)).PackagePolicy);
+        Assert.Equal(PackageInstallFormat.Installer, (await restarted.GetAppAsync(app.Id)).PackagePolicy!.InstallFormat);
         var cleared = new GitHubCatalogService(client, directory.DirectoryPath, includeCuratedSeed: true);
-        Assert.Null((await cleared.GetAppAsync(app.Id)).PackagePolicy);
+        Assert.Equal(PackageInstallFormat.Installer, (await cleared.GetAppAsync(app.Id)).PackagePolicy!.InstallFormat);
     }
 
     [Fact]

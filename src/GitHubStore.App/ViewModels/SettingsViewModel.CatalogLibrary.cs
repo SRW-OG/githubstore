@@ -14,6 +14,7 @@ public sealed partial class SettingsViewModel
     private string? _catalogLibraryErrorKey;
     private string? _catalogLibraryStatusKey;
     private int _catalogLibraryCount;
+    private int _catalogLibraryMergedCount;
     private DateTimeOffset? _catalogLibrarySyncedAt;
 
     [ObservableProperty] private string _catalogLibraryUrl = string.Empty;
@@ -24,9 +25,15 @@ public sealed partial class SettingsViewModel
 
     public string CatalogLibraryError => _catalogLibraryErrorKey is { } key ? Text[key] : string.Empty;
     public string CatalogLibraryStatus => IsSynchronizingCatalogLibrary ? Text["SettingsCatalogLibrarySyncing"]
-        : _catalogLibraryStatusKey is { } key
-            ? Text.Format(key, _catalogLibraryCount, _catalogLibrarySyncedAt?.ToLocalTime().ToString("g", CultureInfo.GetCultureInfo(Text.LanguageCode)))
-            : Text["SettingsCatalogLibraryIdle"];
+        : _catalogLibraryStatusKey switch
+        {
+            null => Text["SettingsCatalogLibraryIdle"],
+            // 合并过重复的手动记录时单独说明，避免用户以为手动添加的软件被同步删掉了。
+            "SettingsCatalogLibrarySynced" when _catalogLibraryMergedCount > 0 => Text.Format("SettingsCatalogLibrarySyncedMerged",
+                _catalogLibraryCount, _catalogLibrarySyncedAt?.ToLocalTime().ToString("g", CultureInfo.GetCultureInfo(Text.LanguageCode)),
+                _catalogLibraryMergedCount),
+            { } key => Text.Format(key, _catalogLibraryCount, _catalogLibrarySyncedAt?.ToLocalTime().ToString("g", CultureInfo.GetCultureInfo(Text.LanguageCode))),
+        };
 
     public event EventHandler? CatalogLibrarySynchronized;
 
@@ -90,6 +97,7 @@ public sealed partial class SettingsViewModel
             var result = await _librarySync.SyncLibraryAsync(address, cancellation.Token);
             if (_disposed) return;
             _catalogLibraryCount = result.AppCount;
+            _catalogLibraryMergedCount = result.MergedManualCount;
             _catalogLibrarySyncedAt = result.SyncedAt;
             _catalogLibraryStatusKey = "SettingsCatalogLibrarySynced";
             // A view refresh failure cannot turn a committed catalog into a failed synchronization.

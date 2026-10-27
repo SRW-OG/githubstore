@@ -17,13 +17,33 @@ public sealed partial class GitHubCatalogService
         try
         {
             var libraryKeys = library.Select(e => RepositoryKey(e.App)).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var manual = _entries.Where(e => _manualRepositoryKeys.Contains(RepositoryKey(e.App))).ToArray();
-            var next = manual.Concat(library.Where(e => !_suppressedRepositoryKeys.Contains(RepositoryKey(e.App))
-                && !_manualRepositoryKeys.Contains(RepositoryKey(e.App)))).ToArray();
+            var libraryEntries = library
+                .Where(e => !_suppressedRepositoryKeys.Contains(RepositoryKey(e.App)))
+                .ToDictionary(e => RepositoryKey(e.App), StringComparer.OrdinalIgnoreCase);
+            var manual = new List<AppDetail>();
+            var manualKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var merged = 0;
+            foreach (var entry in _entries.Where(e => _manualRepositoryKeys.Contains(RepositoryKey(e.App))))
+            {
+                var key = RepositoryKey(entry.App);
+                if (!libraryEntries.TryGetValue(key, out var shared))
+                {
+                    manual.Add(entry);
+                    manualKeys.Add(key);
+                    continue;
+                }
+                // 远端目录已有同一仓库：以库条目为准，合并到那一条上，不再保留手动记录。
+                manual.Add(MergeSharedEntry(shared, entry));
+                merged++;
+            }
+            var next = manual.Concat(libraryEntries
+                .Where(pair => !_manualRepositoryKeys.Contains(pair.Key))
+                .Select(pair => pair.Value)).ToArray();
             ValidateEntries(next);
-            result = new CatalogLibrarySyncResult(library.Length, DateTimeOffset.UtcNow);
-            await PersistAsync(next, _suppressedRepositoryKeys, ct, libraryKeys).ConfigureAwait(false);
+            result = new CatalogLibrarySyncResult(library.Length, DateTimeOffset.UtcNow, merged);
+            await PersistAsync(next, _suppressedRepositoryKeys, ct, libraryKeys, manualKeys).ConfigureAwait(false);
             _libraryRepositoryKeys = libraryKeys;
+            _manualRepositoryKeys = manualKeys;
             _seedEntries = library;
             Volatile.Write(ref _entries, next);
         }
@@ -31,6 +51,21 @@ public sealed partial class GitHubCatalogService
         NotifyUpdated();
         return result;
     }
+
+    /// <summary>
+    /// 用户的手动记录让位给远端库条目，但只保留用户自己明确设置过的东西：多分类选择与描述覆盖。
+    /// 策展说明、核验信息、分类归属与选包策略都跟随远端目录；清空本地策略只是“恢复默认”，
+    /// 不能把旧的本地策略当作手动设置再写回来。
+    /// </summary>
+    private static AppDetail MergeSharedEntry(AppDetail shared, AppDetail manual)
+        => shared with
+        {
+            App = shared.App with
+            {
+                Categories = manual.App.Categories.Count > 1 ? manual.App.Categories : shared.App.Categories,
+            },
+            DescriptionOverride = manual.DescriptionOverride,
+        };
 
     private async Task<AppDetail[]> DownloadLibraryAsync(Uri uri, CancellationToken ct)
     {
