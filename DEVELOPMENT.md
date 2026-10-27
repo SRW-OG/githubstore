@@ -58,7 +58,7 @@ pwsh -File scripts\run-desktop.ps1 -Configuration Debug
 按 [Windows 安装包说明](packaging/README.md) 准备 Inno Setup 6，再运行：
 
 ```powershell
-pwsh -File scripts\build-installer.ps1 -Version 0.1.14 -CompilerPath 'C:\Path\To\ISCC.exe'
+pwsh -File scripts\build-installer.ps1 -Version 0.1.15 -CompilerPath 'C:\Path\To\ISCC.exe'
 ```
 
 版本号按实际发布递增。脚本生成自包含 Release 安装包和 SHA256 文件，写入 `dist`；已存在的同版本安装包不会被静默覆盖。
@@ -163,6 +163,14 @@ pwsh -File scripts\build-installer.ps1 -Version 0.1.14 -CompilerPath 'C:\Path\To
 - 本机曾出现安装器 Temp 目录 Error 5，当时诊断没有确认需要修改的目录权限，因此没有进行权限变更。用户后续确认近期版本验收完成；Temp 错误机制没有单独确认。
 - 发布时英文 GitHub runner 暴露 7 项既有设置测试的系统语言依赖：测试初始化加载 `Language=system` 后覆盖了构造时的中文设置，但断言仍固定中文。现为相关测试显式保存 `Language=zh-CN`，不修改产品语言逻辑；该补充仅影响测试和文档，不改变已生成的 0.1.14 安装包。远端结果以对应 GitHub Actions 运行记录为准。
 - `artifacts` 内含隔离测试数据与本机诊断，仅保留在本地，不纳入公开源码或 Release 附件。
+
+## 2026-10-27：0.1.15 发布验证
+
+- 使用本机 .NET SDK 8.0.426 完成 Windows x64 Release 解决方案还原与构建。
+- 本次同进程回归：1752 通过、0 失败、0 跳过；报告 `artifacts/test-results/inprocess-tests-Release-x64.json`。
+- 初次测试中 221 项因默认用户 Temp 目录访问受限而失败；仅为测试进程设置 `TEMP`、`TMP` 到工作区 `test-temp/release-0.1.15` 后，使用同一构建重跑全部通过，没有修改系统文件权限。需要复现该环境时，可在运行测试前创建该目录并设置这两个环境变量。
+- 当前机器已有正式安装，未运行会安装、启动和卸载的整套安装器验收脚本，以免覆盖现有登记；当前版本不宣称新增全新安装或升级实机验收。安装包的版本、运行库与摘要检查结果见 [更新日志](docs/CHANGELOG.md)。
+- 同步合并后的本地描述与多分类只在首次合并时保留，后续同步会采用远端内容；该限制来自源码路径核对，不是持续保留测试已经通过。
 
 ## 验证范围
 
