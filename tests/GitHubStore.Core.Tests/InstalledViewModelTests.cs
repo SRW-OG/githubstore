@@ -243,8 +243,10 @@ public sealed class InstalledViewModelTests
     {
         using var h = new UpgradeHarness();
         h.Seed("1.0.0", "v1");
-        // 先用真实服务跑一次更新，产生“保留的上一版本”——没有它就没有可回退的东西。
+        // 先用真实服务跑一次更新到 1.1.0。
         Assert.True((await h.UpgradeAsync("1.1.0", "v2")).Succeeded);
+        // 新回退机制从软件源重装更旧版本，必须提供可回退的旧发行版。
+        h.ConfigureOlderRelease("1.0.0", "v1-old");
         var service = h.Service();
         using var viewModel = new InstalledViewModel(service, new LocalizationService("zh-CN"), null, h.Upgrades);
         await viewModel.InitializeAsync();
@@ -266,6 +268,7 @@ public sealed class InstalledViewModelTests
         using var h = new UpgradeHarness();
         h.Seed("1.0.0", "v1");
         Assert.True((await h.UpgradeAsync("1.1.0", "v2")).Succeeded);
+        h.ConfigureOlderRelease("1.0.0", "v1-old");
         var service = h.Service();
         using var viewModel = new InstalledViewModel(service, new LocalizationService("zh-CN"), null, h.Upgrades);
         await viewModel.InitializeAsync();
@@ -358,6 +361,99 @@ public sealed class InstalledViewModelTests
         Assert.Empty(viewModel.UpdateStatusText);
     }
 
+    [Fact]
+    public async Task Scan_PopulatesInstalledItemsWithAutomaticCandidateState()
+    {
+        using var h = new UpgradeHarness();
+        h.Seed("1.0.0", "v1");
+        h.ConfigureCandidate("1.1.0", "v2");
+        var service = h.Service();
+        using var viewModel = new InstalledViewModel(service, new LocalizationService("zh-CN"), null, h.Upgrades);
+
+        await viewModel.InitializeAsync();
+
+        var item = Assert.Single(viewModel.InstalledItems);
+        Assert.Same(Assert.Single(viewModel.Programs), item.Program);
+        Assert.Equal("Tool", item.DisplayName);
+        Assert.Equal("—", item.Publisher);
+        Assert.Equal("1.0.0", item.CurrentVersion);
+        Assert.Equal("1.1.0", item.LatestVersion);
+        Assert.True(item.CanUninstall);
+        Assert.True(item.CanUpdate);
+        viewModel.SelectedProgram = item.Program;
+        Assert.True(viewModel.CanUpgrade);
+    }
+
+    [Fact]
+    public async Task Scan_CandidateNotFoundShowsCurrentVersionAsLatestSupported()
+    {
+        using var h = new UpgradeHarness();
+        h.Seed("1.0.0", "v1");
+        h.Catalog.Detail = new AppDetail { App = h.App, Releases = [] };
+        using var viewModel = new InstalledViewModel(h.Service(), new LocalizationService("zh-CN"), null, h.Upgrades);
+
+        await viewModel.InitializeAsync();
+
+        var item = Assert.Single(viewModel.InstalledItems);
+        Assert.Equal(item.CurrentVersion, item.LatestVersion);
+        Assert.False(item.CanUpdate);
+        viewModel.SelectedProgram = item.Program;
+        Assert.False(viewModel.CanUpgrade);
+        Assert.Equal(viewModel.Text["InstalledUpdateCurrent"], viewModel.UpdateStatusText);
+    }
+
+    [Fact]
+    public async Task Scan_CatalogUnavailableDoesNotClaimCurrentVersionIsLatest()
+    {
+        using var h = new UpgradeHarness();
+        h.Seed("1.0.0", "v1");
+        using var viewModel = new InstalledViewModel(h.Service(), new LocalizationService("zh-CN"), null, h.Upgrades);
+
+        await viewModel.InitializeAsync();
+
+        var item = Assert.Single(viewModel.InstalledItems);
+        Assert.Equal("1.0.0", item.CurrentVersion);
+        Assert.Equal("—", item.LatestVersion);
+        Assert.False(item.CanUpdate);
+        viewModel.SelectedProgram = item.Program;
+        Assert.Equal(viewModel.Text["InstalledUpdateUnavailable"], viewModel.UpdateStatusText);
+    }
+
+    [Fact]
+    public async Task Scan_ReportsRollbackAvailabilityPerRow()
+    {
+        using var h = new UpgradeHarness();
+        h.Seed("1.0.0", "v1");
+        Assert.True((await h.UpgradeAsync("1.1.0", "v2")).Succeeded);
+        // 回退可用性来自软件源：提供更旧的发行版后，Tool 这一行才应显示可回退。
+        h.ConfigureOlderRelease("1.0.0", "v1-old");
+        var service = h.Service();
+        service.Programs = [service.Programs[0], MakeProgram("External", "external-uninstall.exe")];
+        using var viewModel = new InstalledViewModel(service, new LocalizationService("zh-CN"), null, h.Upgrades);
+
+        await viewModel.InitializeAsync();
+
+        Assert.True(viewModel.InstalledItems.Single(item => item.DisplayName == "Tool").CanRollback);
+        Assert.False(viewModel.InstalledItems.Single(item => item.DisplayName == "External").CanRollback);
+    }
+
+    [Fact]
+    public async Task UpgradeConfirmed_UsesAutomaticallyInspectedSelectedRowCandidate()
+    {
+        using var h = new UpgradeHarness();
+        h.Seed("1.0.0", "v1");
+        h.ConfigureCandidate("1.1.0", "v2");
+        using var viewModel = new InstalledViewModel(h.Service(), new LocalizationService("zh-CN"), null, h.Upgrades);
+        await viewModel.InitializeAsync();
+        var item = Assert.Single(viewModel.InstalledItems);
+        viewModel.SelectedProgram = item.Program;
+
+        var applied = await viewModel.UpgradeConfirmedAsync(item.Program);
+
+        Assert.True(applied, viewModel.ErrorMessage);
+        Assert.Equal("1.1.0", Assert.Single(h.Launcher.Receipts).DisplayVersion);
+    }
+
     /// <summary>
     /// 用真实的 <c>PortableUpgradeService</c> 驱动 ViewModel：只有真实服务才能证明
     /// “回退确实换了文件、登记确实被改写”这类结论，假实现只是自证其说。
@@ -409,6 +505,54 @@ public sealed class InstalledViewModelTests
                 DisplayVersion = version, TargetDir = target, ExePath = executable, State = InstallState.Done,
                 InstalledAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow,
             });
+        }
+
+        public void ConfigureCandidate(string tag, string marker)
+        {
+            var name = "Tool-" + tag + "-windows-portable.zip";
+            var asset = new Asset
+            {
+                InstallerId = "asset-2", ReleaseKey = "release-1", Name = name,
+                DownloadUrl = "https://example.com/" + name,
+            };
+            Catalog.Detail = new AppDetail
+            {
+                App = App,
+                Releases =
+                [
+                    new Release
+                    {
+                        AppId = App.Id, Key = "release-1", TagName = tag, Assets = [asset],
+                    },
+                ],
+            };
+            Download.Bytes = Zip(("Tool.exe", Marker(marker)));
+        }
+
+        /// <summary>
+        /// 为新回退机制配置可回退的更旧发行版：回退不再读本地备份，而是从目录重装旧版本。
+        /// </summary>
+        public void ConfigureOlderRelease(string tag, string marker)
+        {
+            var name = "Tool-" + tag + "-windows-portable.zip";
+            var asset = new Asset
+            {
+                InstallerId = "asset-old", ReleaseKey = "release-old", Name = name,
+                DownloadUrl = "https://example.com/" + name,
+            };
+            Catalog.Detail = new AppDetail
+            {
+                App = App,
+                Releases =
+                [
+                    new Release
+                    {
+                        AppId = App.Id, Key = "release-old", TagName = tag,
+                        PublishedAt = DateTimeOffset.UtcNow.AddDays(-10), Assets = [asset],
+                    },
+                ],
+            };
+            Download.Bytes = Zip(("Tool.exe", Marker(marker)));
         }
 
         /// <summary>

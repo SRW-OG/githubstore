@@ -207,17 +207,19 @@ public sealed class PortableUpgradeTests
     }
 
     [Fact]
-    public async Task SuccessfulUpdateLeavesNoStagingDirectoryAndRetainsExactlyOneBackup()
+    public async Task SuccessfulUpdateLeavesNoStagingDirectoryAndDeletesTheOldVersion()
     {
         using var f = new Fixture();
         await f.SeedAsync("1.0.0", "Tool.exe", "v1");
         f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
 
+        // 新机制不保留本地旧版本：成功后暂存、备份、被替换目录与回退记录都必须消失。
         Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-stage-*"));
-        var backups = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
-        Assert.Single(backups);
-        Assert.Equal(Pe("v1"), await File.ReadAllBytesAsync(Path.Combine(backups[0], "Tool.exe")));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
+        Assert.Empty(RollbackRecords(f));
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
         // journal 只在更新进行中存在，成功后必须消失。
         Assert.False(f.Service().HasPendingRecovery(f.InstallId));
     }
@@ -594,7 +596,7 @@ public sealed class PortableUpgradeTests
     }
 
     [Fact]
-    public async Task RollbackRestoresTheRetainedPreviousVersionAndReceipt()
+    public async Task RollbackReinstallsTheOlderCatalogReleaseAndRemovesTheNewer()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
@@ -602,35 +604,52 @@ public sealed class PortableUpgradeTests
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
         Assert.Equal("v2", Text(f.Target, "Tool.exe"));
 
+        // 新机制不读本地备份：软件源里必须有比当前(1.1.0)更旧的发行版，回退会重新下载它。
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-20)));
+        f.SetDownloadMarker("v1-from-catalog");
+
         var rollback = await f.Service().RollbackAsync(install.InstallId);
 
         Assert.True(rollback.Succeeded, rollback.ErrorCode);
         Assert.Equal(install.InstallId, rollback.InstallId);
-        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal("v1-from-catalog", Text(f.Target, "Tool.exe"));
         // 登记回到旧版本，且仍然是同一条 InstallId。
         var receipt = Assert.Single(f.Launcher.Receipts);
         Assert.Equal(install.InstallId, receipt.InstallId);
         Assert.Equal("1.0.0", receipt.Version.Raw);
         Assert.Equal("1.0.0", receipt.DisplayVersion);
         Assert.Equal(install.ExePath, receipt.ExePath);
-        // 保留备份在回滚后被消费掉，不能再次回滚。
+        // 新机制不保留本地目录：回退后不得留下备份/被替换目录或回退记录。
         Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
+        Assert.Empty(RollbackRecords(f));
+        // 现在已是 1.0.0，软件源里没有更旧的版本，再次回退必须明确拒绝。
         var again = await f.Service().RollbackAsync(install.InstallId);
         Assert.False(again.Succeeded);
-        Assert.Contains(again.ErrorCode, new[] { PortableUpgradeErrorCodes.RollbackNotAvailable, PortableUpgradeErrorCodes.RollbackUnsafePath });
+        Assert.Equal(PortableUpgradeErrorCodes.RollbackNotAvailable, again.ErrorCode);
     }
 
     [Fact]
-    public async Task RollbackWithoutAnyBackupIsRefused()
+    public async Task RollbackWithoutAnyOlderReleaseIsRefused()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        // 软件源里只有当版本本身：没有更旧的可回退版本。
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
 
         var result = await f.Service().RollbackAsync(install.InstallId);
 
         Assert.Equal(PortableUpgradeErrorCodes.RollbackNotAvailable, result.ErrorCode);
         Assert.Equal("v1", Text(f.Target, "Tool.exe"));
         Assert.Single(f.Launcher.Receipts);
+
+        // 目录读不出来时必须与“确实没有更旧版本”区分开。
+        f.Catalog.Error = new InvalidOperationException("catalog offline");
+        Assert.Equal(PortableUpgradeErrorCodes.CatalogUnavailable, (await f.Service().RollbackAsync(install.InstallId)).ErrorCode);
+
+        // 未配置目录服务同样是“读不出来”，绝不能说成“没有可回退版本”。
+        Assert.Equal(PortableUpgradeErrorCodes.CatalogUnavailable,
+            (await f.Service(useCatalog: false).RollbackAsync(install.InstallId)).ErrorCode);
     }
 
     [Fact]
@@ -650,7 +669,7 @@ public sealed class PortableUpgradeTests
     }
 
     [Fact]
-    public async Task SecondSuccessfulUpdateKeepsOnlyTheMostRecentRollbackTarget()
+    public async Task RepeatedUpdatesLeaveNoLocalBackupAndRollbackUsesTheLatestOlderRelease()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
@@ -659,13 +678,19 @@ public sealed class PortableUpgradeTests
         f.Download.Bytes = Zip(("Tool.exe", Pe("v3")));
         Assert.True((await f.Service().UpdateAsync(f.Request("1.2.0"))).Succeeded);
 
-        // 只保留一份"上一个版本"：磁盘占用有上限，回滚深度为 1（如实记录）。
-        var backups = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
-        Assert.Single(backups);
-        Assert.Equal(Pe("v2"), await File.ReadAllBytesAsync(Path.Combine(backups[0], "Tool.exe")));
+        // 新机制每成功更新一次就删除被替换的旧目录：磁盘上不残留备份，也没有回退记录。
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.Empty(RollbackRecords(f));
+
+        // 回退从软件源取“比当前 1.2.0 更旧的最近一版”，即 1.1.0（而不是 1.0.0）。
+        f.ConfigureRollbackReleases(
+            ("1.1.0", DateTimeOffset.UtcNow.AddDays(-10)),
+            ("1.0.0", DateTimeOffset.UtcNow.AddDays(-20)));
+        f.SetDownloadMarker("v2-from-catalog");
 
         Assert.True((await f.Service().RollbackAsync(install.InstallId)).Succeeded);
-        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+        Assert.Equal("v2-from-catalog", Text(f.Target, "Tool.exe"));
+        Assert.Equal("1.1.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
     }
 
     [Fact]
@@ -768,7 +793,7 @@ public sealed class PortableUpgradeTests
     }
 
     [Fact]
-    public async Task RollbackDuringPendingJournalRestoresAndConsumesIt()
+    public async Task RollbackWithPendingJournalRecoversFirstThenInstallsTheOlderRelease()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
@@ -776,14 +801,21 @@ public sealed class PortableUpgradeTests
         var crashed = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
             ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
         await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => crashed.UpdateAsync(f.Request("1.1.0")));
+        Assert.True(crashed.HasPendingRecovery(install.InstallId));
 
-        // 用户在有未完成 journal 时点回滚：这就是一次还原，结果必须是旧版本。
+        // 回退会先恢复上次未完成的更新（回到 1.0.0）；随后再从软件源取更旧的一版（0.9.0）重装。
+        f.ConfigureRollbackReleases(("0.9.0", DateTimeOffset.UtcNow.AddDays(-30)));
+        f.SetDownloadMarker("v0.9");
+
         var rollback = await f.Service().RollbackAsync(install.InstallId);
 
         Assert.True(rollback.Succeeded, rollback.ErrorCode);
-        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
-        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        // 上次更新的 journal 已被恢复消费掉，不会再挂在磁盘上。
         Assert.False(crashed.HasPendingRecovery(install.InstallId));
+        Assert.Equal("v0.9", Text(f.Target, "Tool.exe"));
+        Assert.Equal("0.9.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
     }
 
     [Fact]
@@ -837,6 +869,9 @@ public sealed class PortableUpgradeTests
         f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
 
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        // 回退从软件源重装更旧版本，而不是动本地邻居目录。
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
+        f.SetDownloadMarker("v1-from-catalog");
         Assert.True((await f.Service().RollbackAsync(f.InstallId)).Succeeded);
 
         Assert.Equal("keep", await File.ReadAllTextAsync(Path.Combine(neighbour, "keep.txt")));
@@ -890,11 +925,13 @@ public sealed class PortableUpgradeTests
     {
         using var f = new Fixture();
         await f.SeedAsync("1.0.0", "Tool.exe", "v1");
+        // 提供更旧发行版，确保回退真正走到需要安装根目录的替换步骤，而不是先因“无候选”早退。
+        f.ConfigureRollbackReleases(("0.9.0", DateTimeOffset.UtcNow.AddDays(-30)));
         // 空字符串表示该启动器不管理安装根目录：无法证明任何目录归本程序所有。
         var service = f.Service(root: () => string.Empty);
 
         Assert.Equal(PortableUpgradeErrorCodes.UnsafePath, (await service.UpdateAsync(f.Request("1.1.0"))).ErrorCode);
-        Assert.Equal(PortableUpgradeErrorCodes.RollbackUnsafePath, (await service.RollbackAsync(f.InstallId)).ErrorCode);
+        Assert.Equal(PortableUpgradeErrorCodes.UnsafePath, (await service.RollbackAsync(f.InstallId)).ErrorCode);
         Assert.Null(f.Download.Last);
     }
 
@@ -1024,12 +1061,15 @@ public sealed class PortableUpgradeTests
         }, "Tool");
         f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
         var service = new PortableUpgradeService(f.Download, launcher, f.Preferences, f.Data,
-            installRootProvider: () => f.Root);
+            installRootProvider: () => f.Root, catalog: f.Catalog);
 
         var update = await service.UpdateAsync(f.Request("1.1.0", installId));
         Assert.True(update.Succeeded, update.ErrorCode);
         Assert.Equal("1.1.0", Assert.Single(await launcher.ListAsync()).DisplayVersion);
 
+        // 回退从软件源重新获取上一版本：为这条真实启动器提供更旧的发行版与安装包。
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
+        f.SetDownloadMarker("v1-restored");
         var rollback = await service.RollbackAsync(installId);
         Assert.True(rollback.Succeeded, rollback.ErrorCode);
         var restored = await launcher.GetAsync(installId);
@@ -1193,7 +1233,7 @@ public sealed class PortableUpgradeTests
     /// 重启恢复才能收敛到旧版本并清掉那一份，而不是留下无人认领的残留。
     /// </summary>
     [Fact]
-    public async Task CrashAfterMoveButBeforeReceiptRestoreIsRecoveredOnRestart()
+    public async Task CrashDuringRollbackAfterSwapRestoresThePreRollbackVersionOnRestart()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
@@ -1201,25 +1241,30 @@ public sealed class PortableUpgradeTests
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
         Assert.Equal("v2", Text(f.Target, "Tool.exe"));
 
+        // 回退=重新安装更旧版本，因此必须先有可回退的旧发行版。
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
+        f.SetDownloadMarker("v1-from-catalog");
+
         var service = f.Service(checkpoint: (phase, _) => phase == PortableUpgradePhase.Registering
             ? throw new PortableUpgradeSimulatedCrashException(phase) : Task.CompletedTask);
         await Assert.ThrowsAsync<PortableUpgradeSimulatedCrashException>(() => service.RollbackAsync(install.InstallId));
 
-        // 现场：当前（新）版本已被挪到 .githubstore-replaced-*，备份尚未换回，登记仍是新的。
-        // 这三个事实必须能自证，否则重启后无从收敛。
+        // 崩溃点在“旧版本已换入、登记还没写回”：现场是“目标=旧版本、备份=新版本、journal 仍在”。
         Assert.True(service.HasPendingRecovery(install.InstallId));
-        Assert.False(Directory.Exists(f.Target));
-        Assert.Single(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
+        Assert.Equal("v1-from-catalog", Text(f.Target, "Tool.exe"));
+        var backups = Directory.GetDirectories(f.Root, ".githubstore-backup-*");
+        Assert.Single(backups);
+        Assert.Equal("v2", Text(backups[0], "Tool.exe"));
         var journalText = await File.ReadAllTextAsync(service.GetJournalPath(install.InstallId));
-        // replacedDir 必须在移动之前就已落盘，否则这一份就成了无人认领的残留。
-        Assert.Contains("replacedDir", journalText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("backupDir", journalText, StringComparison.OrdinalIgnoreCase);
 
-        // 重启恢复：必须收敛到“旧文件 + 旧登记 + 无 journal + 无残留”。
+        // 重启恢复：必须收敛到“回退前的当前版本 + 原登记 + 无 journal + 无残留”。
         var recovered = await f.Service().RecoverAsync();
         Assert.Equal(0, recovered.Failed);
-        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
-        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+        Assert.Equal("1.1.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
         Assert.False(f.Service().HasPendingRecovery(install.InstallId));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-backup-*"));
         Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
     }
 
@@ -1275,67 +1320,73 @@ public sealed class PortableUpgradeTests
     }
 
     [Fact]
-    public async Task RollbackPersistsItsJournalSoARestartCanFinishTheJob()
+    public async Task FailedRollbackKeepsJournalAndRestartRecoversThePreRollbackVersion()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
         f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
+        f.SetDownloadMarker("v1-from-catalog");
 
-        // 回滚时登记写回失败：备份此刻已被“消耗”掉，如果没有持久化的 journal，就再无恢复依据。
+        // 回退过程中登记写不进去：文件可能已换回旧版但登记没写回，必须保留 journal 作为恢复依据。
         f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
         var rollback = await f.Service().RollbackAsync(install.InstallId);
 
         Assert.False(rollback.Succeeded);
-        Assert.Equal(PortableUpgradeErrorCodes.ReceiptRestoreFailed, rollback.ErrorCode);
+        Assert.Equal(PortableUpgradeErrorCodes.RollbackFailed, rollback.ErrorCode);
         // 关键：journal 必须留在磁盘上，作为下次启动的恢复依据。
         Assert.True(f.Service().HasPendingRecovery(install.InstallId));
 
-        // 模拟重启：登记恢复可写后，启动恢复必须能收敛到旧版本。
+        // 模拟重启：登记恢复可写后，启动恢复必须把这次失败的回退收敛回“回退前的当前版本”。
         f.Launcher.OnRegister = null;
         var recovered = await f.Service().RecoverAsync();
 
         Assert.Equal(0, recovered.Failed);
-        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
-        Assert.Equal(install, Assert.Single(f.Launcher.Receipts));
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
+        Assert.Equal("1.1.0", Assert.Single(f.Launcher.Receipts).Version.Raw);
         Assert.False(f.Service().HasPendingRecovery(install.InstallId));
+        Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
     }
 
     [Fact]
-    public async Task RestoreKeepsTheDisplacedDirectoryUntilTheReceiptIsCommitted()
+    public async Task FailedRollbackKeepsTheDisplacedOlderCopyUntilTheReceiptIsCommitted()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
         f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
+        f.SetDownloadMarker("v1-from-catalog");
 
         f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
         await f.Service().RollbackAsync(install.InstallId);
 
-        // 登记写回失败时，被换下来的新版本不能删：删了就成了“两个版本都没了”。
-        // 它此时应仍存在于根目录下，等待下一次恢复处置。
+        // 登记写回失败时，被换下来的那一份（回退时下载的旧版本）不能删：删了就两个版本都没了。
         var replaced = Directory.GetDirectories(f.Root, ".githubstore-replaced-*");
         Assert.Single(replaced);
-        Assert.Equal("v2", Text(replaced[0], "Tool.exe"));
+        Assert.Equal("v1-from-catalog", Text(replaced[0], "Tool.exe"));
 
-        // 重试恢复：登记写回成功后，被换下来的目录才允许清理。
+        // 重试恢复：登记写回成功后，被换下来的目录才允许清理，并收敛回回退前的当前版本。
         f.Launcher.OnRegister = null;
         await f.Service().RecoverAsync();
         Assert.Empty(Directory.GetDirectories(f.Root, ".githubstore-replaced-*"));
-        Assert.Equal("v1", Text(f.Target, "Tool.exe"));
+        Assert.Equal("v2", Text(f.Target, "Tool.exe"));
     }
 
     [Fact]
-    public async Task JournalRecordsTheDisplacedDirectoryBeforeMovingAnything()
+    public async Task FailedRollbackJournalRecordsTheDisplacedDirectoryBeforeMovingAnything()
     {
         using var f = new Fixture();
         var install = await f.SeedAsync("1.0.0", "Tool.exe", "v1");
         f.Download.Bytes = Zip(("Tool.exe", Pe("v2")));
         Assert.True((await f.Service().UpdateAsync(f.Request("1.1.0"))).Succeeded);
+        f.ConfigureRollbackReleases(("1.0.0", DateTimeOffset.UtcNow.AddDays(-10)));
+        f.SetDownloadMarker("v1-from-catalog");
         f.Launcher.OnRegister = _ => throw new IOException("manifest is read-only");
         await f.Service().RollbackAsync(install.InstallId);
 
-        // journal 必须如实记录“把当时的新版本挪到了哪里”，否则下次恢复无从清理。
+        // journal 必须如实记录“把当时被换下来的目录挪到了哪里”，否则下次恢复无从清理。
         var text = await File.ReadAllTextAsync(f.Service().GetJournalPath(install.InstallId));
         Assert.Contains(".githubstore-replaced-", text, StringComparison.Ordinal);
         Assert.Contains("replacedDir", text, StringComparison.OrdinalIgnoreCase);
@@ -1438,6 +1489,13 @@ public sealed class PortableUpgradeTests
         var node = System.Text.Json.Nodes.JsonNode.Parse(await File.ReadAllTextAsync(path))!.AsObject();
         mutate(node);
         await File.WriteAllTextAsync(path, node.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    /// <summary>列出旧回退机制遗留的保留记录；新机制成功后这些记录必须不存在。</summary>
+    private static string[] RollbackRecords(Fixture fixture)
+    {
+        var directory = Path.Combine(fixture.Data, "upgrade-rollback");
+        return Directory.Exists(directory) ? Directory.GetFiles(directory, "*.json") : Array.Empty<string>();
     }
 
     private static string Text(string directory, string name)
@@ -1557,6 +1615,35 @@ public sealed class PortableUpgradeTests
                 Asset = asset,
             };
         }
+
+        /// <summary>
+        /// 配置软件源里的发行版。新回退机制不再读取本地备份，而是从目录里挑“比当前更旧的最近一版”
+        /// 重新下载安装，因此回退用例必须先在这里提供真实的旧发行版与便携资产。
+        /// </summary>
+        public void ConfigureRollbackReleases(params (string Tag, DateTimeOffset Published)[] releases)
+        {
+            Catalog.Detail = new AppDetail
+            {
+                App = App,
+                Releases = releases.Select(release =>
+                {
+                    var name = "Tool-" + release.Tag + "-windows-portable.zip";
+                    var asset = new Asset
+                    {
+                        InstallerId = "asset-" + release.Tag, ReleaseKey = "release-" + release.Tag, Name = name,
+                        DownloadUrl = "https://example.com/" + name,
+                    };
+                    return new Release
+                    {
+                        AppId = App.Id, Key = "release-" + release.Tag, TagName = release.Tag,
+                        PublishedAt = release.Published, Assets = new[] { asset },
+                    };
+                }).ToArray(),
+            };
+        }
+
+        /// <summary>设置下一次下载得到的 zip 内容（标记写在 PE 头之后，供断言读出）。</summary>
+        public void SetDownloadMarker(string marker) => Download.Bytes = Zip(("Tool.exe", Pe(marker)));
 
         public void Dispose()
         {

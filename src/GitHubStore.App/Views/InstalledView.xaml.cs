@@ -42,7 +42,7 @@ public sealed partial class InstalledView : UserControl
     {
         try
         {
-            if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { } program) return;
+            if (ViewModel is not { } viewModel || SelectProgramFromMenu(sender) is not { } program) return;
             // 先确认再启动：卸载是不可撤销的系统写操作。
             if (!await ConfirmUninstallAsync(program)) return;
             await viewModel.UninstallConfirmedAsync(program);
@@ -83,7 +83,7 @@ public sealed partial class InstalledView : UserControl
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
     private async void OnUpgradeClick(object sender, RoutedEventArgs args)
     {
-        if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { } program) return;
+        if (ViewModel is not { } viewModel || SelectProgramFromMenu(sender) is not { } program) return;
         try
         {
             var dialog = new ContentDialog
@@ -128,7 +128,7 @@ public sealed partial class InstalledView : UserControl
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event handler catches failures.")]
     private async void OnRollbackClick(object sender, RoutedEventArgs args)
     {
-        if (ViewModel is not { } viewModel || viewModel.SelectedProgram is not { } program) return;
+        if (ViewModel is not { } viewModel || SelectProgramFromMenu(sender) is not { } program) return;
         try
         {
             var dialog = new ContentDialog
@@ -167,6 +167,18 @@ public sealed partial class InstalledView : UserControl
             await viewModel.RepairConfirmedAsync(program, file.Path);
         }
         catch (Exception) { viewModel.ErrorMessage = viewModel.Text["InstalledRepairFailed"]; }
+    }
+
+    /// <summary>
+    /// 菜单位于 ListView 项模板的 Flyout 中，不依赖列表选中状态；Tag 保存了对应行模型。
+    /// 在展示确认框之前同步 SelectedProgram，让版本候选与回退状态仍由 ViewModel 统一校验。
+    /// </summary>
+    private InstalledProgram? SelectProgramFromMenu(object sender)
+    {
+        if (ViewModel is not { } viewModel
+            || sender is not FrameworkElement { Tag: InstalledProgramListItem item }) return null;
+        viewModel.SelectedProgram = item.Program;
+        return item.Program;
     }
 
     /// <summary>

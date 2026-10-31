@@ -6,6 +6,60 @@ using GitHubStore.Core.Abstractions;
 
 namespace GitHubStore.App.ViewModels;
 
+/// <summary>
+/// 已安装列表的一行。公开属性只描述可展示、可操作的行状态；候选对象与失败码保留在行内，
+/// 防止筛选或切换选择时把一条安装的更新结论错配给另一条安装。
+/// </summary>
+public sealed class InstalledProgramListItem : ObservableObject
+{
+    private GitHubStore.App.Services.Installation.PortableUpgradeCandidate? _candidate;
+    private string? _candidateErrorCode;
+    private bool _canRollback;
+
+    public InstalledProgramListItem(InstalledProgram program, LocalizationService text)
+    {
+        Program = program ?? throw new ArgumentNullException(nameof(program));
+        Text = text ?? throw new ArgumentNullException(nameof(text));
+    }
+
+    public InstalledProgram Program { get; }
+    public LocalizationService Text { get; }
+    public string DisplayName => Program.DisplayName;
+    public string Publisher => Program.Publisher ?? "—";
+    public string CurrentVersion => Program.DisplayVersion ?? "—";
+
+    /// <summary>
+    /// 只有查到真实候选，或目录明确返回“没有候选”时才展示版本。
+    /// 目录不可用表示没有核对成功，不能把当前版本冒充成最新版。
+    /// </summary>
+    public string LatestVersion => _candidate?.CandidateVersion
+        ?? (_candidateErrorCode == GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.CandidateNotFound
+            ? CurrentVersion : "—");
+
+    public bool CanUninstall => Program.CanUninstall;
+    public bool CanUpdate => _candidate is not null;
+    public bool CanRollback => _canRollback;
+
+    internal GitHubStore.App.Services.Installation.PortableUpgradeCandidate? Candidate => _candidate;
+    internal string? CandidateErrorCode => _candidateErrorCode;
+
+    internal void SetCandidateResult(GitHubStore.App.Services.Installation.PortableUpgradeCandidateResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        _candidate = result.Candidate;
+        _candidateErrorCode = result.ErrorCode;
+        OnPropertyChanged(nameof(LatestVersion));
+        OnPropertyChanged(nameof(CanUpdate));
+    }
+
+    internal void SetRollbackAvailability(bool value)
+    {
+        if (_canRollback == value) return;
+        _canRollback = value;
+        OnPropertyChanged(nameof(CanRollback));
+    }
+}
+
 /// <summary>展示安装库存；当前页面的数据源只提供本程序成功安装登记。</summary>
 public sealed partial class InstalledViewModel : ObservableObject, IDisposable
 {
@@ -38,6 +92,7 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
 
     public LocalizationService Text { get; }
     public ObservableCollection<InstalledProgram> Programs { get; } = [];
+    public ObservableCollection<InstalledProgramListItem> InstalledItems { get; } = [];
     [ObservableProperty] private string _filter = string.Empty;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanUninstall), nameof(CanRemoveRegistration), nameof(CanRepair),
@@ -93,6 +148,7 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
         _ => Text["InstalledRegistrationUnknown"],
     };
     private IReadOnlyList<InstalledProgram> _all = [];
+    private IReadOnlyList<InstalledProgramListItem> _allInstalledItems = [];
 
     public async Task InitializeAsync(CancellationToken ct = default)
     {
@@ -119,7 +175,11 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
             StatusMessage = Text["InstalledScanning"];
             var programs = await _service.ScanAsync(cancellation.Token);
             if (!IsCurrentScan(version, cancellation)) return;
+            var installedItems = programs.Select(program => new InstalledProgramListItem(program, Text)).ToArray();
+            await InspectInstalledItemsAsync(installedItems, cancellation.Token);
+            if (!IsCurrentScan(version, cancellation)) return;
             _all = programs;
+            _allInstalledItems = installedItems;
             ApplyFilter();
             if (IsCurrentScan(version, cancellation))
                 StatusMessage = Text.Format("InstalledCount", _all.Count);
@@ -145,6 +205,35 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
 
     private bool IsCurrentScan(int version, CancellationTokenSource cancellation) =>
         !_disposed && version == _scanVersion && !cancellation.IsCancellationRequested;
+
+    private async Task InspectInstalledItemsAsync(IReadOnlyList<InstalledProgramListItem> items, CancellationToken ct)
+    {
+        if (_upgrades is null) return;
+        foreach (var item in items)
+        {
+            ct.ThrowIfCancellationRequested();
+            var program = item.Program;
+            var canInspect = program.Origin == RegistryOrigin.StoreInstall
+                && program.Status == InstalledStatus.Installed
+                && !string.IsNullOrWhiteSpace(program.SourceKeyPath);
+            if (!canInspect) continue;
+
+            try
+            {
+                var rollback = await _upgrades.FindRollbackCandidateAsync(program.SourceKeyPath, ct);
+                item.SetRollbackAvailability(rollback.Candidate is not null);
+                item.SetCandidateResult(await _upgrades.FindCandidateAsync(program.SourceKeyPath, ct));
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+            catch (Exception)
+            {
+                // 核对失败不能让安装库存本身消失，也不能因此宣称当前版本已经是最新、或可回退。
+                item.SetRollbackAvailability(false);
+                item.SetCandidateResult(new(null,
+                    GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.CatalogUnavailable));
+            }
+        }
+    }
 
     [RelayCommand]
     private Task UninstallAsync(CancellationToken ct) => SelectedProgram is { } program
@@ -239,6 +328,7 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
             if (result.Started && result.Kind == UninstallRemovalKind.RegistrationRemoved)
             {
                 _all = _all.Where(item => item.Id != program.Id).ToArray();
+                _allInstalledItems = _allInstalledItems.Where(item => item.Program.Id != program.Id).ToArray();
                 ApplyFilter();
                 StatusMessage = Text.Format("InstalledRegistrationRemoved", program.DisplayName);
             }
@@ -268,12 +358,20 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
             (p.InstallLocation?.Contains(query, StringComparison.CurrentCultureIgnoreCase) ?? false)).ToArray();
         var previousId = SelectedProgram?.Id;
         Programs.Clear();
+        InstalledItems.Clear();
         foreach (var program in matches.Take(500))
         {
             if (_disposed) return;
             Programs.Add(program);
+            var item = _allInstalledItems.FirstOrDefault(candidate => ReferenceEquals(candidate.Program, program))
+                ?? _allInstalledItems.FirstOrDefault(candidate => candidate.Program.Id == program.Id);
+            if (item is not null) InstalledItems.Add(item);
         }
-        if (!_disposed) SelectedProgram = Programs.FirstOrDefault(p => p.Id == previousId);
+        if (!_disposed)
+        {
+            SelectedProgram = Programs.FirstOrDefault(p => p.Id == previousId);
+            RefreshRollbackAvailability();
+        }
     }
 
     private void OnLanguageChanged(object? sender, EventArgs args)
@@ -315,7 +413,10 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
                 return true;
             }
             ErrorMessage = MapRollbackError(result.ErrorCode);
-            refresh = result.ErrorCode == GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.ReceiptRestoreFailed;
+            // 只要回退可能动过文件（文件已换回/处于中间状态），就重扫；否则界面会停在过期状态。
+            refresh = result.ErrorCode is GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.ReceiptRestoreFailed
+                or GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.RollbackFailed
+                or GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.RollbackIncomplete;
             return false;
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { return false; }
@@ -339,8 +440,16 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     {
         GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.RollbackNotAvailable
             => Text["InstalledRollbackUnavailable"],
-        // 本次回退已经落盘成一条 journal 但没能收尾：文件可能已换回旧版本，登记还没写回。
-        // 必须如实说明“可能处于中间状态”，并告知重启会继续恢复，而不是笼统地说回退失败。
+        // 软件源读不出、或回退所需的旧版本安装包拿不到：如实说不可回退，绝不猜测。
+        GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.CatalogUnavailable
+            or GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.ScanFailed
+            or GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.RollbackNotPortable
+            or GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.DownloadFailed
+            => Text["InstalledRollbackUnavailable"],
+        // 上次更新/回退未收尾：需要先恢复，不能继续动文件。
+        GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.PendingJournal
+            => Text["InstalledUpdatePendingRecovery"],
+        // 本次回退已经改动过文件但没能收尾：必须如实说明“可能处于中间状态”，并告知重启会继续恢复。
         GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.ReceiptRestoreFailed
             or GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.RollbackFailed
             => Text["InstalledRollbackIncomplete"],
@@ -348,20 +457,18 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     };
 
     /// <summary>
-    /// 记录当前选中项是否有可回退版本，供界面决定是否显示回退入口。
-    /// 这里只读取保留记录的存在性，不读取任何注册表或执行任何命令。
+    /// 记录当前选中项是否可回退，供界面决定是否显示回退入口。
+    /// 回退可用性来自逐行扫描时对软件源的查询结果，不读取本地备份。
     /// </summary>
     private void RefreshRollbackAvailability()
     {
-        _rollbackInstallId = null;
-        if (_upgrades is not null && SelectedProgram is { Origin: RegistryOrigin.StoreInstall } program
-            && _upgrades.HasRetainedPreviousVersion(program.SourceKeyPath))
-            _rollbackInstallId = program.SourceKeyPath;
-        // 候选更新只对“查到它的那条安装”有效：选中项一变就立即作废，
-        // 否则用户可能把 A 的候选确认到 B 上。
-        _updateCandidate = null;
-        _updateCandidateInstallId = null;
-        _updateCandidateErrorCode = null;
+        var item = SelectedProgram is { } selected
+            ? _allInstalledItems.FirstOrDefault(candidate => candidate.Program.Id == selected.Id)
+            : null;
+        _rollbackInstallId = item?.CanRollback == true ? item.Program.SourceKeyPath : null;
+        _updateCandidate = item?.Candidate;
+        _updateCandidateInstallId = item is not null ? item.Program.SourceKeyPath : null;
+        _updateCandidateErrorCode = item?.CandidateErrorCode;
         OnPropertyChanged(nameof(CanRollback));
         OnPropertyChanged(nameof(CanCheckForUpdate));
         OnPropertyChanged(nameof(CanUpgrade));
@@ -432,18 +539,32 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
             StatusMessage = Text["InstalledUpdateChecking"];
             var result = await _upgrades!.FindCandidateAsync(installationId, cancellation.Token);
             if (_disposed || cancellation.IsCancellationRequested) return;
-            // 结论只归属于发起查询的那条安装；选中项变了就丢弃，避免错配。
-            _updateCandidateInstallId = installationId;
-            _updateCandidate = result.Candidate;
-            _updateCandidateErrorCode = result.ErrorCode;
+            var item = _allInstalledItems.FirstOrDefault(candidate =>
+                candidate.Program.SourceKeyPath == installationId);
+            item?.SetCandidateResult(result);
             StatusMessage = string.Empty;
-            ErrorMessage = result.ErrorCode == GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.CatalogUnavailable
-                ? Text["InstalledUpdateUnavailable"] : string.Empty;
+            if (SelectedProgram?.SourceKeyPath == installationId)
+            {
+                RefreshRollbackAvailability();
+                ErrorMessage = result.ErrorCode == GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.CatalogUnavailable
+                    ? Text["InstalledUpdateUnavailable"] : string.Empty;
+            }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
         catch (Exception)
         {
-            if (!_disposed) ErrorMessage = Text["InstalledUpdateUnavailable"];
+            if (!_disposed)
+            {
+                var unavailable = new GitHubStore.App.Services.Installation.PortableUpgradeCandidateResult(null,
+                    GitHubStore.App.Services.Installation.PortableUpgradeErrorCodes.CatalogUnavailable);
+                _allInstalledItems.FirstOrDefault(candidate => candidate.Program.SourceKeyPath == installationId)
+                    ?.SetCandidateResult(unavailable);
+                if (SelectedProgram?.SourceKeyPath == installationId)
+                {
+                    RefreshRollbackAvailability();
+                    ErrorMessage = Text["InstalledUpdateUnavailable"];
+                }
+            }
         }
         finally
         {
@@ -465,7 +586,9 @@ public sealed partial class InstalledViewModel : ObservableObject, IDisposable
     {
         ArgumentNullException.ThrowIfNull(program);
         if (_disposed || IsBusy || _uninstallInProgress || _upgrades is null) return false;
-        if (_updateCandidate is not { } candidate || _updateCandidateInstallId != program.SourceKeyPath) return false;
+        if (SelectedProgram?.Id != program.Id) return false;
+        var item = _allInstalledItems.FirstOrDefault(candidate => candidate.Program.Id == program.Id);
+        if (item?.Candidate is not { } candidate || item.Program.SourceKeyPath != program.SourceKeyPath) return false;
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _lifetime.Token);
         _uninstallInProgress = true;
         IsBusy = true;

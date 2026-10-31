@@ -140,24 +140,6 @@ public sealed record PortableUpgradeJournal
 }
 
 /// <summary>
-/// 一次成功更新后保留下来的“上一个版本”，供用户显式回滚。
-/// 它指向保留的备份目录；记录损坏或指向受管目录之外时一律拒绝回滚，绝不猜测。
-/// </summary>
-public sealed record PortableRollbackRecord
-{
-    public required int SchemaVersion { get; init; }
-    public required string InstallId { get; init; }
-    public required string TargetDir { get; init; }
-    public required string BackupDir { get; init; }
-    public required DateTimeOffset RetainedAt { get; init; }
-    public required InstallRecord PreviousReceipt { get; init; }
-    public required string PreviousDisplayName { get; init; }
-
-    /// <summary>被替换掉的那一版（较新）版本号原文，仅用于展示。</summary>
-    public string? ReplacedVersion { get; init; }
-}
-
-/// <summary>
 /// 仅供故障注入测试使用：抛出它表示“进程在此处被强杀”。
 /// 服务<em>不会</em>对它做任何还原（正常的 catch/finally 都不处理它），把现场原样留给
 /// <see cref="PortableUpgradeService.RecoverAsync"/> 的启动恢复流程。
@@ -282,12 +264,12 @@ public static class PortableUpgradeErrorCodes
 /// 备份开始之后的任何失败都会把备份换回原位并写回<em>旧登记</em>；journal 只在成功之后才删除。
 /// </para>
 /// <para>
-/// <b>成功之后</b>：上一个版本作为“保留备份”留在安装根目录下，供用户显式回滚。
-/// 同一安装只保留一份（下一次成功更新会先删掉更早的那一份，并在删除失败时如实报告可能残留）。
+/// <b>成功之后</b>：不保留整份旧目录，直接把被替换下来的旧版本删除，只留新版本。
+/// 回退不依赖本地备份，而是按“软件源中比当前版本更旧的最近一版”重新下载并安装（见 <see cref="RollbackAsync"/>）。
 /// </para>
 /// <para>
 /// <b>本服务刻意不做的事</b>：不删除安装根目录之外的任何路径；不执行候选包里的任何程序；
-/// 不做增量/差分更新；不迁移或合并用户数据（保留下来的只有上一版目录本身）；
+/// 不做增量/差分更新；不迁移或合并用户数据；
 /// 不在没有用户显式请求时自动回滚；不处理 EXE/MSI 安装器的更新与卸载。
 /// </para>
 /// </summary>
@@ -313,7 +295,6 @@ public sealed class PortableUpgradeService
     /// 它们无法证明路径归属，据此移动/删除文件就有动到别的安装的风险。
     /// </summary>
     private const int JournalSchemaVersion = 2;
-    private const int RollbackRecordSchemaVersion = 2;
 
     /// <summary>代际标记长度（十六进制字符）。够短不撑爆路径，也够长避免碰撞。</summary>
     private const int GenerationTokenLength = 16;
@@ -392,13 +373,64 @@ public sealed class PortableUpgradeService
     public bool HasPendingRecovery(string installId) => File.Exists(GetJournalPath(installId));
 
     /// <summary>
-    /// 该安装是否保留了可回退的上一版本。界面据此决定是否显示回退入口；
-    /// 这里只检查保留记录是否存在，不读取注册表、不执行任何命令，也不改动任何文件。
+    /// 为一条已登记的便携安装查找“可回退的上一版本”：在绑定软件源的真实发行版里，
+    /// 选取比当前安装版本<em>严格更旧</em>、且能选到便携资产的最近一个发行版。
+    /// 与 <see cref="FindCandidateAsync"/> 一样，只读目录，不联网、不猜版本、不改动任何文件。
+    /// 没有可回退的更旧版本时返回 <see cref="PortableUpgradeErrorCodes.CandidateNotFound"/>，
+    /// 目录读不出来时返回 <see cref="PortableUpgradeErrorCodes.CatalogUnavailable"/>——两者含义不同。
     /// </summary>
-    public bool HasRetainedPreviousVersion(string installId)
+    public async Task<PortableUpgradeCandidateResult> FindRollbackCandidateAsync(string installId,
+        CancellationToken ct = default)
     {
-        if (!ValidText(installId, 256)) return false;
-        return File.Exists(Path.Combine(_dataDirectory, RollbackDirectoryName, MetadataKey(installId) + ".json"));
+        if (!ValidText(installId, 256)) return new(null, PortableUpgradeErrorCodes.InstallationNotFound);
+        if (_catalog is null) return new(null, PortableUpgradeErrorCodes.CatalogUnavailable);
+        InstallRecord? receipt;
+        try { receipt = await _launcher.GetAsync(installId, ct).ConfigureAwait(false); }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception) { return new(null, PortableUpgradeErrorCodes.ScanFailed); }
+        if (receipt is null) return new(null, PortableUpgradeErrorCodes.InstallationNotFound);
+        if (!StoreOwnedInstallation.OwnsExtractedFiles(receipt))
+            return new(null, PortableUpgradeErrorCodes.NotPortable);
+        if (HasPendingRecovery(installId)) return new(null, PortableUpgradeErrorCodes.PendingJournal);
+
+        AppDetail detail;
+        try { detail = await _catalog.GetAppAsync(receipt.AppId, ct).ConfigureAwait(false); }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception) { return new(null, PortableUpgradeErrorCodes.CatalogUnavailable); }
+        if (detail?.App is not { } app || app.Id != receipt.AppId)
+            return new(null, PortableUpgradeErrorCodes.CatalogUnavailable);
+
+        var policy = detail.PackagePolicy;
+        PackagePolicyValidator.Validate(policy);
+        var releases = detail.Releases.Where(release => !release.Draft);
+        releases = policy?.ReleaseChannel switch
+        {
+            PackageReleaseChannel.Pinned => releases.Where(release => release.TagName == policy.PinnedTag),
+            PackageReleaseChannel.LatestPrerelease => releases.Where(release => release.Prerelease),
+            _ => releases.Where(release => !release.Prerelease),
+        };
+        // 按发布时间倒序：第一个“严格更旧且有可用资产”的发行版，就是最近一版可回退的旧版本。
+        releases = releases.OrderByDescending(release => release.PublishedAt)
+            .ThenBy(release => release.TagName, StringComparer.Ordinal);
+        var architecture = RuntimeInformation.OSArchitecture switch
+        { Architecture.Arm64 => Arch.Arm64, Architecture.X86 => Arch.X86, _ => Arch.Amd64 };
+        var preserve = detail.PackagePolicy?.PreservePaths ?? [];
+        foreach (var release in releases)
+        {
+            ct.ThrowIfCancellationRequested();
+            var relation = VersionComparer.Relate(receipt.Version, release.TagName);
+            if (relation != VersionRelation.Older) continue;
+            var asset = SelectPortableAsset(release, app, architecture, detail.PackagePolicy);
+            if (asset is null) continue;
+            return new(new PortableUpgradeCandidate
+            {
+                App = app, Release = release, Asset = asset,
+                InstalledVersion = receipt.Version.Raw, CandidateVersion = release.TagName, Relation = relation,
+                ExecutableRelativePath = detail.PackagePolicy?.ExecutableRelativePath,
+                PreservePaths = preserve,
+            });
+        }
+        return new(null, PortableUpgradeErrorCodes.CandidateNotFound);
     }
 
     /// <summary>
@@ -497,7 +529,7 @@ public sealed class PortableUpgradeService
     public async Task<PortableUpgradeResult> UpdateAsync(PortableUpgradeRequest request,
         IProgress<PortableUpgradeProgress>? progress = null,
         Func<IReadOnlyList<string>, CancellationToken, Task<string?>>? chooseExecutable = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default, bool allowDowngrade = false)
     {
         if (ct.IsCancellationRequested) return new(false, PortableUpgradeErrorCodes.Cancelled);
         if (!await _gate.WaitAsync(0).ConfigureAwait(false)) return new(false, PortableUpgradeErrorCodes.Busy);
@@ -548,7 +580,8 @@ public sealed class PortableUpgradeService
                 return new(false, PortableUpgradeErrorCodes.PreservePathsUnsupported, request.InstallId, target);
 
             var relation = VersionComparer.Relate(receipt.Version, request.Release.TagName);
-            if (relation == VersionRelation.Older) return new(false, PortableUpgradeErrorCodes.NotAnUpgrade, request.InstallId, target);
+            if (relation == VersionRelation.Older && !allowDowngrade)
+                return new(false, PortableUpgradeErrorCodes.NotAnUpgrade, request.InstallId, target);
             if (relation == VersionRelation.Same) return new(false, PortableUpgradeErrorCodes.AlreadyCurrent, request.InstallId, target);
             // relation == Different：没有任何证据说明候选不是新版。按用户显式发起的更新继续，
             // 但结论只记事实——界面不得把它说成“确认有新版”。
@@ -682,36 +715,24 @@ public sealed class PortableUpgradeService
             }
             catch (Exception ex) when (ex is not OutOfMemoryException) { Trace.WriteLine(ex); }
 
-            // 撤销已不可能：剩下的只是清理与“保留上一版”。
+            // 撤销已不可能：新版本已就位并登记完成。按新机制不保留整份旧目录，
+            // 直接删除被替换下来的旧版本；同时清理旧机制可能遗留的保留记录。
             var filesMayRemain = false;
             try
             {
-                var previous = await ReadMetadataAsync<PortableRollbackRecord>(
-                    GetRollbackRecordPath(request.InstallId), ct).ConfigureAwait(false);
-                await WriteMetadataAsync(GetRollbackRecordPath(request.InstallId), new PortableRollbackRecord
-                {
-                    SchemaVersion = RollbackRecordSchemaVersion, InstallId = request.InstallId, TargetDir = target,
-                    BackupDir = journal.BackupDir, RetainedAt = DateTimeOffset.UtcNow, PreviousReceipt = receipt,
-                    PreviousDisplayName = displayName, ReplacedVersion = request.Release.TagName,
-                }, CancellationToken.None).ConfigureAwait(false);
-                // 同一安装只保留一份上一版；更早的那一份在这里删除，删不掉就如实报告可能残留。
-                // 删除前必须证明那一份确实属于这条安装：只看前缀会把别的安装的备份删掉。
-                if (previous is not null && !SamePath(previous.BackupDir, journal.BackupDir)
-                    && !TryDeleteOwnedName(previous.BackupDir, BackupPrefix, request.InstallId, root))
-                    filesMayRemain = true;
+                await DeleteMetadataAsync(GetRollbackRecordPath(request.InstallId), CancellationToken.None)
+                    .ConfigureAwait(false);
             }
-            catch (Exception ex) when (ex is not OutOfMemoryException)
-            {
-                // 保留记录写不成就无法提供回滚：如实标记，但本次更新本身已经成功，不能改判为失败。
-                Trace.WriteLine(ex);
+            catch (Exception ex) when (ex is not OutOfMemoryException) { Trace.WriteLine(ex); }
+            // 删除前必须证明那份目录确实属于这条安装：只看前缀会把别的安装的目录删掉。
+            if (!TryDeleteOwnedName(journal.BackupDir, BackupPrefix, request.InstallId, root))
                 filesMayRemain = true;
-            }
             await DeleteMetadataAsync(GetJournalPath(request.InstallId), CancellationToken.None).ConfigureAwait(false);
             Report(progress, PortableUpgradePhase.Completed, 100);
             return new(true, InstallId: request.InstallId, TargetDirectory: target, ExecutablePath: executable,
                 DisplayVersion: request.Release.TagName,
                 // journal 没能删掉（提交标记已落盘）时不算残留文件，只是留了一份可忽略的元数据；
-                // 真正可能残留的是删不掉的更早备份。
+                // 真正可能残留的是删不掉的旧版本目录。
                 FilesMayRemain: filesMayRemain || !committed);
         }
         catch (PortableUpgradeSimulatedCrashException)
@@ -841,41 +862,21 @@ public sealed class PortableUpgradeService
     }
 
     /// <summary>
-    /// 用户显式触发的回滚：把保留下来的上一个版本换回原位，并用同一个 InstallId 写回旧登记。
-    /// 只有确实存在该安装的保留备份时才可能成功；没有备份一律
-    /// <see cref="PortableUpgradeErrorCodes.RollbackNotAvailable"/>，绝不猜一个版本出来。
-    /// 若该安装有未完成的 journal（上次更新被打断），先执行那次还原——那本身就是回滚。
+    /// 用户显式触发的回退：<b>重新安装上一个版本</b>——在软件源里找到比当前版本更旧的最近一版，
+    /// 优先用下载缓存、否则在线下载，然后按更新同一套流程整体替换。不保留任何本地旧目录备份。
+    /// 若软件源里已没有更旧版本、或目录读不出来，明确返回不可回退，绝不猜测一个版本出来。
     /// </summary>
     public async Task<PortableRollbackResult> RollbackAsync(string installId, CancellationToken ct = default)
     {
         if (!ValidText(installId, 256)) return new(false, PortableUpgradeErrorCodes.RollbackInstallationNotFound);
         if (ct.IsCancellationRequested) return new(false, PortableUpgradeErrorCodes.Cancelled);
-        if (!await _gate.WaitAsync(0).ConfigureAwait(false)) return new(false, PortableUpgradeErrorCodes.Busy);
         try
         {
-            ct.ThrowIfCancellationRequested();
-            var root = ResolveRoot();
-            PortableUpgradeJournal? pending;
-            try { pending = await ReadMetadataAsync<PortableUpgradeJournal>(GetJournalPath(installId), ct).ConfigureAwait(false); }
-            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
-            catch (Exception) { return new(false, PortableUpgradeErrorCodes.RecoveryJournalInvalid, installId); }
-            if (pending is not null)
+            // 上次更新/回退若被打断，先让启动恢复把现场收尾；收尾失败就如实报告，不覆盖恢复依据。
+            if (HasPendingRecovery(installId))
             {
-                if (pending.SchemaVersion != JournalSchemaVersion || !SameText(pending.InstallId, installId))
-                    return new(false, PortableUpgradeErrorCodes.RecoveryJournalInvalid, installId);
-                var recovery = await RestorePreviousAsync(pending, root, reRegister: true, ct).ConfigureAwait(false);
-                if (recovery.ErrorCode is not null)
-                    return new(false, recovery.ErrorCode, installId, FilesMayRemain: recovery.FilesMayRemain);
-                // 未完成的 journal：这次还原本身就是回滚，到此结束。
-                if (recovery.Restored)
-                {
-                    var restoredReceipt = await _launcher.GetAsync(installId, ct).ConfigureAwait(false);
-                    return new(true, InstallId: installId, TargetDirectory: pending.TargetDir,
-                        ExecutablePath: restoredReceipt?.ExePath, DisplayVersion: restoredReceipt?.DisplayVersion,
-                        FilesMayRemain: recovery.FilesMayRemain);
-                }
-                // 已提交的 journal 只被清掉了：文件与登记都是新版本，继续走下面“保留备份”的正常路径。
-                if (!pending.Completed) return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId);
+                var recovery = await RecoverAsync(ct).ConfigureAwait(false);
+                if (recovery.Failed > 0) return new(false, PortableUpgradeErrorCodes.RollbackIncomplete, installId);
             }
 
             InstallRecord? receipt;
@@ -886,66 +887,46 @@ public sealed class PortableUpgradeService
             if (!StoreOwnedInstallation.OwnsExtractedFiles(receipt))
                 return new(false, PortableUpgradeErrorCodes.RollbackNotPortable, installId);
 
-            PortableRollbackRecord? record;
-            try { record = await ReadMetadataAsync<PortableRollbackRecord>(GetRollbackRecordPath(installId), ct).ConfigureAwait(false); }
-            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
-            catch (Exception) { return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId); }
-            // 保留记录必须自证：schema、安装 ID，以及它记录的旧登记确实是这一条安装。
-            if (record is null || record.SchemaVersion != RollbackRecordSchemaVersion || !ValidText(record.InstallId, 256)
-                || !SameText(record.InstallId, installId) || record.PreviousReceipt.InstallId != installId
-                || record.PreviousReceipt.AppId != receipt.AppId)
-                return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId);
+            // 上一个版本来自软件源的真实发行版；没有更旧版本就明确不可回退。
+            var candidate = await FindRollbackCandidateAsync(installId, ct).ConfigureAwait(false);
+            if (candidate.Candidate is not { } previous)
+                return new(false, MapRollbackSourceError(candidate.ErrorCode), installId);
 
-            var target = ValidateOwnedChild(record.TargetDir, root, null);
-            var backup = ValidateOwnedChild(record.BackupDir, root, BackupPrefix);
-            // 记录里的路径都要逐项通过校验；任何一条不过关就什么都不做。
-            if (target is null || backup is null || !SamePath(target, record.TargetDir)
-                || !SamePath(target, receipt.TargetDir ?? string.Empty))
-                return new(false, PortableUpgradeErrorCodes.RollbackUnsafePath, installId);
-            if (!Directory.Exists(target) || !Directory.Exists(backup))
-                return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId);
-            ct.ThrowIfCancellationRequested();
-
-            // 先把这个回退动作持久化成一条真正的 journal，再动任何文件。
-            // 否则一旦在“备份已消耗、登记还没写回”的那一刻失败，磁盘上就再也没有恢复依据了。
-            var journal = new PortableUpgradeJournal
+            // 回退 = 重新安装旧版本：复用更新流程，仅允许降级；成功后同样删除被替换下来的新版本目录。
+            var update = await UpdateAsync(new PortableUpgradeRequest
             {
-                SchemaVersion = JournalSchemaVersion, InstallId = installId, TargetDir = target, BackupDir = backup,
-                // 暂存目录名必须与其它自建目录用同一套代际命名，否则恢复流程会因“名字对不上”
-                // 而拒绝清理它，白白留下一份永不回收的残留。
-                // 暂存名沿用备份的操作后缀：恢复流程要求两者互相印证，用新后缀会被正确地拒绝。
-                StageDir = Path.Combine(root, OwnedName(StagePrefix, installId,
-                    Path.GetFileName(backup)[(BackupPrefix.Length + GenerationTokenLength + 1)..])),
-                StartedAt = DateTimeOffset.UtcNow, PreviousReceipt = record.PreviousReceipt,
-                PreviousDisplayName = record.PreviousDisplayName,
-            };
-            try { await WriteMetadataAsync(GetJournalPath(installId), journal, ct).ConfigureAwait(false); }
-            catch (Exception ex) when (ex is not OutOfMemoryException)
+                InstallId = installId, App = previous.App, Release = previous.Release, Asset = previous.Asset,
+                ExecutableRelativePath = previous.ExecutableRelativePath, PreservePaths = previous.PreservePaths,
+            }, progress: null, chooseExecutable: null, ct: ct, allowDowngrade: true).ConfigureAwait(false);
+            if (update.Succeeded)
+                return new(true, InstallId: installId, TargetDirectory: update.TargetDirectory,
+                    ExecutablePath: update.ExecutablePath, DisplayVersion: update.DisplayVersion,
+                    FilesMayRemain: update.FilesMayRemain);
+            return new(false, update.ErrorCode switch
             {
-                Trace.WriteLine(ex);
-                // journal 落不了盘就绝不开始替换：一个文件都还没动。
-                return new(false, PortableUpgradeErrorCodes.JournalFailed, installId);
-            }
-
-            var outcome = await RestorePreviousAsync(journal, root, reRegister: true, ct).ConfigureAwait(false);
-            if (outcome.ErrorCode is not null)
-                return new(false, outcome.ErrorCode, installId, FilesMayRemain: outcome.FilesMayRemain);
-            if (!outcome.Restored) return new(false, PortableUpgradeErrorCodes.RollbackNotAvailable, installId);
-            await DeleteMetadataAsync(GetRollbackRecordPath(installId), CancellationToken.None).ConfigureAwait(false);
-            var current = await _launcher.GetAsync(installId, ct).ConfigureAwait(false);
-            return new(true, InstallId: installId, TargetDirectory: target, ExecutablePath: current?.ExePath,
-                DisplayVersion: current?.DisplayVersion, FilesMayRemain: outcome.FilesMayRemain);
+                PortableUpgradeErrorCodes.AlreadyCurrent or PortableUpgradeErrorCodes.NotAnUpgrade
+                    or PortableUpgradeErrorCodes.CandidateNotFound => PortableUpgradeErrorCodes.RollbackNotAvailable,
+                _ => update.ErrorCode,
+            }, installId, FilesMayRemain: update.FilesMayRemain);
         }
-        // 与 UpdateAsync 同样处理故障注入：它代表“进程在此处被强杀”，
-        // 不能被下面的通用 catch 吞掉并降级成 rollback_incomplete——那样就不是崩溃了。
+        // 与 UpdateAsync 同样处理故障注入：它代表“进程在此处被强杀”，不能被下面的通用 catch 吞掉。
         catch (PortableUpgradeSimulatedCrashException) { throw; }
         catch (OperationCanceledException) { return new(false, PortableUpgradeErrorCodes.Cancelled, installId); }
         catch (UpgradePathException) { return new(false, PortableUpgradeErrorCodes.RollbackUnsafePath, installId); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         { return new(false, PortableUpgradeErrorCodes.RollbackIncomplete, installId); }
         catch (Exception) { return new(false, PortableUpgradeErrorCodes.RollbackIncomplete, installId); }
-        finally { _gate.Release(); }
     }
+
+    /// <summary>回退候选查询的失败码映射为回退结果码，保持“目录读不出”与“确实没有更旧版本”可区分。</summary>
+    private static string MapRollbackSourceError(string? code) => code switch
+    {
+        PortableUpgradeErrorCodes.CatalogUnavailable => PortableUpgradeErrorCodes.CatalogUnavailable,
+        PortableUpgradeErrorCodes.ScanFailed => PortableUpgradeErrorCodes.ScanFailed,
+        PortableUpgradeErrorCodes.NotPortable => PortableUpgradeErrorCodes.RollbackNotPortable,
+        PortableUpgradeErrorCodes.PendingJournal => PortableUpgradeErrorCodes.RollbackIncomplete,
+        _ => PortableUpgradeErrorCodes.RollbackNotAvailable,
+    };
 
     /// <summary>
     /// 把一条 journal 描述的备份换回原位，并按需写回旧登记。
@@ -958,8 +939,10 @@ public sealed class PortableUpgradeService
     {
         ct.ThrowIfCancellationRequested();
         // 已提交的 journal 只是没删掉的元数据：文件与登记都已是新版本，绝不能把它“还原”回旧版本。
+        // 新机制不保留备份，因此这里顺带删掉可能残留的旧版本目录（只删属于这条安装的受管目录）。
         if (journal.Completed)
         {
+            TryDeleteOwnedName(journal.BackupDir, BackupPrefix, journal.InstallId, root);
             await DeleteMetadataAsync(GetJournalPath(journal.InstallId), CancellationToken.None).ConfigureAwait(false);
             return new(false, false, null);
         }
@@ -1473,7 +1456,6 @@ public sealed class PortableUpgradeService
     private static T? Restore<T>(T? value) where T : class => value switch
     {
         PortableUpgradeJournal journal => (T)(object)(journal with { PreviousReceipt = Normalize(journal.PreviousReceipt) }),
-        PortableRollbackRecord record => (T)(object)(record with { PreviousReceipt = Normalize(record.PreviousReceipt) }),
         _ => value,
     };
 

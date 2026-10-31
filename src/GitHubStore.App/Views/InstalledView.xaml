@@ -16,7 +16,6 @@
                     AutomationProperties.AutomationId="RescanInstalledButton" />
         </Grid>
 
-        <!-- 当前仅管理成功安装登记；AI 说明不执行卸载、升级或清理。 -->
         <InfoBar Grid.Row="1" IsOpen="True" IsClosable="False" Severity="Informational"
                  Message="{Binding Text[InstalledExternalNote]}" />
 
@@ -24,119 +23,62 @@
                         Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         QueryIcon="Find" AutomationProperties.Name="{Binding Text[InstalledFilter]}" />
 
-        <Grid Grid.Row="3" ColumnSpacing="16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="280" />
-                <ColumnDefinition Width="380" MinWidth="260" />
-            </Grid.ColumnDefinitions>
-            <ListView x:Name="ProgramList" ItemsSource="{Binding Programs}" SelectionMode="Single"
-                      SelectedItem="{Binding SelectedProgram, Mode=TwoWay}" HorizontalContentAlignment="Stretch"
-                      AutomationProperties.Name="{Binding Text[InstalledTitle]}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="12" ColumnSpacing="16">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Publisher}" FontSize="12"
-                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+        <!-- 单列列表直接展示版本与卸载、更新、回退三个操作，不再占用右侧详情栏。 -->
+        <ListView x:Name="ProgramList" Grid.Row="3" ItemsSource="{Binding InstalledItems}"
+                  SelectionMode="None" HorizontalContentAlignment="Stretch"
+                  AutomationProperties.Name="{Binding Text[InstalledTitle]}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0,0,0,8" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="16" CornerRadius="8"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid ColumnSpacing="24" MinHeight="56">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="220" />
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="16" FontWeight="SemiBold"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock Text="{Binding Text[InstalledCurrentVersion]}" FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="{Binding CurrentVersion}" FontWeight="SemiBold" TextWrapping="Wrap" />
                             </StackPanel>
-                            <TextBlock Grid.Column="1" Text="{Binding DisplayVersion}" FontSize="12"
-                                       VerticalAlignment="Center" />
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock Text="{Binding Text[InstalledLatestVersion]}" FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="{Binding LatestVersion}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8"
+                                        VerticalAlignment="Center">
+                                <Button Content="{Binding Text[InstalledUninstall]}" Tag="{Binding}"
+                                        IsEnabled="{Binding CanUninstall}" Click="OnUninstallClick"
+                                        AutomationProperties.AutomationId="UninstallButton" />
+                                <Button Content="{Binding Text[InstalledUpdate]}" Tag="{Binding}"
+                                        IsEnabled="{Binding CanUpdate}" Click="OnUpgradeClick"
+                                        AutomationProperties.AutomationId="UpgradeButton" />
+                                <Button Content="{Binding Text[InstalledRollback]}" Tag="{Binding}"
+                                        IsEnabled="{Binding CanRollback}" Click="OnRollbackClick"
+                                        AutomationProperties.AutomationId="RollbackButton" />
+                            </StackPanel>
                         </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-
-            <Border Grid.Column="1" Padding="20" CornerRadius="8"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{Binding Text[InstalledTitle]}" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <TextBlock Text="{Binding SelectedName}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" />
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding Text[InstalledPublisher]}" FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedPublisher}" TextWrapping="Wrap" />
-                        </StackPanel>
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding Text[InstalledVersion]}" FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedVersion}" />
-                        </StackPanel>
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding Text[InstalledLocation]}" FontSize="12"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock Text="{Binding SelectedLocation}" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
-                        </StackPanel>
-                        <!-- 状态如实展示：入口缺失与无法核对都不等于已卸载。 -->
-                        <TextBlock Text="{Binding SelectedStatusText}" TextWrapping="Wrap" FontSize="12"
-                                   AutomationProperties.AutomationId="InstalledStatusText"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        <TextBlock Text="{Binding SelectedRegistrationText}" TextWrapping="Wrap" FontSize="12"
-                                   AutomationProperties.AutomationId="InstalledRegistrationText"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        <Button Content="{Binding Text[InstalledRepair]}" Click="OnRepairClick"
-                                IsEnabled="{Binding CanRepair}" HorizontalAlignment="Stretch"
-                                AutomationProperties.AutomationId="RepairExecutableButton" />
-                        <!-- 升级入口：先查询绑定来源目录里的真实候选，再由用户显式确认。绝不自动安装。 -->
-                        <Button Content="{Binding Text[InstalledCheckUpdate]}" Command="{Binding CheckForUpdateCommand}"
-                                IsEnabled="{Binding CanCheckForUpdate}" HorizontalAlignment="Stretch"
-                                AutomationProperties.AutomationId="CheckUpdateButton" />
-                        <TextBlock Text="{Binding UpdateStatusText}" TextWrapping="Wrap" FontSize="12"
-                                   AutomationProperties.AutomationId="UpdateStatusText"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        <Button Content="{Binding Text[InstalledUpdate]}" Click="OnUpgradeClick"
-                                IsEnabled="{Binding CanUpgrade}" HorizontalAlignment="Stretch"
-                                AutomationProperties.AutomationId="UpgradeButton" />
-                        <!-- 回退只在确实保留了上一版本时出现；失败保留当前版本。 -->
-                        <Button Content="{Binding Text[InstalledRollback]}" Click="OnRollbackClick"
-                                IsEnabled="{Binding CanRollback}" HorizontalAlignment="Stretch"
-                                AutomationProperties.AutomationId="RollbackButton" />
-                        <!-- 点击后先二次确认，再由 ViewModel 调用服务层启动卸载器。 -->
-                        <Button x:Name="UninstallButton" Content="{Binding Text[InstalledUninstall]}"
-                                Click="OnUninstallClick"
-                                IsEnabled="{Binding CanUninstall}" HorizontalAlignment="Stretch"
-                                AutomationProperties.AutomationId="UninstallButton" />
-                        <Button Content="{Binding Text[InstalledRemoveRegistration]}"
-                                Click="OnRemoveRegistrationClick" IsEnabled="{Binding CanRemoveRegistration}"
-                                HorizontalAlignment="Stretch" AutomationProperties.AutomationId="RemoveRegistrationButton" />
-                        <TextBlock Text="{Binding Text[InstalledManagedHint]}" TextWrapping="Wrap" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-
-                        <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" Margin="0,8" />
-                        <TextBlock Text="{Binding AiHeading}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding AiScopeNote}" TextWrapping="Wrap" FontSize="12"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" IsTextSelectionEnabled="True" />
-                        <TextBlock Text="{Binding AiConfigurationNote}" TextWrapping="Wrap" FontSize="12" />
-                        <TextBox Text="{Binding AiQuestion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="{Binding AiQuestionHint}" AutomationProperties.Name="{Binding AiQuestionHint}"
-                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" MaxLength="2000"
-                                 AutomationProperties.AutomationId="InstalledAiQuestion" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="{Binding AiAskLabel}" Command="{Binding AskInstalledAiCommand}"
-                                    AutomationProperties.AutomationId="AskInstalledAiButton" />
-                            <Button Content="{Binding AiCancelLabel}" Command="{Binding CancelInstalledAiCommand}"
-                                    Visibility="{Binding IsAiBusy, Converter={StaticResource BooleanToVisibility}}"
-                                    AutomationProperties.AutomationId="CancelInstalledAiButton" />
-                        </StackPanel>
-                        <Button Content="{Binding AiCompareLabel}" Command="{Binding CompareInstalledAiCommand}"
-                                HorizontalAlignment="Stretch" AutomationProperties.AutomationId="CompareInstalledAiButton" />
-                        <Button Content="{Binding AiUninstallLabel}" Command="{Binding ExplainUninstallAiCommand}"
-                                HorizontalAlignment="Stretch" AutomationProperties.AutomationId="ExplainInstalledUninstallAiButton" />
-                        <ProgressBar IsIndeterminate="True"
-                                     Visibility="{Binding IsAiBusy, Converter={StaticResource BooleanToVisibility}}" />
-                        <TextBlock Text="{Binding AiStatus}" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding AiErrorMessage}" TextWrapping="Wrap" IsTextSelectionEnabled="True"
-                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-                        <TextBlock Text="{Binding AiResultSubject}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                        <TextBlock Text="{Binding AiResponse}" TextWrapping="Wrap" IsTextSelectionEnabled="True"
-                                   AutomationProperties.AutomationId="InstalledAiResponse" />
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
-        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
         <StackPanel Grid.Row="4" Spacing="8">
             <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
