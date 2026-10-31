@@ -54,10 +54,11 @@
                                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                                                     ToolTipService.ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding DisplayName}">
                                                 <StackPanel Spacing="8" HorizontalAlignment="Stretch">
-                                                    <local:LauncherAppIcon Width="64" Height="64" ExecutablePath="{Binding ExecutablePath}" HorizontalAlignment="Center" />
+                                                    <local:LauncherAppIcon Width="48" Height="48" ExecutablePath="{Binding ExecutablePath}" HorizontalAlignment="Center" />
                                                     <TextBlock Text="{Binding DisplayName}" TextAlignment="Center" TextWrapping="Wrap"
                                                                TextTrimming="CharacterEllipsis" MaxLines="2" FontWeight="SemiBold" />
                                                     <TextBlock Text="{Binding AvailabilityText}" TextAlignment="Center" TextWrapping="Wrap" FontSize="12"
+                                                               Visibility="{Binding IsAvailable, Converter={StaticResource InverseBooleanToVisibility}}"
                                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                                 </StackPanel>
                                             </Border>
