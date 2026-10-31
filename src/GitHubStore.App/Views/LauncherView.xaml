@@ -49,17 +49,14 @@
                                     </GridView.ItemsPanel>
                                     <GridView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Width="156" MinHeight="164" Padding="12" Margin="4" CornerRadius="10"
+                                            <Border Width="124" Height="124" Padding="10" Margin="3" CornerRadius="8"
                                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
                                                     ToolTipService.ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding DisplayName}">
-                                                <StackPanel Spacing="8" HorizontalAlignment="Stretch">
+                                                <StackPanel Spacing="6" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                                     <local:LauncherAppIcon Width="48" Height="48" ExecutablePath="{Binding ExecutablePath}" HorizontalAlignment="Center" />
                                                     <TextBlock Text="{Binding DisplayName}" TextAlignment="Center" TextWrapping="Wrap"
                                                                TextTrimming="CharacterEllipsis" MaxLines="2" FontWeight="SemiBold" />
-                                                    <TextBlock Text="{Binding AvailabilityText}" TextAlignment="Center" TextWrapping="Wrap" FontSize="12"
-                                                               Visibility="{Binding IsAvailable, Converter={StaticResource InverseBooleanToVisibility}}"
-                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                                 </StackPanel>
                                             </Border>
                                         </DataTemplate>
