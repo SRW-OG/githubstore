@@ -60,6 +60,14 @@ $descriptionZhByKey = @{
     'microsoft/winget-cli'                = 'Windows 包管理器及其桌面扩展组件。'
     'notepad-plus-plus/notepad-plus-plus' = '经典开源纯文本编辑器，支持语法高亮、宏与插件扩展。'
     'opengeos/rustgis'                    = '用 Rust 编写的轻量 GIS 数据处理与查看桌面工具。'
+    'anxcye/anx-reader'                   = '支持多种电子书格式与 AI 能力的本地阅读器，提供 Windows 桌面版。'
+    'fortography/prism-download-manager'  = '开源多线程下载管理器，支持浏览器集成、视频与音频下载和断点续传。'
+    'guohuiyuan/go-music-dl'              = '全网音乐搜索与下载工具，支持命令行与桌面界面，可解析多个平台的音质。'
+    'harry0703/mangodisk'                 = '磁盘清理与空间分析工具，支持重复文件清理、应用卸载与启动项管理。'
+    'inukaasith/twindesk'                 = '在 Windows、macOS、Linux 与安卓之间共享屏幕、键盘鼠标、文件与剪贴板的协作工具。'
+    'minghinmatthewlam/pi-gui'            = '面向 pi 编码代理运行时的桌面图形客户端。'
+    't8y2/motty'                          = '集成 SSH、SFTP、端口转发、VNC/RDP 与 AI 助手的原生桌面终端工具。'
+    'xanerix/guoapp'                      = '短剧内容客户端，随发行版提供 Windows 桌面程序。'
 }
 
 function Get-StableToken([string]$value, [int]$length) {
@@ -328,12 +336,15 @@ Set-Content -LiteralPath $outputPath -Value $json -Encoding utf8 -NoNewline
 
 # 生成物取代原分片后，归档原文件，避免构建脚本重复汇编同一条目。
 $archiveDirectory = Join-Path $curationDirectory 'archive'
-New-Item -ItemType Directory -Path $archiveDirectory -Force | Out-Null
-$archiveTarget = Join-Path $archiveDirectory $ExistingPart
-if (-not (Test-Path -LiteralPath $archiveTarget)) {
-    Copy-Item -LiteralPath $existingPath -Destination $archiveTarget
+$null = New-Item -ItemType Directory -Path $archiveDirectory -Force
+# 输入与输出可以是同一个文件（在既有分片上追加），那时不能归档或删除输入。
+if ($existingPath -ne $outputPath) {
+    $archiveTarget = Join-Path $archiveDirectory $ExistingPart
+    if (-not (Test-Path -LiteralPath $archiveTarget)) {
+        Copy-Item -LiteralPath $existingPath -Destination $archiveTarget
+    }
+    Remove-Item -LiteralPath $existingPath
 }
-Remove-Item -LiteralPath $existingPath
 
 # selection.json 使用仓库原名大小写，保持与 GitHub 一致。
 $selectionEntries = foreach ($key in $selectedKeys) {

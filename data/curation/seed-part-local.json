@@ -1123,6 +1123,363 @@
       "descriptionOverride": null
     },
     {
+      "categoryId": "science",
+      "fetchedAt": "2026-11-01T01:38:10.0431901+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/Anxcye/anx-reader/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/Anxcye/anx-reader/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/Anxcye/anx-reader/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/Anxcye/anx-reader/branches{/branch}",
+        "clone_url": "https://github.com/Anxcye/anx-reader.git",
+        "collaborators_url": "https://api.github.com/repos/Anxcye/anx-reader/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/Anxcye/anx-reader/comments{/number}",
+        "commits_url": "https://api.github.com/repos/Anxcye/anx-reader/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/Anxcye/anx-reader/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/Anxcye/anx-reader/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/Anxcye/anx-reader/contributors",
+        "created_at": "2024-03-28T11:28:52Z",
+        "default_branch": "develop",
+        "deployments_url": "https://api.github.com/repos/Anxcye/anx-reader/deployments",
+        "description": "Featuring powerful AI capabilities and supporting various e-book formats, it makes reading smarter and more focused.",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/Anxcye/anx-reader/downloads",
+        "events_url": "https://api.github.com/repos/Anxcye/anx-reader/events",
+        "fork": false,
+        "forks": 666,
+        "forks_count": 666,
+        "forks_url": "https://api.github.com/repos/Anxcye/anx-reader/forks",
+        "full_name": "Anxcye/anx-reader",
+        "git_commits_url": "https://api.github.com/repos/Anxcye/anx-reader/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/Anxcye/anx-reader/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/Anxcye/anx-reader/git/tags{/sha}",
+        "git_url": "git://github.com/Anxcye/anx-reader.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://anx.anxcye.com/",
+        "hooks_url": "https://api.github.com/repos/Anxcye/anx-reader/hooks",
+        "html_url": "https://github.com/Anxcye/anx-reader",
+        "id": -1750863331,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/Anxcye/anx-reader/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/Anxcye/anx-reader/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/Anxcye/anx-reader/issues{/number}",
+        "keys_url": "https://api.github.com/repos/Anxcye/anx-reader/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/Anxcye/anx-reader/labels{/name}",
+        "language": "Dart",
+        "languages_url": "https://api.github.com/repos/Anxcye/anx-reader/languages",
+        "license": {
+          "key": "mit",
+          "name": "MIT",
+          "spdx_id": "MIT",
+          "url": "https://api.github.com/licenses/mit",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/Anxcye/anx-reader/merges",
+        "milestones_url": "https://api.github.com/repos/Anxcye/anx-reader/milestones{/number}",
+        "mirror_url": null,
+        "name": "anx-reader",
+        "node_id": "R_kgDOOnEQP7KQGc1o",
+        "notifications_url": "https://api.github.com/repos/Anxcye/anx-reader/notifications{?since,all,participating}",
+        "open_issues": 99,
+        "open_issues_count": 99,
+        "owner": {
+          "login": "Anxcye",
+          "id": -3508402323,
+          "type": "Organization",
+          "html_url": "https://github.com/Anxcye"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/Anxcye/anx-reader/pulls{/number}",
+        "pushed_at": "2026-10-17T12:57:09Z",
+        "releases_url": "https://api.github.com/repos/Anxcye/anx-reader/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:Anxcye/anx-reader.git",
+        "stargazers_count": 9117,
+        "stargazers_url": "https://api.github.com/repos/Anxcye/anx-reader/stargazers",
+        "statuses_url": "https://api.github.com/repos/Anxcye/anx-reader/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/Anxcye/anx-reader/subscribers",
+        "subscription_url": "https://api.github.com/repos/Anxcye/anx-reader/subscription",
+        "svn_url": "https://github.com/Anxcye/anx-reader",
+        "tags_url": "https://api.github.com/repos/Anxcye/anx-reader/tags",
+        "teams_url": "https://api.github.com/repos/Anxcye/anx-reader/teams",
+        "topics": [
+          "dart",
+          "ebook-reader",
+          "flutter"
+        ],
+        "trees_url": "https://api.github.com/repos/Anxcye/anx-reader/git/trees{/sha}",
+        "updated_at": "2026-10-17T12:57:09Z",
+        "url": "https://api.github.com/repos/Anxcye/anx-reader",
+        "visibility": "public",
+        "watchers": 9117,
+        "watchers_count": 9117,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v1.14.0",
+        "name": "v1.14.0",
+        "published_at": "2026-03-19T07:40:40Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/Anxcye/anx-reader/releases/tag/v1.14.0",
+        "assets": [
+          {
+            "id": -3065406569,
+            "name": "Anx-Reader-android-1.14.0-arm64-v8a.apk",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 27520363,
+            "digest": "sha256:ac17738ddd11c2b1834494b1a31d494384fcabefa8501c9587ab63fef20b1eb4",
+            "download_count": 20841,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-android-1.14.0-arm64-v8a.apk",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008387"
+          },
+          {
+            "id": -3441541489,
+            "name": "Anx-Reader-android-1.14.0-armeabi-v7a.apk",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 27737747,
+            "digest": "sha256:21b8bac2356b8df6b58edd947811149e91301e9d4540bda36e9a078f708a983e",
+            "download_count": 1520,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-android-1.14.0-armeabi-v7a.apk",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008386"
+          },
+          {
+            "id": -1016787738,
+            "name": "Anx-Reader-android-1.14.0-universal.apk",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 54364453,
+            "digest": "sha256:43ae699477f7805b17bab4dd0c3c115cae590a44e8a6d696c6d548fb6a23e2cf",
+            "download_count": 15890,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-android-1.14.0-universal.apk",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008383"
+          },
+          {
+            "id": -100764487,
+            "name": "Anx-Reader-android-1.14.0-x86_64.apk",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 27699135,
+            "digest": "sha256:f64978c6ebfc63d671e4423b490ee64380749772c96d79f76ef4361a9e06f27b",
+            "download_count": 1245,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-android-1.14.0-x86_64.apk",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008382"
+          },
+          {
+            "id": -3783751681,
+            "name": "Anx-Reader-ios-1.14.0-unsigned.ipa",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 28677588,
+            "digest": "sha256:a79bd247859d6a04dae81490aa7d8d970a830af7201415f4ec6aa370b74ae69b",
+            "download_count": 1916,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-ios-1.14.0-unsigned.ipa",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008391"
+          },
+          {
+            "id": -100272113,
+            "name": "Anx-Reader-ios-1.14.0-unsigned.zip",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 28677588,
+            "digest": "sha256:a79bd247859d6a04dae81490aa7d8d970a830af7201415f4ec6aa370b74ae69b",
+            "download_count": 370,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-ios-1.14.0-unsigned.zip",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008389"
+          },
+          {
+            "id": -4065171202,
+            "name": "Anx-Reader-macos-1.14.0.dmg",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 164653955,
+            "digest": "sha256:3fc92956b2a51cb1b12c677abb01e0464a8599b76f50aa2ca850e49116fa888a",
+            "download_count": 1713,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-macos-1.14.0.dmg",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008385"
+          },
+          {
+            "id": -2508632956,
+            "name": "Anx-Reader-macos-1.14.0.zip",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 45179386,
+            "digest": "sha256:6faf45d718d337a7f23c2ccf7fbe424c13fb614147313fbe5be4cc5fcff702d7",
+            "download_count": 363,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-macos-1.14.0.zip",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008384"
+          },
+          {
+            "id": -1417637151,
+            "name": "Anx-Reader-windows-1.14.0.exe",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/x-msdos-program",
+            "state": "uploaded",
+            "size": 25440912,
+            "digest": "sha256:886579acf3e8acb56fee60cbc634c700b9fc4080b28f8f1f7c1182c746975a62",
+            "download_count": 10110,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-windows-1.14.0.exe",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008381"
+          },
+          {
+            "id": -3397680047,
+            "name": "Anx-Reader-windows-1.14.0.zip",
+            "uploader": {
+              "login": "Anxcye",
+              "id": -3508402323,
+              "type": "Organization",
+              "html_url": "https://github.com/Anxcye"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 32976388,
+            "digest": "sha256:052bc63717f912b6962f3b98f11f86eea3337223d54ca9a18b48be7aa0051c86",
+            "download_count": 3924,
+            "created_at": "2026-03-19T07:40:40Z",
+            "updated_at": "2026-03-19T07:40:40Z",
+            "browser_download_url": "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-windows-1.14.0.zip",
+            "url": "https://api.github.com/repos/Anxcye/anx-reader/releases/assets/377008388"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "支持多种电子书格式与 AI 能力的本地阅读器，提供 Windows 桌面版。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "anx-reader 官方发行版 v1.14.0",
+            "url": "https://github.com/Anxcye/anx-reader/releases/tag/v1.14.0",
+            "discoveredAt": "2026-11-01T01:38:10.0431901+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-11-01T01:38:10.0431901+08:00",
+          "repositoryUrl": "https://github.com/Anxcye/anx-reader",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/Anxcye/anx-reader",
+            "https://github.com/Anxcye/anx-reader/releases/tag/v1.14.0",
+            "https://github.com/Anxcye/anx-reader/blob/develop/README.md",
+            "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-windows-1.14.0.exe",
+            "https://github.com/Anxcye/anx-reader/releases/download/v1.14.0/Anx-Reader-windows-1.14.0.zip"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：MIT；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：Anx-Reader-windows-1.14.0.exe、Anx-Reader-windows-1.14.0.zip。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Unknown",
+            "include": [
+              "Anx-Reader-windows-*.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
+      "descriptionOverride": null
+    },
+    {
       "categoryId": "ai",
       "fetchedAt": "2026-10-30T19:22:30.4559557+08:00",
       "repository": {
@@ -6830,6 +7187,428 @@
       "descriptionOverride": null
     },
     {
+      "categoryId": "network",
+      "fetchedAt": "2026-10-31T09:02:11.8462847+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/branches{/branch}",
+        "clone_url": "https://github.com/FortoGraphy/prism-download-manager.git",
+        "collaborators_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/comments{/number}",
+        "commits_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/contributors",
+        "created_at": "2026-10-15T10:11:39Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/deployments",
+        "description": "The fast, beautiful, open-source download manager for Windows, macOS and Linux — up to 32 connections, browser integration, video & MP3 downloads, crash-safe resume.",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/downloads",
+        "events_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/events",
+        "fork": false,
+        "forks": 41,
+        "forks_count": 41,
+        "forks_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/forks",
+        "full_name": "FortoGraphy/prism-download-manager",
+        "git_commits_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/git/tags{/sha}",
+        "git_url": "git://github.com/FortoGraphy/prism-download-manager.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://prismdl.site/",
+        "hooks_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/hooks",
+        "html_url": "https://github.com/FortoGraphy/prism-download-manager",
+        "id": -4294295473,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/issues{/number}",
+        "keys_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/labels{/name}",
+        "language": "Rust",
+        "languages_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/languages",
+        "license": {
+          "key": "mit",
+          "name": "MIT",
+          "spdx_id": "MIT",
+          "url": "https://api.github.com/licenses/mit",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/merges",
+        "milestones_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/milestones{/number}",
+        "mirror_url": null,
+        "name": "prism-download-manager",
+        "node_id": "R_kgDO0f7hD3ufN6jh",
+        "notifications_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/notifications{?since,all,participating}",
+        "open_issues": 11,
+        "open_issues_count": 11,
+        "owner": {
+          "login": "FortoGraphy",
+          "id": -1299435838,
+          "type": "Organization",
+          "html_url": "https://github.com/FortoGraphy"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/pulls{/number}",
+        "pushed_at": "2026-10-30T21:27:34Z",
+        "releases_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:FortoGraphy/prism-download-manager.git",
+        "stargazers_count": 581,
+        "stargazers_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/stargazers",
+        "statuses_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/subscribers",
+        "subscription_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/subscription",
+        "svn_url": "https://github.com/FortoGraphy/prism-download-manager",
+        "tags_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/tags",
+        "teams_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/teams",
+        "topics": [
+          "bittorrent",
+          "browser-extension",
+          "cross-platform",
+          "download-manager",
+          "downloader",
+          "idm-alternative",
+          "open-source",
+          "rust",
+          "tauri",
+          "youtube-downloader"
+        ],
+        "trees_url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/git/trees{/sha}",
+        "updated_at": "2026-10-30T21:27:34Z",
+        "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager",
+        "visibility": "public",
+        "watchers": 581,
+        "watchers_count": 581,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v1.2.2",
+        "name": "v1.2.2",
+        "published_at": "2026-10-30T21:25:42Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/FortoGraphy/prism-download-manager/releases/tag/v1.2.2",
+        "assets": [
+          {
+            "id": -373115584,
+            "name": "latest.json",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/json",
+            "state": "uploaded",
+            "size": 3536,
+            "digest": "sha256:342fdda75093b3bd3e95c00aba8a08e7d35494247f4dde61d9c2420edca175b6",
+            "download_count": 935,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/latest.json",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466981"
+          },
+          {
+            "id": -1069807486,
+            "name": "Prism-1.2.2-1.x86_64.rpm",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 18716130,
+            "digest": "sha256:abcbf4505cf9cc4742441477c563bf06011cf4a672ba8c751abcbfe64faa67cf",
+            "download_count": 7,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism-1.2.2-1.x86_64.rpm",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466989"
+          },
+          {
+            "id": -2341370983,
+            "name": "Prism-1.2.2-windows-x64-portable.zip",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 17240559,
+            "digest": "sha256:b5042738573468c787e46bd0c9000ad5061bed36877efbd5882bf9757b9464b5",
+            "download_count": 13,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism-1.2.2-windows-x64-portable.zip",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466998"
+          },
+          {
+            "id": -3876030722,
+            "name": "prism-chromium.zip",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 46840,
+            "digest": "sha256:51a019acb2a0f385efcbcae9179bf967d497b21521794972b39ae4ab8a0b499b",
+            "download_count": 2,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/prism-chromium.zip",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466990"
+          },
+          {
+            "id": -3508755708,
+            "name": "prism-firefox.zip",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 46558,
+            "digest": "sha256:8bc248fd4a661a37fd270713e41c1a149249e7c3600b200a0c191f3014759c09",
+            "download_count": 10,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/prism-firefox.zip",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466987"
+          },
+          {
+            "id": -539107849,
+            "name": "Prism_1.2.2_aarch64.app.tar.gz",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 17026955,
+            "digest": "sha256:cb4af94ef6069b921bbc946c04ebe0b840a11006b38bb089237cddc5d6a07449",
+            "download_count": 9,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_aarch64.app.tar.gz",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466996"
+          },
+          {
+            "id": -4024039045,
+            "name": "Prism_1.2.2_aarch64.dmg",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 17821919,
+            "digest": "sha256:2f6bfe0c7c6842be2d55422b11e918f0c877a98e27f247b852be89e0bc11e39d",
+            "download_count": 6,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_aarch64.dmg",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466992"
+          },
+          {
+            "id": -831885977,
+            "name": "Prism_1.2.2_amd64.AppImage",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 97511928,
+            "digest": "sha256:d61262fef0fe8d4b66b5ae0c3654d7e2c29186f1faf3f52def6890dc9a2247af",
+            "download_count": 16,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_amd64.AppImage",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466995"
+          },
+          {
+            "id": -4124288306,
+            "name": "Prism_1.2.2_amd64.deb",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 18711304,
+            "digest": "sha256:a0897c68d0b7560433d25b018397cc11938c9779a6be84fc064a460054387dd3",
+            "download_count": 19,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_amd64.deb",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466988"
+          },
+          {
+            "id": -1853202493,
+            "name": "Prism_1.2.2_x64-setup.exe",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/x-msdos-program",
+            "state": "uploaded",
+            "size": 12624389,
+            "digest": "sha256:24e926a6ab7cae89d1b5df979959f63af30171c9a3d8b2d4ce836421bf9e504a",
+            "download_count": 150,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_x64-setup.exe",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466991"
+          },
+          {
+            "id": -1339311321,
+            "name": "Prism_1.2.2_x64.app.tar.gz",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 17961824,
+            "digest": "sha256:a22afe41da2474178d16f7066e210f6f636c61b5b07df565d007ec98b35b45dc",
+            "download_count": 7,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_x64.app.tar.gz",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466993"
+          },
+          {
+            "id": -2418235917,
+            "name": "Prism_1.2.2_x64.dmg",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 19198267,
+            "digest": "sha256:34dbf45a32de0e2153170bb8fa815ee937a807dbccb58e68b7ddec1d6b4ab0ef",
+            "download_count": 4,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_x64.dmg",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466983"
+          },
+          {
+            "id": -1215473614,
+            "name": "Prism_1.2.2_x64_en-US.msi",
+            "uploader": {
+              "login": "FortoGraphy",
+              "id": -1299435838,
+              "type": "Organization",
+              "html_url": "https://github.com/FortoGraphy"
+            },
+            "content_type": "application/x-msdownload",
+            "state": "uploaded",
+            "size": 17874944,
+            "digest": "sha256:6bf7afcbf4a39060189174cc1428950ecbab8ecfa2a9cfa9c00a8860ae6d150d",
+            "download_count": 4,
+            "created_at": "2026-10-30T21:25:42Z",
+            "updated_at": "2026-10-30T21:25:42Z",
+            "browser_download_url": "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_x64_en-US.msi",
+            "url": "https://api.github.com/repos/FortoGraphy/prism-download-manager/releases/assets/693466984"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "开源多线程下载管理器，支持浏览器集成、视频与音频下载和断点续传。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "prism-download-manager 官方发行版 v1.2.2",
+            "url": "https://github.com/FortoGraphy/prism-download-manager/releases/tag/v1.2.2",
+            "discoveredAt": "2026-10-31T09:02:11.8462847+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-31T09:02:11.8462847+08:00",
+          "repositoryUrl": "https://github.com/FortoGraphy/prism-download-manager",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/FortoGraphy/prism-download-manager",
+            "https://github.com/FortoGraphy/prism-download-manager/releases/tag/v1.2.2",
+            "https://github.com/FortoGraphy/prism-download-manager/blob/main/README.md",
+            "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism-1.2.2-windows-x64-portable.zip",
+            "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_x64-setup.exe",
+            "https://github.com/FortoGraphy/prism-download-manager/releases/download/v1.2.2/Prism_1.2.2_x64_en-US.msi"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：MIT；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：Prism-1.2.2-windows-x64-portable.zip、Prism_1.2.2_x64-setup.exe、Prism_1.2.2_x64_en-US.msi。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Amd64",
+            "include": [
+              "Prism-*-windows-x64-portable.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
+      "descriptionOverride": null
+    },
+    {
       "categoryId": "ai",
       "fetchedAt": "2026-10-30T19:22:30.4559557+08:00",
       "repository": {
@@ -7901,6 +8680,1068 @@
       "descriptionOverride": null
     },
     {
+      "categoryId": "media",
+      "fetchedAt": "2026-11-01T01:40:06.5023028+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/branches{/branch}",
+        "clone_url": "https://github.com/guohuiyuan/go-music-dl.git",
+        "collaborators_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/comments{/number}",
+        "commits_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/contributors",
+        "created_at": "2026-01-18T16:29:10Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/deployments",
+        "description": "一个基于 Go 语言的全网音乐搜索与下载工具。支持 CLI 命令行与 Web 服务双模式，内置网易云、QQ、酷狗、Bilibili、汽水音乐等 10+ 个主流平台，支持多源并发搜索与无损音质解析。music-dl交流群：755087923",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/downloads",
+        "events_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/events",
+        "fork": false,
+        "forks": 544,
+        "forks_count": 544,
+        "forks_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/forks",
+        "full_name": "guohuiyuan/go-music-dl",
+        "git_commits_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/git/tags{/sha}",
+        "git_url": "git://github.com/guohuiyuan/go-music-dl.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://music.zkkp.nyc.mn/",
+        "hooks_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/hooks",
+        "html_url": "https://github.com/guohuiyuan/go-music-dl",
+        "id": -2753531694,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/issues{/number}",
+        "keys_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/labels{/name}",
+        "language": "Go",
+        "languages_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/languages",
+        "license": {
+          "key": "agpl-3.0",
+          "name": "AGPL-3.0",
+          "spdx_id": "AGPL-3.0",
+          "url": "https://api.github.com/licenses/agpl-3.0",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/merges",
+        "milestones_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/milestones{/number}",
+        "mirror_url": null,
+        "name": "go-music-dl",
+        "node_id": "R_kgDOTtFOFENuvfXv",
+        "notifications_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/notifications{?since,all,participating}",
+        "open_issues": 22,
+        "open_issues_count": 22,
+        "owner": {
+          "login": "guohuiyuan",
+          "id": -4213945470,
+          "type": "Organization",
+          "html_url": "https://github.com/guohuiyuan"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/pulls{/number}",
+        "pushed_at": "2026-10-19T10:00:01Z",
+        "releases_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:guohuiyuan/go-music-dl.git",
+        "stargazers_count": 5753,
+        "stargazers_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/stargazers",
+        "statuses_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/subscribers",
+        "subscription_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/subscription",
+        "svn_url": "https://github.com/guohuiyuan/go-music-dl",
+        "tags_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/tags",
+        "teams_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/teams",
+        "topics": [
+          "go",
+          "music"
+        ],
+        "trees_url": "https://api.github.com/repos/guohuiyuan/go-music-dl/git/trees{/sha}",
+        "updated_at": "2026-10-19T10:00:01Z",
+        "url": "https://api.github.com/repos/guohuiyuan/go-music-dl",
+        "visibility": "public",
+        "watchers": 5753,
+        "watchers_count": 5753,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v1.1.3",
+        "name": "v1.1.3",
+        "published_at": "2026-10-19T10:06:16Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/guohuiyuan/go-music-dl/releases/tag/v1.1.3",
+        "assets": [
+          {
+            "id": -3964367777,
+            "name": "go-music-dl_darwin_amd64.dmg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 14799969,
+            "digest": "sha256:7f4934cd8d97b829da01eabd62a43ec7db292ebbb02542a08e969716b233bf9c",
+            "download_count": 396,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_darwin_amd64.dmg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904876"
+          },
+          {
+            "id": -3921728520,
+            "name": "go-music-dl_darwin_amd64.pkg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-xar",
+            "state": "uploaded",
+            "size": 13219179,
+            "digest": "sha256:873516b6e8997757d5c44d1458d415604c79ab5f6c8e0646c74ef73bca1ec954",
+            "download_count": 181,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_darwin_amd64.pkg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904860"
+          },
+          {
+            "id": -797891792,
+            "name": "go-music-dl_darwin_amd64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 13413861,
+            "digest": "sha256:9fcf115cf750899fb2dcca60dd95dc86a2a4806071d4041aea2a14ef0dde2e10",
+            "download_count": 201,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_darwin_amd64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904658"
+          },
+          {
+            "id": -535153774,
+            "name": "go-music-dl_darwin_arm64.dmg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 13718752,
+            "digest": "sha256:5f7f1e93bc5192499803727fa17c6f9a41985c247cbf3653cf7c4f9b72e81572",
+            "download_count": 175,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_darwin_arm64.dmg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904841"
+          },
+          {
+            "id": -3742324731,
+            "name": "go-music-dl_darwin_arm64.pkg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-xar",
+            "state": "uploaded",
+            "size": 12359999,
+            "digest": "sha256:2f409afc963bebd40225da0d7b0e9c430b17214e129f8d5704fe98a3436ee954",
+            "download_count": 107,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_darwin_arm64.pkg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904865"
+          },
+          {
+            "id": -845755610,
+            "name": "go-music-dl_darwin_arm64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12601945,
+            "digest": "sha256:15f684d095f84350847cc4f35db2353400480c22cb87c83b75dd36fbbf66ce02",
+            "download_count": 223,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_darwin_arm64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904628"
+          },
+          {
+            "id": -1171682966,
+            "name": "go-music-dl_linux_386.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.debian.binary-package",
+            "state": "uploaded",
+            "size": 12518994,
+            "digest": "sha256:0dc51aedc2c327b6cbbbbea40b692c848727376e779ba2640e721dac91dda44e",
+            "download_count": 92,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_386.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904705"
+          },
+          {
+            "id": -2660038271,
+            "name": "go-music-dl_linux_386.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-rpm",
+            "state": "uploaded",
+            "size": 12512786,
+            "digest": "sha256:56b3e33d1f2ad6ed1d56a50abaf603edc9919326eef557cce98d5538dbde9951",
+            "download_count": 12,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_386.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904744"
+          },
+          {
+            "id": -632915458,
+            "name": "go-music-dl_linux_386.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12542962,
+            "digest": "sha256:bac4c693c04ee7454bfd1de9e75585af7e278191869978b36e1c5591a606abc3",
+            "download_count": 89,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_386.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904569"
+          },
+          {
+            "id": -3941700869,
+            "name": "go-music-dl_linux_amd64.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.debian.binary-package",
+            "state": "uploaded",
+            "size": 13214822,
+            "digest": "sha256:db877fe5645b747a94989970800d88548ba615d95548064bf0bc9f765dabd503",
+            "download_count": 91,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_amd64.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904720"
+          },
+          {
+            "id": -3065233063,
+            "name": "go-music-dl_linux_amd64.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-rpm",
+            "state": "uploaded",
+            "size": 13212235,
+            "digest": "sha256:5574fd52ba93e1ffa6407924e68b5d452d23dbb687fe3799de8e4135348ddd4d",
+            "download_count": 11,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_amd64.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904786"
+          },
+          {
+            "id": -1691832968,
+            "name": "go-music-dl_linux_amd64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 13240813,
+            "digest": "sha256:dba470476c81ebdc6c3ef089737e4667a97c8e1acadaac019439a233411a0b4b",
+            "download_count": 281,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_amd64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904567"
+          },
+          {
+            "id": -373261264,
+            "name": "go-music-dl_linux_arm64.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.debian.binary-package",
+            "state": "uploaded",
+            "size": 12143534,
+            "digest": "sha256:2a02ccfd80bb0a6966312d035b51c4bafe6d8c20a1e68da60e1009486ae44dec",
+            "download_count": 62,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_arm64.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904806"
+          },
+          {
+            "id": -2019896503,
+            "name": "go-music-dl_linux_arm64.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-rpm",
+            "state": "uploaded",
+            "size": 12147137,
+            "digest": "sha256:a1c42934fdb5c7c727e5ab1e30c4082f1043f4a3cc32560ddad19f77da4ecbe9",
+            "download_count": 10,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_arm64.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904796"
+          },
+          {
+            "id": -1854495293,
+            "name": "go-music-dl_linux_arm64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12173879,
+            "digest": "sha256:d6f7471291f3f2f8025f7bafdb69d6911e2fdc564bb9bc65ba93b52cdd9183d1",
+            "download_count": 102,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_arm64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904637"
+          },
+          {
+            "id": -3993640647,
+            "name": "go-music-dl_linux_armv6.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.debian.binary-package",
+            "state": "uploaded",
+            "size": 12611326,
+            "digest": "sha256:71101de1127287d2f51926d9a53feb8a405e6bbd436b7105fbeedbf64cdeb6b5",
+            "download_count": 56,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_armv6.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904695"
+          },
+          {
+            "id": -799073947,
+            "name": "go-music-dl_linux_armv6.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-rpm",
+            "state": "uploaded",
+            "size": 12606910,
+            "digest": "sha256:c7c56ec3cd0551a5c7f9cf993fa5fc624235b069b1322e6d35e06c89b0867acf",
+            "download_count": 4,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_armv6.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904772"
+          },
+          {
+            "id": -3393022272,
+            "name": "go-music-dl_linux_armv6.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12635904,
+            "digest": "sha256:75d042187a8e2fb921c9e812c1330503735e299e321217b2fab250816bea7198",
+            "download_count": 54,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_armv6.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904582"
+          },
+          {
+            "id": -3075156973,
+            "name": "go-music-dl_linux_armv7.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.debian.binary-package",
+            "state": "uploaded",
+            "size": 12590424,
+            "digest": "sha256:17ea0c33514edee9c942a92a221abe45aa524cd9a87b61a6c28d9128cd698f6a",
+            "download_count": 55,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_armv7.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904678"
+          },
+          {
+            "id": -3018287025,
+            "name": "go-music-dl_linux_armv7.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-rpm",
+            "state": "uploaded",
+            "size": 12589669,
+            "digest": "sha256:47d2a7011d5fa69b05796b88f1c183777a79b9a71232684cdaeaca6be03c21b2",
+            "download_count": 4,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_armv7.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904753"
+          },
+          {
+            "id": -451237814,
+            "name": "go-music-dl_linux_armv7.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12625971,
+            "digest": "sha256:d89d792017a56d76f137b1be9dba0a87583f70b0027f4ac5e7aa6449b2a89bff",
+            "download_count": 62,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_linux_armv7.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904570"
+          },
+          {
+            "id": -2124683555,
+            "name": "go-music-dl_windows_amd64.zip",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 13531709,
+            "digest": "sha256:bffb84679bbba84d765331d068e28037b03993ceb493f201bd2ccfce4ce71776",
+            "download_count": 953,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_windows_amd64.zip",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655904647"
+          },
+          {
+            "id": -2475278716,
+            "name": "music-dl-desktop-go-linux-amd64.AppImage",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 82127352,
+            "digest": "sha256:36cf9a21fad21fff39a583d860a85a92ce949b2545925dafcd238626e1069b32",
+            "download_count": 26,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-linux-amd64.AppImage",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910626"
+          },
+          {
+            "id": -4163664631,
+            "name": "music-dl-desktop-go-linux-amd64.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 12844812,
+            "digest": "sha256:7841dda9886c8b39ae1e6c258bf4f6409b6084bcd61ebc80231c45bb829326e3",
+            "download_count": 71,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-linux-amd64.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910623"
+          },
+          {
+            "id": -2540179687,
+            "name": "music-dl-desktop-go-linux-amd64.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 12882879,
+            "digest": "sha256:d413fe59459fbb4d69ad6f4e0793a442bca2ebcf751774427a721c671ae4791e",
+            "download_count": 37,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-linux-amd64.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910627"
+          },
+          {
+            "id": -1650931200,
+            "name": "music-dl-desktop-go-macos-amd64.dmg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 13931931,
+            "digest": "sha256:9dd62e42e78d8b8a119e0973c0f916f389cf4302a0ccb7e96242a3b4600eaf9e",
+            "download_count": 100,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-macos-amd64.dmg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910937"
+          },
+          {
+            "id": -1636546991,
+            "name": "music-dl-desktop-go-macos-amd64.pkg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 13951197,
+            "digest": "sha256:d1705cc0f6781bca81a85282201f8e3d64d2fca8653e2044d63bdfee8a1bf7d7",
+            "download_count": 59,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-macos-amd64.pkg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910936"
+          },
+          {
+            "id": -802187919,
+            "name": "music-dl-desktop-go-macos-arm64.dmg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 12861852,
+            "digest": "sha256:0af7dc2c464330d956baaa4eb6134bb71cbe81de61b03e3d898526641be453d0",
+            "download_count": 117,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-macos-arm64.dmg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655907681"
+          },
+          {
+            "id": -2057098409,
+            "name": "music-dl-desktop-go-macos-arm64.pkg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 12860080,
+            "digest": "sha256:5088b462aa998934d8826f2083135a10ad625420c55307a3f991ad9ec78483e6",
+            "download_count": 57,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go-macos-arm64.pkg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655907679"
+          },
+          {
+            "id": -2637799736,
+            "name": "music-dl-desktop-go_darwin_amd64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 13947571,
+            "digest": "sha256:7bb7c81f2fd3a7af21086cf8f8458c01db3e3aac6396aa3214aa70eb7c65aa02",
+            "download_count": 54,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go_darwin_amd64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910935"
+          },
+          {
+            "id": -3731201588,
+            "name": "music-dl-desktop-go_darwin_arm64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12857743,
+            "digest": "sha256:9e806e69227851c48681cb77f8351c8280492fa21ec97bae57b1080cc62eec13",
+            "download_count": 49,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go_darwin_arm64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655907683"
+          },
+          {
+            "id": -2549008320,
+            "name": "music-dl-desktop-go_linux_amd64.tar.gz",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/gzip",
+            "state": "uploaded",
+            "size": 12689233,
+            "digest": "sha256:d372486b5b22251afeb78c87f08f34cb36cfda995a8517ac608961dccf5b174a",
+            "download_count": 55,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go_linux_amd64.tar.gz",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910622"
+          },
+          {
+            "id": -3484655293,
+            "name": "music-dl-desktop-go_windows_amd64.zip",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 12872204,
+            "digest": "sha256:62c41d6e4a10b7fc2b71d43ab50bfe3545a1800891d6f153d20eaaab0269ea29",
+            "download_count": 1017,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go_windows_amd64.zip",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655908499"
+          },
+          {
+            "id": -88496083,
+            "name": "music-dl-desktop-rust-linux-amd64.AppImage",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 83991032,
+            "digest": "sha256:1e7e8053250130bd7822732c5e8b7c85e23355e53944570441aa4999040fad4f",
+            "download_count": 16,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-linux-amd64.AppImage",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655920544"
+          },
+          {
+            "id": -245663352,
+            "name": "music-dl-desktop-rust-linux-amd64.deb",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 10790440,
+            "digest": "sha256:248aa86e4f847563de5802a154e4e36c0295fb46b7f8c991e2b5ed495517d4c0",
+            "download_count": 61,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-linux-amd64.deb",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655920542"
+          },
+          {
+            "id": -3138798036,
+            "name": "music-dl-desktop-rust-linux-amd64.rpm",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-redhat-package-manager",
+            "state": "uploaded",
+            "size": 11682522,
+            "digest": "sha256:fd49a085a1bdc9256dc2db7588c8c98cf14730bf490d29c2a38ac127971e673e",
+            "download_count": 5,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-linux-amd64.rpm",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655920543"
+          },
+          {
+            "id": -3652878738,
+            "name": "music-dl-desktop-rust-macos-amd64.dmg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 16214280,
+            "digest": "sha256:f2a4ab774f26b9208142b0e8c5b00a7292652c179aaccebac8ad48964c80f9a8",
+            "download_count": 80,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-macos-amd64.dmg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655911046"
+          },
+          {
+            "id": -4213735330,
+            "name": "music-dl-desktop-rust-macos-amd64.pkg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 16255874,
+            "digest": "sha256:a995f4c2805a52b8a86f7c3cb3d300b08ac0a88177bdf7854a611ed61eb9aefa",
+            "download_count": 53,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-macos-amd64.pkg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655911047"
+          },
+          {
+            "id": -2305045812,
+            "name": "music-dl-desktop-rust-macos-arm64.dmg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 15096845,
+            "digest": "sha256:ffe751d8dd5fa946feb5b33e3cdb0693d7a690545f9c3b09b538d8cf8ab8ce2f",
+            "download_count": 133,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-macos-arm64.dmg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655913322"
+          },
+          {
+            "id": -3659899495,
+            "name": "music-dl-desktop-rust-macos-arm64.pkg",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 15100116,
+            "digest": "sha256:7294757a432b7710601961225c05e68bdd7ec67ae96f1fb3abd05a4a3821740e",
+            "download_count": 52,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-macos-arm64.pkg",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655913321"
+          },
+          {
+            "id": -3376933774,
+            "name": "music-dl-desktop-rust-windows-386.zip",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 14159793,
+            "digest": "sha256:8be1b6fded40bed880c39d66242c6e96beb465871728a17ddafba49ec8bd8c59",
+            "download_count": 317,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-windows-386.zip",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655916432"
+          },
+          {
+            "id": -2409911007,
+            "name": "music-dl-desktop-rust-windows-amd64.zip",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 14693091,
+            "digest": "sha256:789fdeb35fb89160e6001782d6a99dc96352f34dd01de2d42688920789ccdc65",
+            "download_count": 1290,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-windows-amd64.zip",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655910244"
+          },
+          {
+            "id": -833465697,
+            "name": "music-dl-desktop-rust-windows-arm64.zip",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 13378943,
+            "digest": "sha256:8ee37f615ae1d477c258b7676b0bd1348928a51492f5cf2b5123ed4bc48b741d",
+            "download_count": 204,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-windows-arm64.zip",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655915724"
+          },
+          {
+            "id": -2413852405,
+            "name": "music-dl-ios-unsigned.ipa",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 15207859,
+            "digest": "sha256:edb483a4ced3c610def5474f20672967bf0b52253114dcd46225fbfc6bb15b69",
+            "download_count": 173,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-ios-unsigned.ipa",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655909589"
+          },
+          {
+            "id": -1847174663,
+            "name": "music-dl.apk",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 187263400,
+            "digest": "sha256:06be6bbdf109415c52aa22a6a18265adaef61ee8006c33b1d06be5be9b9b3f33",
+            "download_count": 631,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl.apk",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655925425"
+          },
+          {
+            "id": -207552105,
+            "name": "music-dl_arm64-v8a.apk",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 45397598,
+            "digest": "sha256:4b5435b52e80637949e29821b5d325c713acddd1cef65aca209117a5f07d1b2b",
+            "download_count": 1280,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl_arm64-v8a.apk",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655925428"
+          },
+          {
+            "id": -983901008,
+            "name": "music-dl_x86_64.apk",
+            "uploader": {
+              "login": "guohuiyuan",
+              "id": -4213945470,
+              "type": "Organization",
+              "html_url": "https://github.com/guohuiyuan"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 50050642,
+            "digest": "sha256:fcdab3329460509c248d575bbfecc1467093670faa9a0a99d9b19e5c0e9b9cfe",
+            "download_count": 207,
+            "created_at": "2026-10-19T10:06:16Z",
+            "updated_at": "2026-10-19T10:06:16Z",
+            "browser_download_url": "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl_x86_64.apk",
+            "url": "https://api.github.com/repos/guohuiyuan/go-music-dl/releases/assets/655925429"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "全网音乐搜索与下载工具，支持命令行与桌面界面，可解析多个平台的音质。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "go-music-dl 官方发行版 v1.1.3",
+            "url": "https://github.com/guohuiyuan/go-music-dl/releases/tag/v1.1.3",
+            "discoveredAt": "2026-11-01T01:40:06.5023028+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-11-01T01:40:06.5023028+08:00",
+          "repositoryUrl": "https://github.com/guohuiyuan/go-music-dl",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/guohuiyuan/go-music-dl",
+            "https://github.com/guohuiyuan/go-music-dl/releases/tag/v1.1.3",
+            "https://github.com/guohuiyuan/go-music-dl/blob/main/README.md",
+            "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/go-music-dl_windows_amd64.zip",
+            "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-go_windows_amd64.zip",
+            "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-windows-386.zip",
+            "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-windows-amd64.zip",
+            "https://github.com/guohuiyuan/go-music-dl/releases/download/v1.1.3/music-dl-desktop-rust-windows-arm64.zip"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：AGPL-3.0；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：go-music-dl_windows_amd64.zip、music-dl-desktop-go_windows_amd64.zip、music-dl-desktop-rust-windows-386.zip、music-dl-desktop-rust-windows-amd64.zip、music-dl-desktop-rust-windows-arm64.zip。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Amd64",
+            "include": [
+              "music-dl-desktop-rust-windows-amd64.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
+      "descriptionOverride": null
+    },
+    {
       "categoryId": "network",
       "fetchedAt": "2026-10-22T15:14:36.1428364+08:00",
       "repository": {
@@ -8190,6 +10031,362 @@
         }
       },
       "packagePolicy": null,
+      "descriptionOverride": null
+    },
+    {
+      "categoryId": "system",
+      "fetchedAt": "2026-11-01T01:39:28.7014312+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/harry0703/MangoDisk/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/harry0703/MangoDisk/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/harry0703/MangoDisk/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/harry0703/MangoDisk/branches{/branch}",
+        "clone_url": "https://github.com/harry0703/MangoDisk.git",
+        "collaborators_url": "https://api.github.com/repos/harry0703/MangoDisk/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/harry0703/MangoDisk/comments{/number}",
+        "commits_url": "https://api.github.com/repos/harry0703/MangoDisk/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/harry0703/MangoDisk/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/harry0703/MangoDisk/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/harry0703/MangoDisk/contributors",
+        "created_at": "2026-08-01T03:00:29Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/harry0703/MangoDisk/deployments",
+        "description": "Safety-first disk cleaner and space analyzer for macOS, Windows and Linux, with duplicate cleanup, app uninstall, startup management, system optimization, and maintenance.",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/harry0703/MangoDisk/downloads",
+        "events_url": "https://api.github.com/repos/harry0703/MangoDisk/events",
+        "fork": false,
+        "forks": 344,
+        "forks_count": 344,
+        "forks_url": "https://api.github.com/repos/harry0703/MangoDisk/forks",
+        "full_name": "harry0703/MangoDisk",
+        "git_commits_url": "https://api.github.com/repos/harry0703/MangoDisk/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/harry0703/MangoDisk/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/harry0703/MangoDisk/git/tags{/sha}",
+        "git_url": "git://github.com/harry0703/MangoDisk.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://mangodisk.app/",
+        "hooks_url": "https://api.github.com/repos/harry0703/MangoDisk/hooks",
+        "html_url": "https://github.com/harry0703/MangoDisk",
+        "id": -3173206510,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/harry0703/MangoDisk/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/harry0703/MangoDisk/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/harry0703/MangoDisk/issues{/number}",
+        "keys_url": "https://api.github.com/repos/harry0703/MangoDisk/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/harry0703/MangoDisk/labels{/name}",
+        "language": "Rust",
+        "languages_url": "https://api.github.com/repos/harry0703/MangoDisk/languages",
+        "license": {
+          "key": "gpl-3.0",
+          "name": "GPL-3.0",
+          "spdx_id": "GPL-3.0",
+          "url": "https://api.github.com/licenses/gpl-3.0",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/harry0703/MangoDisk/merges",
+        "milestones_url": "https://api.github.com/repos/harry0703/MangoDisk/milestones{/number}",
+        "mirror_url": null,
+        "name": "MangoDisk",
+        "node_id": "R_kgDOZlJdwnCModWm",
+        "notifications_url": "https://api.github.com/repos/harry0703/MangoDisk/notifications{?since,all,participating}",
+        "open_issues": 13,
+        "open_issues_count": 13,
+        "owner": {
+          "login": "harry0703",
+          "id": -241118202,
+          "type": "Organization",
+          "html_url": "https://github.com/harry0703"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/harry0703/MangoDisk/pulls{/number}",
+        "pushed_at": "2026-10-27T09:34:48Z",
+        "releases_url": "https://api.github.com/repos/harry0703/MangoDisk/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:harry0703/MangoDisk.git",
+        "stargazers_count": 5076,
+        "stargazers_url": "https://api.github.com/repos/harry0703/MangoDisk/stargazers",
+        "statuses_url": "https://api.github.com/repos/harry0703/MangoDisk/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/harry0703/MangoDisk/subscribers",
+        "subscription_url": "https://api.github.com/repos/harry0703/MangoDisk/subscription",
+        "svn_url": "https://github.com/harry0703/MangoDisk",
+        "tags_url": "https://api.github.com/repos/harry0703/MangoDisk/tags",
+        "teams_url": "https://api.github.com/repos/harry0703/MangoDisk/teams",
+        "topics": [
+          "app-uninstaller",
+          "cache-cleaner",
+          "cross-platform",
+          "desktop-app",
+          "disk-cleaner",
+          "disk-cleanup",
+          "disk-space-analyzer",
+          "duplicate-files",
+          "duplicate-finder",
+          "large-files",
+          "linux",
+          "macos",
+          "rust",
+          "startup-manager",
+          "system-cleaner",
+          "system-optimization",
+          "tauri",
+          "treemap",
+          "uninstaller",
+          "windows"
+        ],
+        "trees_url": "https://api.github.com/repos/harry0703/MangoDisk/git/trees{/sha}",
+        "updated_at": "2026-10-27T09:34:48Z",
+        "url": "https://api.github.com/repos/harry0703/MangoDisk",
+        "visibility": "public",
+        "watchers": 5076,
+        "watchers_count": 5076,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v1.2.1",
+        "name": "MangoDisk 1.2.1",
+        "published_at": "2026-10-27T09:56:09Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/harry0703/MangoDisk/releases/tag/v1.2.1",
+        "assets": [
+          {
+            "id": -1550067618,
+            "name": "MangoDisk-1.2.1-linux-arm64.AppImage",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 92121608,
+            "digest": "sha256:996621dfea2ac4ffd361a3496dabe5acc1bd087bdbbc3a996924876c2fa291e7",
+            "download_count": 27,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-linux-arm64.AppImage",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681119019"
+          },
+          {
+            "id": -346684415,
+            "name": "MangoDisk-1.2.1-linux-arm64.deb",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 17120230,
+            "digest": "sha256:5f36b1d82557f877d425ac63f743ecf0467a3d87bd5997625048c3c716a2e282",
+            "download_count": 21,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-linux-arm64.deb",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681118957"
+          },
+          {
+            "id": -1005383918,
+            "name": "MangoDisk-1.2.1-linux-x64.AppImage",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 95476216,
+            "digest": "sha256:d067afe903b625284a36adcd25630793876f846ef5d8c891cd6539b95fb4a24c",
+            "download_count": 59,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-linux-x64.AppImage",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681133892"
+          },
+          {
+            "id": -3232255864,
+            "name": "MangoDisk-1.2.1-linux-x64.deb",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 16865342,
+            "digest": "sha256:1ba909180d4b252747e5a6353423132f481785b05fc17b4234d957d6137c34fe",
+            "download_count": 57,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-linux-x64.deb",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681133909"
+          },
+          {
+            "id": -1658842813,
+            "name": "MangoDisk-1.2.1-macos-cli.tar.gz",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-gtar",
+            "state": "uploaded",
+            "size": 9121986,
+            "digest": "sha256:064698f6567432a0d1f75551ef52b5135aca409549252abcfc49fb3cbd80782d",
+            "download_count": 50,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-macos-cli.tar.gz",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681149109"
+          },
+          {
+            "id": -1773767401,
+            "name": "MangoDisk-1.2.1-macos.dmg",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 32837663,
+            "digest": "sha256:60bc47d5758192f0408f667280ffde7da562688176addf95474f37662a157957",
+            "download_count": 3664,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-macos.dmg",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681148998"
+          },
+          {
+            "id": -4195743284,
+            "name": "MangoDisk-1.2.1-windows-cli.exe",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-msdownload",
+            "state": "uploaded",
+            "size": 11557768,
+            "digest": "sha256:cd137bcf931292ae89dd8af49b373460d305d41b81258123d1588414c57dbdb1",
+            "download_count": 166,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-windows-cli.exe",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681154619"
+          },
+          {
+            "id": -1546445293,
+            "name": "MangoDisk-1.2.1-windows-portable.exe",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-msdownload",
+            "state": "uploaded",
+            "size": 49268616,
+            "digest": "sha256:8baf94ef86976715c50e64cba21ef33d6c1f4e3bcba28e435b0c76a172d43304",
+            "download_count": 791,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-windows-portable.exe",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681154647"
+          },
+          {
+            "id": -2800788441,
+            "name": "MangoDisk-1.2.1-windows.exe",
+            "uploader": {
+              "login": "harry0703",
+              "id": -241118202,
+              "type": "Organization",
+              "html_url": "https://github.com/harry0703"
+            },
+            "content_type": "application/x-msdownload",
+            "state": "uploaded",
+            "size": 14989272,
+            "digest": "sha256:d52a8c895d417426e35e7059ed55efbe5d4637b43b68c08c9682a28654897efb",
+            "download_count": 1430,
+            "created_at": "2026-10-27T09:56:09Z",
+            "updated_at": "2026-10-27T09:56:09Z",
+            "browser_download_url": "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-windows.exe",
+            "url": "https://api.github.com/repos/harry0703/MangoDisk/releases/assets/681162011"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "磁盘清理与空间分析工具，支持重复文件清理、应用卸载与启动项管理。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "MangoDisk 官方发行版 v1.2.1",
+            "url": "https://github.com/harry0703/MangoDisk/releases/tag/v1.2.1",
+            "discoveredAt": "2026-11-01T01:39:28.7014312+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-11-01T01:39:28.7014312+08:00",
+          "repositoryUrl": "https://github.com/harry0703/MangoDisk",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/harry0703/MangoDisk",
+            "https://github.com/harry0703/MangoDisk/releases/tag/v1.2.1",
+            "https://github.com/harry0703/MangoDisk/blob/main/README.md",
+            "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-windows-cli.exe",
+            "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-windows-portable.exe",
+            "https://github.com/harry0703/MangoDisk/releases/download/v1.2.1/MangoDisk-1.2.1-windows.exe"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：GPL-3.0；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：MangoDisk-1.2.1-windows-cli.exe、MangoDisk-1.2.1-windows-portable.exe、MangoDisk-1.2.1-windows.exe。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Unknown",
+            "include": [
+              "MangoDisk-*-windows-portable.exe"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
       "descriptionOverride": null
     },
     {
@@ -8614,6 +10811,355 @@
             "architecture": "Unknown",
             "include": [
               "Screenbox-sideload.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
+      "descriptionOverride": null
+    },
+    {
+      "categoryId": "system",
+      "fetchedAt": "2026-10-31T15:08:41.7690580+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/InukaAsith/TwinDesk/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/InukaAsith/TwinDesk/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/InukaAsith/TwinDesk/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/InukaAsith/TwinDesk/branches{/branch}",
+        "clone_url": "https://github.com/InukaAsith/TwinDesk.git",
+        "collaborators_url": "https://api.github.com/repos/InukaAsith/TwinDesk/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/InukaAsith/TwinDesk/comments{/number}",
+        "commits_url": "https://api.github.com/repos/InukaAsith/TwinDesk/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/InukaAsith/TwinDesk/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/InukaAsith/TwinDesk/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/InukaAsith/TwinDesk/contributors",
+        "created_at": "2026-10-14T01:19:02Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/InukaAsith/TwinDesk/deployments",
+        "description": "All your computers and your phone, working as one desk. Screens, apps, files, clipboard, calls, texts, notifications, mouse and keyboard, shared between Mac, Windows, Linux and Android. Free and open source. No account, no cloud, and now no shared network needed.",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/InukaAsith/TwinDesk/downloads",
+        "events_url": "https://api.github.com/repos/InukaAsith/TwinDesk/events",
+        "fork": false,
+        "forks": 137,
+        "forks_count": 137,
+        "forks_url": "https://api.github.com/repos/InukaAsith/TwinDesk/forks",
+        "full_name": "InukaAsith/TwinDesk",
+        "git_commits_url": "https://api.github.com/repos/InukaAsith/TwinDesk/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/InukaAsith/TwinDesk/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/InukaAsith/TwinDesk/git/tags{/sha}",
+        "git_url": "git://github.com/InukaAsith/TwinDesk.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://twin-desk.vercel.app/",
+        "hooks_url": "https://api.github.com/repos/InukaAsith/TwinDesk/hooks",
+        "html_url": "https://github.com/InukaAsith/TwinDesk",
+        "id": -100860119,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/InukaAsith/TwinDesk/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/InukaAsith/TwinDesk/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/InukaAsith/TwinDesk/issues{/number}",
+        "keys_url": "https://api.github.com/repos/InukaAsith/TwinDesk/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/InukaAsith/TwinDesk/labels{/name}",
+        "language": "JavaScript",
+        "languages_url": "https://api.github.com/repos/InukaAsith/TwinDesk/languages",
+        "license": {
+          "key": "gpl-3.0",
+          "name": "GPL-3.0",
+          "spdx_id": "GPL-3.0",
+          "url": "https://api.github.com/licenses/gpl-3.0",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/InukaAsith/TwinDesk/merges",
+        "milestones_url": "https://api.github.com/repos/InukaAsith/TwinDesk/milestones{/number}",
+        "mirror_url": null,
+        "name": "TwinDesk",
+        "node_id": "R_kgDOCadgY9UxbvAV",
+        "notifications_url": "https://api.github.com/repos/InukaAsith/TwinDesk/notifications{?since,all,participating}",
+        "open_issues": 33,
+        "open_issues_count": 33,
+        "owner": {
+          "login": "InukaAsith",
+          "id": -1418339694,
+          "type": "Organization",
+          "html_url": "https://github.com/InukaAsith"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/InukaAsith/TwinDesk/pulls{/number}",
+        "pushed_at": "2026-10-30T02:45:31Z",
+        "releases_url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:InukaAsith/TwinDesk.git",
+        "stargazers_count": 1998,
+        "stargazers_url": "https://api.github.com/repos/InukaAsith/TwinDesk/stargazers",
+        "statuses_url": "https://api.github.com/repos/InukaAsith/TwinDesk/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/InukaAsith/TwinDesk/subscribers",
+        "subscription_url": "https://api.github.com/repos/InukaAsith/TwinDesk/subscription",
+        "svn_url": "https://github.com/InukaAsith/TwinDesk",
+        "tags_url": "https://api.github.com/repos/InukaAsith/TwinDesk/tags",
+        "teams_url": "https://api.github.com/repos/InukaAsith/TwinDesk/teams",
+        "topics": [
+          "android",
+          "connect",
+          "electron",
+          "kde-connect-alternative",
+          "kvm",
+          "linux",
+          "macbook",
+          "macos",
+          "mouse-sharing",
+          "phone-link-alternative",
+          "productivity",
+          "screen-sharing",
+          "synergy-alternative",
+          "windows"
+        ],
+        "trees_url": "https://api.github.com/repos/InukaAsith/TwinDesk/git/trees{/sha}",
+        "updated_at": "2026-10-30T02:45:31Z",
+        "url": "https://api.github.com/repos/InukaAsith/TwinDesk",
+        "visibility": "public",
+        "watchers": 1998,
+        "watchers_count": 1998,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v2.4.0",
+        "name": "TwinDesk v2.4.0 : Much nneded refinements, any keyboard layout, phone stylus as a pen",
+        "published_at": "2026-10-28T00:25:25Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/InukaAsith/TwinDesk/releases/tag/v2.4.0",
+        "assets": [
+          {
+            "id": -500656585,
+            "name": "TwinDesk-2.4.0-amd64.deb",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 91514478,
+            "digest": "sha256:57f4a05c6ef91ab62b589c9c2e1a1a0a0142b5749be88689ca7a7c4399b090a9",
+            "download_count": 479,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-2.4.0-amd64.deb",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682626802"
+          },
+          {
+            "id": -746344212,
+            "name": "TwinDesk-2.4.0-arm64.dmg",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 159904460,
+            "digest": "sha256:093376687935351306df27de10e77c7ec7a517c2a3394e23178e90cf5c12a9ed",
+            "download_count": 1463,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-2.4.0-arm64.dmg",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682663999"
+          },
+          {
+            "id": -3793507298,
+            "name": "TwinDesk-2.4.0-full.apk",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 25111136,
+            "digest": "sha256:9fed74599df544d54c7b9d5041461ea4a89eb30de0273aafaa7c8970c9719e35",
+            "download_count": 1300,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-2.4.0-full.apk",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682620751"
+          },
+          {
+            "id": -993427795,
+            "name": "TwinDesk-2.4.0-x64_Intel.dmg",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 167944076,
+            "digest": "sha256:2c0f8719bc2b1ee7c2a27578f67c5cd7a151437352f908223113fffe96f1e783",
+            "download_count": 273,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-2.4.0-x64_Intel.dmg",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682664000"
+          },
+          {
+            "id": -3973944376,
+            "name": "TwinDesk-2.4.0-x86_64.AppImage",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/vnd.appimage",
+            "state": "uploaded",
+            "size": 131845910,
+            "digest": "sha256:f4d577d6f890290e61cf5bc57cd9da130aa9e4e936c686ec175820bc602ddb3b",
+            "download_count": 470,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-2.4.0-x86_64.AppImage",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682626803"
+          },
+          {
+            "id": -1141480881,
+            "name": "TwinDesk-2.4.0.apk",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 25110836,
+            "digest": "sha256:0ae4fe22af45fa1da1c4759234c0cbf38380c77e21c1130697d5c52324eda583",
+            "download_count": 2151,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-2.4.0.apk",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682620750"
+          },
+          {
+            "id": -814592170,
+            "name": "twindesk-bin-2.4.0-1-x86_64.pkg.tar.zst",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/zstd",
+            "state": "uploaded",
+            "size": 124737599,
+            "digest": "sha256:43cf3b8fcba98dd1e80f20e33b1d0ccf6c9b32f64ecb98d9600fcb05e86a33fa",
+            "download_count": 206,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/twindesk-bin-2.4.0-1-x86_64.pkg.tar.zst",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682647526"
+          },
+          {
+            "id": -1431084283,
+            "name": "TwinDesk-Setup-2.4.0-arm64.exe",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/x-msdownload",
+            "state": "uploaded",
+            "size": 109490131,
+            "digest": "sha256:521178dcee5b3fd23d4052d667a0c6230b50e15748c0d3f4369090a882f0c392",
+            "download_count": 194,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-Setup-2.4.0-arm64.exe",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682628027"
+          },
+          {
+            "id": -140127058,
+            "name": "TwinDesk-Setup-2.4.0.exe",
+            "uploader": {
+              "login": "InukaAsith",
+              "id": -1418339694,
+              "type": "Organization",
+              "html_url": "https://github.com/InukaAsith"
+            },
+            "content_type": "application/x-msdownload",
+            "state": "uploaded",
+            "size": 107346149,
+            "digest": "sha256:39ffc5458abbedddf9b3d9da23356e70dd688be4c4af6b16ac31478d5f6c8fda",
+            "download_count": 4400,
+            "created_at": "2026-10-28T00:25:25Z",
+            "updated_at": "2026-10-28T00:25:25Z",
+            "browser_download_url": "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-Setup-2.4.0.exe",
+            "url": "https://api.github.com/repos/InukaAsith/TwinDesk/releases/assets/682628030"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "在 Windows、macOS、Linux 与安卓之间共享屏幕、键盘鼠标、文件与剪贴板的协作工具。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "TwinDesk 官方发行版 v2.4.0",
+            "url": "https://github.com/InukaAsith/TwinDesk/releases/tag/v2.4.0",
+            "discoveredAt": "2026-10-31T15:08:41.7690580+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-31T15:08:41.7690580+08:00",
+          "repositoryUrl": "https://github.com/InukaAsith/TwinDesk",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/InukaAsith/TwinDesk",
+            "https://github.com/InukaAsith/TwinDesk/releases/tag/v2.4.0",
+            "https://github.com/InukaAsith/TwinDesk/blob/main/README.md",
+            "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-Setup-2.4.0-arm64.exe",
+            "https://github.com/InukaAsith/TwinDesk/releases/download/v2.4.0/TwinDesk-Setup-2.4.0.exe"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：GPL-3.0；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：TwinDesk-Setup-2.4.0-arm64.exe、TwinDesk-Setup-2.4.0.exe。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Unknown",
+            "include": [
+              "TwinDesk-Setup-*.exe"
             ],
             "exclude": []
           }
@@ -12459,6 +15005,455 @@
             "architecture": "Unknown",
             "include": [
               "DesktopAppInstaller_Dependencies.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
+      "descriptionOverride": null
+    },
+    {
+      "categoryId": "ai",
+      "fetchedAt": "2026-11-01T01:37:31.5803993+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/branches{/branch}",
+        "clone_url": "https://github.com/minghinmatthewlam/pi-gui.git",
+        "collaborators_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/comments{/number}",
+        "commits_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/contributors",
+        "created_at": "2026-03-20T18:46:02Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/deployments",
+        "description": "Electron GUI app for the pi coding agent runtime",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/downloads",
+        "events_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/events",
+        "fork": false,
+        "forks": 195,
+        "forks_count": 195,
+        "forks_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/forks",
+        "full_name": "minghinmatthewlam/pi-gui",
+        "git_commits_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/git/tags{/sha}",
+        "git_url": "git://github.com/minghinmatthewlam/pi-gui.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://www.pi-gui.com/",
+        "hooks_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/hooks",
+        "html_url": "https://github.com/minghinmatthewlam/pi-gui",
+        "id": -3979210564,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/issues{/number}",
+        "keys_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/labels{/name}",
+        "language": "TypeScript",
+        "languages_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/languages",
+        "license": {
+          "key": "mit",
+          "name": "MIT",
+          "spdx_id": "MIT",
+          "url": "https://api.github.com/licenses/mit",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/merges",
+        "milestones_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/milestones{/number}",
+        "mirror_url": null,
+        "name": "pi-gui",
+        "node_id": "R_kgDOf1TZwZtdasDm",
+        "notifications_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/notifications{?since,all,participating}",
+        "open_issues": 27,
+        "open_issues_count": 27,
+        "owner": {
+          "login": "minghinmatthewlam",
+          "id": -714581404,
+          "type": "Organization",
+          "html_url": "https://github.com/minghinmatthewlam"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/pulls{/number}",
+        "pushed_at": "2026-10-28T15:49:46Z",
+        "releases_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:minghinmatthewlam/pi-gui.git",
+        "stargazers_count": 1361,
+        "stargazers_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/stargazers",
+        "statuses_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/subscribers",
+        "subscription_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/subscription",
+        "svn_url": "https://github.com/minghinmatthewlam/pi-gui",
+        "tags_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/tags",
+        "teams_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/teams",
+        "topics": [],
+        "trees_url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/git/trees{/sha}",
+        "updated_at": "2026-10-28T15:49:46Z",
+        "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui",
+        "visibility": "public",
+        "watchers": 1361,
+        "watchers_count": 1361,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v1.0.1",
+        "name": "v1.0.1",
+        "published_at": "2026-09-26T22:08:40Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/minghinmatthewlam/pi-gui/releases/tag/v1.0.1",
+        "assets": [
+          {
+            "id": -1054519033,
+            "name": "latest-linux.yml",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "text/yaml",
+            "state": "uploaded",
+            "size": 531,
+            "digest": "sha256:8b8d1cf88cbd3c8681435c28193bd4690f1fc03dabc472ee63e2f3acbde27c2a",
+            "download_count": 141,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/latest-linux.yml",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549708"
+          },
+          {
+            "id": -1912940691,
+            "name": "latest-mac.yml",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "text/yaml",
+            "state": "uploaded",
+            "size": 492,
+            "digest": "sha256:6e89258e80f67672481fe46fd919bb9be1b920c8c50e84773da9d1650983542f",
+            "download_count": 2835,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/latest-mac.yml",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549703"
+          },
+          {
+            "id": -1049099142,
+            "name": "latest.yml",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "text/yaml",
+            "state": "uploaded",
+            "size": 349,
+            "digest": "sha256:59301a61a5982f6bd2e379a20da58b6259d7936e4c0765e0af9ff5ba36932ab8",
+            "download_count": 87,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/latest.yml",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549709"
+          },
+          {
+            "id": -1385302871,
+            "name": "pi-gui-1.0.1-arm64.dmg",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 149385915,
+            "digest": "sha256:0fd06ba3400583fc9c5cb86b734ac0f3ead2d12d9717f271d728d1784c554ea4",
+            "download_count": 2686,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-arm64.dmg",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549707"
+          },
+          {
+            "id": -2060939906,
+            "name": "pi-gui-1.0.1-arm64.dmg.blockmap",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 158102,
+            "digest": "sha256:9fb51aff56720c6cdaa5bda282e7c6075110fd7425c9ac45961ea278b5a43e14",
+            "download_count": 22,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-arm64.dmg.blockmap",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549711"
+          },
+          {
+            "id": -1447328833,
+            "name": "pi-gui-1.0.1-arm64.zip",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 143676185,
+            "digest": "sha256:26f4116e47f28fbe86b8816d35fe7e181c801a16cfca876dca48dc130603442f",
+            "download_count": 152,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-arm64.zip",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549713"
+          },
+          {
+            "id": -3515205695,
+            "name": "pi-gui-1.0.1-arm64.zip.blockmap",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 147473,
+            "digest": "sha256:f836268639964726093b0f44b8d62ca4c79b8e4d37d7170d27e56c661a1021b7",
+            "download_count": 23,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-arm64.zip.blockmap",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549714"
+          },
+          {
+            "id": -3779053131,
+            "name": "pi-gui-1.0.1-x64-portable.exe",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/x-msdos-program",
+            "state": "uploaded",
+            "size": 121319934,
+            "digest": "sha256:c9b213e060e4c7c59998519e009418e51b11873e8e7f643ddce4e4c5c179f36d",
+            "download_count": 986,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-x64-portable.exe",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549706"
+          },
+          {
+            "id": -2895646553,
+            "name": "pi-gui-1.0.1-x64-setup.exe",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/x-msdos-program",
+            "state": "uploaded",
+            "size": 121473328,
+            "digest": "sha256:e99b2fb2c340a71628912b5dd596323e7f4bd1bf916220b6cd4d5d7afeb3f11d",
+            "download_count": 2665,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-x64-setup.exe",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549700"
+          },
+          {
+            "id": -2847923802,
+            "name": "pi-gui-1.0.1-x64-setup.exe.blockmap",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 127330,
+            "digest": "sha256:99497076e88d81ee615b8abd16f865111a94585ade1aa72402d096c6c88f4ea7",
+            "download_count": 32,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-x64-setup.exe.blockmap",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549710"
+          },
+          {
+            "id": -342443401,
+            "name": "pi-gui-1.0.1-x86_64.AppImage",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 155830855,
+            "digest": "sha256:581c965d96a3c2f0db3f1e88e91a3c3d11f1353dd3158a57cbe5cb989d537681",
+            "download_count": 657,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-x86_64.AppImage",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549701"
+          },
+          {
+            "id": -4163701599,
+            "name": "pi-gui_1.0.1_amd64.deb",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 117530964,
+            "digest": "sha256:4116a0a3bc73a3d0872cdb556f860be2ba2a640f4991cf327e7744e1d1f117b1",
+            "download_count": 409,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui_1.0.1_amd64.deb",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549702"
+          },
+          {
+            "id": -1951994552,
+            "name": "release-manifest-linux.json",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/json",
+            "state": "uploaded",
+            "size": 1075,
+            "digest": "sha256:4ab06c28d955b35bbec1d647f6636a6c3377544faa381ca6bfd70b3d61f23246",
+            "download_count": 53,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/release-manifest-linux.json",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549704"
+          },
+          {
+            "id": -2386076429,
+            "name": "release-manifest-macos.json",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/json",
+            "state": "uploaded",
+            "size": 1673,
+            "digest": "sha256:7ec6c80ad7c3ed69692f1dc0e3cf37e59302f6ad1f4dbf981e05ecf652ae70fb",
+            "download_count": 60,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/release-manifest-macos.json",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549698"
+          },
+          {
+            "id": -3958096691,
+            "name": "release-manifest-windows.json",
+            "uploader": {
+              "login": "minghinmatthewlam",
+              "id": -714581404,
+              "type": "Organization",
+              "html_url": "https://github.com/minghinmatthewlam"
+            },
+            "content_type": "application/json",
+            "state": "uploaded",
+            "size": 1380,
+            "digest": "sha256:b5934c5b82f131a055b2f7c3c622a9de0c4f7798899ce5eb45ee5915bbde4dc0",
+            "download_count": 145,
+            "created_at": "2026-09-26T22:08:40Z",
+            "updated_at": "2026-09-26T22:08:40Z",
+            "browser_download_url": "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/release-manifest-windows.json",
+            "url": "https://api.github.com/repos/minghinmatthewlam/pi-gui/releases/assets/591549705"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "面向 pi 编码代理运行时的桌面图形客户端。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "pi-gui 官方发行版 v1.0.1",
+            "url": "https://github.com/minghinmatthewlam/pi-gui/releases/tag/v1.0.1",
+            "discoveredAt": "2026-11-01T01:37:31.5803993+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-11-01T01:37:31.5803993+08:00",
+          "repositoryUrl": "https://github.com/minghinmatthewlam/pi-gui",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/minghinmatthewlam/pi-gui",
+            "https://github.com/minghinmatthewlam/pi-gui/releases/tag/v1.0.1",
+            "https://github.com/minghinmatthewlam/pi-gui/blob/main/README.md",
+            "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-x64-portable.exe",
+            "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/pi-gui-1.0.1-x64-setup.exe",
+            "https://github.com/minghinmatthewlam/pi-gui/releases/download/v1.0.1/release-manifest-windows.json"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：MIT；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：pi-gui-1.0.1-x64-portable.exe、pi-gui-1.0.1-x64-setup.exe、release-manifest-windows.json。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Amd64",
+            "include": [
+              "pi-gui-*-x64-portable.exe"
             ],
             "exclude": []
           }
@@ -23018,6 +26013,429 @@
       "descriptionOverride": null
     },
     {
+      "categoryId": "terminal",
+      "fetchedAt": "2026-10-31T19:35:20.7251264+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/t8y2/motty/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/t8y2/motty/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/t8y2/motty/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/t8y2/motty/branches{/branch}",
+        "clone_url": "https://github.com/t8y2/motty.git",
+        "collaborators_url": "https://api.github.com/repos/t8y2/motty/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/t8y2/motty/comments{/number}",
+        "commits_url": "https://api.github.com/repos/t8y2/motty/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/t8y2/motty/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/t8y2/motty/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/t8y2/motty/contributors",
+        "created_at": "2026-10-22T09:56:24Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/t8y2/motty/deployments",
+        "description": "SSH, SFTP, port forwarding, VNC/RDP and an AI assistant、MCP in one native window — a Go desktop app built on Viva, with no webview.",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/t8y2/motty/downloads",
+        "events_url": "https://api.github.com/repos/t8y2/motty/events",
+        "fork": false,
+        "forks": 39,
+        "forks_count": 39,
+        "forks_url": "https://api.github.com/repos/t8y2/motty/forks",
+        "full_name": "t8y2/motty",
+        "git_commits_url": "https://api.github.com/repos/t8y2/motty/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/t8y2/motty/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/t8y2/motty/git/tags{/sha}",
+        "git_url": "git://github.com/t8y2/motty.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://motty.page/",
+        "hooks_url": "https://api.github.com/repos/t8y2/motty/hooks",
+        "html_url": "https://github.com/t8y2/motty",
+        "id": -1876380512,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/t8y2/motty/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/t8y2/motty/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/t8y2/motty/issues{/number}",
+        "keys_url": "https://api.github.com/repos/t8y2/motty/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/t8y2/motty/labels{/name}",
+        "language": "Go",
+        "languages_url": "https://api.github.com/repos/t8y2/motty/languages",
+        "license": {
+          "key": "apache-2.0",
+          "name": "Apache-2.0",
+          "spdx_id": "Apache-2.0",
+          "url": "https://api.github.com/licenses/apache-2.0",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/t8y2/motty/merges",
+        "milestones_url": "https://api.github.com/repos/t8y2/motty/milestones{/number}",
+        "mirror_url": null,
+        "name": "motty",
+        "node_id": "R_kgDOHnDXPZGnynwU",
+        "notifications_url": "https://api.github.com/repos/t8y2/motty/notifications{?since,all,participating}",
+        "open_issues": 24,
+        "open_issues_count": 24,
+        "owner": {
+          "login": "t8y2",
+          "id": -3767335304,
+          "type": "Organization",
+          "html_url": "https://github.com/t8y2"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/t8y2/motty/pulls{/number}",
+        "pushed_at": "2026-10-31T10:57:47Z",
+        "releases_url": "https://api.github.com/repos/t8y2/motty/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:t8y2/motty.git",
+        "stargazers_count": 334,
+        "stargazers_url": "https://api.github.com/repos/t8y2/motty/stargazers",
+        "statuses_url": "https://api.github.com/repos/t8y2/motty/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/t8y2/motty/subscribers",
+        "subscription_url": "https://api.github.com/repos/t8y2/motty/subscription",
+        "svn_url": "https://github.com/t8y2/motty",
+        "tags_url": "https://api.github.com/repos/t8y2/motty/tags",
+        "teams_url": "https://api.github.com/repos/t8y2/motty/teams",
+        "topics": [
+          "ai-assistant",
+          "golang",
+          "native",
+          "port-forwarding",
+          "rdp",
+          "sftp",
+          "ssh",
+          "ssh-client",
+          "terminal",
+          "vnc"
+        ],
+        "trees_url": "https://api.github.com/repos/t8y2/motty/git/trees{/sha}",
+        "updated_at": "2026-10-31T10:57:47Z",
+        "url": "https://api.github.com/repos/t8y2/motty",
+        "visibility": "public",
+        "watchers": 334,
+        "watchers_count": 334,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "v0.2.5",
+        "name": "Motty v0.2.5",
+        "published_at": "2026-10-31T10:55:46Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/t8y2/motty/releases/tag/v0.2.5",
+        "assets": [
+          {
+            "id": -571211288,
+            "name": "motty-0.2.5-darwin-amd64.dmg",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 12516900,
+            "digest": "sha256:9c2b5f0d6c93271693927a1c861dbb9dc72cef9549f113e8726bc7f59f1cf3ab",
+            "download_count": 3,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-darwin-amd64.dmg",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695125911"
+          },
+          {
+            "id": -983743057,
+            "name": "motty-0.2.5-darwin-amd64.zip",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 12766392,
+            "digest": "sha256:8a9c818e82ba321df64f7b45a9c449c8e0f6789191844385bd64da3aa6556ab0",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-darwin-amd64.zip",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695125910"
+          },
+          {
+            "id": -148478044,
+            "name": "motty-0.2.5-darwin-arm64.dmg",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 11591294,
+            "digest": "sha256:4523aa035d0bc2a614717b0fd67151353e1ebb8fb78703c506bcf812a50e8d8e",
+            "download_count": 6,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-darwin-arm64.dmg",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695125905"
+          },
+          {
+            "id": -1275991006,
+            "name": "motty-0.2.5-darwin-arm64.zip",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 11919452,
+            "digest": "sha256:eebee4bbd93c2cd66744132002a7f2701517c412ed1aa597c59b3358000d1d87",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-darwin-arm64.zip",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695125909"
+          },
+          {
+            "id": -1034963583,
+            "name": "motty-0.2.5-linux-amd64.tar.gz",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/x-gtar",
+            "state": "uploaded",
+            "size": 12753357,
+            "digest": "sha256:fb32e8d255e02d4a2599efdc85ecac062a73bdb04515789a644aa53af548b44c",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-linux-amd64.tar.gz",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695127976"
+          },
+          {
+            "id": -4001911317,
+            "name": "motty-0.2.5-linux-arm64.tar.gz",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/x-gtar",
+            "state": "uploaded",
+            "size": 11894160,
+            "digest": "sha256:c084dd3310118588273a954ac6cb7cb3b5fee72f94adb0c3722c143661207270",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-linux-arm64.tar.gz",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695127980"
+          },
+          {
+            "id": -2866511352,
+            "name": "motty-0.2.5-windows-amd64-setup.exe",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 9636993,
+            "digest": "sha256:cae208e9a4a3bafaa8756f0e1b44bbc28574399140075c63ee9d096f16e8ebd8",
+            "download_count": 6,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-amd64-setup.exe",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695127981"
+          },
+          {
+            "id": -1199765348,
+            "name": "motty-0.2.5-windows-amd64.zip",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 12753672,
+            "digest": "sha256:3606a32975481cb58e97496f3144f98f35d22bcc9b57476dcea0a9638719b9ef",
+            "download_count": 4,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-amd64.zip",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695127973"
+          },
+          {
+            "id": -1890765839,
+            "name": "motty-0.2.5-windows-arm64-setup.exe",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 8343030,
+            "digest": "sha256:517a3820399386552df2b8dd387ca242aa249c2e136b5d807430527a98f4987d",
+            "download_count": 5,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-arm64-setup.exe",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695127975"
+          },
+          {
+            "id": -2161666798,
+            "name": "motty-0.2.5-windows-arm64.zip",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 11747666,
+            "digest": "sha256:b90b249a2c2945037b445f28dba3bddaf47cfadc730ad3f5ddfb990028e70efa",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-arm64.zip",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695128003"
+          },
+          {
+            "id": -2724432395,
+            "name": "motty_0.2.5_amd64.deb",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 12760700,
+            "digest": "sha256:467f2cd9d08638216ed1835c361bc9057796d94ec23738f28f6ceb322ac84a86",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty_0.2.5_amd64.deb",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695128012"
+          },
+          {
+            "id": -3054529894,
+            "name": "motty_0.2.5_arm64.deb",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/x-debian-package",
+            "state": "uploaded",
+            "size": 11899830,
+            "digest": "sha256:32193a7f4a0af1f813e6317a68ed8c5d1ef678f1bf6a0dae6d18a546c7511f3b",
+            "download_count": 1,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/motty_0.2.5_arm64.deb",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695128013"
+          },
+          {
+            "id": -653876389,
+            "name": "SIGNATURES",
+            "uploader": {
+              "login": "t8y2",
+              "id": -3767335304,
+              "type": "Organization",
+              "html_url": "https://github.com/t8y2"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 5702,
+            "digest": "sha256:febe3eb6cedb00d9cd7705fa205d7672dce30318e3589437468fdb89173c4e12",
+            "download_count": 2,
+            "created_at": "2026-10-31T10:55:46Z",
+            "updated_at": "2026-10-31T10:55:46Z",
+            "browser_download_url": "https://github.com/t8y2/motty/releases/download/v0.2.5/SIGNATURES",
+            "url": "https://api.github.com/repos/t8y2/motty/releases/assets/695128925"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "集成 SSH、SFTP、端口转发、VNC/RDP 与 AI 助手的原生桌面终端工具。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "motty 官方发行版 v0.2.5",
+            "url": "https://github.com/t8y2/motty/releases/tag/v0.2.5",
+            "discoveredAt": "2026-10-31T19:35:20.7251264+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-31T19:35:20.7251264+08:00",
+          "repositoryUrl": "https://github.com/t8y2/motty",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/t8y2/motty",
+            "https://github.com/t8y2/motty/releases/tag/v0.2.5",
+            "https://github.com/t8y2/motty/blob/main/README.md",
+            "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-amd64-setup.exe",
+            "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-amd64.zip",
+            "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-arm64-setup.exe",
+            "https://github.com/t8y2/motty/releases/download/v0.2.5/motty-0.2.5-windows-arm64.zip"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：Apache-2.0；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：motty-0.2.5-windows-amd64-setup.exe、motty-0.2.5-windows-amd64.zip、motty-0.2.5-windows-arm64-setup.exe、motty-0.2.5-windows-arm64.zip。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Amd64",
+            "include": [
+              "motty-*-windows-amd64.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
+      "descriptionOverride": null
+    },
+    {
       "categoryId": "media",
       "fetchedAt": "2026-10-22T15:14:36.1428364+08:00",
       "repository": {
@@ -26338,6 +29756,397 @@
         }
       },
       "packagePolicy": null,
+      "descriptionOverride": null
+    },
+    {
+      "categoryId": "media",
+      "fetchedAt": "2026-10-31T15:00:24.6890784+08:00",
+      "repository": {
+        "allow_forking": false,
+        "archive_url": "https://api.github.com/repos/Xanerix/guoapp/{archive_format}{/ref}",
+        "archived": false,
+        "assignees_url": "https://api.github.com/repos/Xanerix/guoapp/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/Xanerix/guoapp/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/Xanerix/guoapp/branches{/branch}",
+        "clone_url": "https://github.com/Xanerix/guoapp.git",
+        "collaborators_url": "https://api.github.com/repos/Xanerix/guoapp/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/Xanerix/guoapp/comments{/number}",
+        "commits_url": "https://api.github.com/repos/Xanerix/guoapp/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/Xanerix/guoapp/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/Xanerix/guoapp/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/Xanerix/guoapp/contributors",
+        "created_at": "2026-10-02T11:23:34Z",
+        "default_branch": "main",
+        "deployments_url": "https://api.github.com/repos/Xanerix/guoapp/deployments",
+        "description": "红果鉴/真果鉴 - 专属私有短剧客户端",
+        "disabled": false,
+        "downloads_url": "https://api.github.com/repos/Xanerix/guoapp/downloads",
+        "events_url": "https://api.github.com/repos/Xanerix/guoapp/events",
+        "fork": false,
+        "forks": 87,
+        "forks_count": 87,
+        "forks_url": "https://api.github.com/repos/Xanerix/guoapp/forks",
+        "full_name": "Xanerix/guoapp",
+        "git_commits_url": "https://api.github.com/repos/Xanerix/guoapp/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/Xanerix/guoapp/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/Xanerix/guoapp/git/tags{/sha}",
+        "git_url": "git://github.com/Xanerix/guoapp.git",
+        "has_discussions": false,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_pages": false,
+        "has_projects": true,
+        "has_pull_requests": true,
+        "has_wiki": true,
+        "homepage": "https://github.com/Xanerix/guoapp",
+        "hooks_url": "https://api.github.com/repos/Xanerix/guoapp/hooks",
+        "html_url": "https://github.com/Xanerix/guoapp",
+        "id": -868631423,
+        "is_template": false,
+        "issue_comment_url": "https://api.github.com/repos/Xanerix/guoapp/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/Xanerix/guoapp/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/Xanerix/guoapp/issues{/number}",
+        "keys_url": "https://api.github.com/repos/Xanerix/guoapp/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/Xanerix/guoapp/labels{/name}",
+        "language": "Dart",
+        "languages_url": "https://api.github.com/repos/Xanerix/guoapp/languages",
+        "license": {
+          "key": "gpl-3.0",
+          "name": "GPL-3.0",
+          "spdx_id": "GPL-3.0",
+          "url": "https://api.github.com/licenses/gpl-3.0",
+          "node_id": null
+        },
+        "merges_url": "https://api.github.com/repos/Xanerix/guoapp/merges",
+        "milestones_url": "https://api.github.com/repos/Xanerix/guoapp/milestones{/number}",
+        "mirror_url": null,
+        "name": "guoapp",
+        "node_id": "R_kgDOcfmZUrnlTziN",
+        "notifications_url": "https://api.github.com/repos/Xanerix/guoapp/notifications{?since,all,participating}",
+        "open_issues": 8,
+        "open_issues_count": 8,
+        "owner": {
+          "login": "Xanerix",
+          "id": -62634656,
+          "type": "Organization",
+          "html_url": "https://github.com/Xanerix"
+        },
+        "permissions": {
+          "admin": false,
+          "maintain": false,
+          "push": false,
+          "triage": false,
+          "pull": true
+        },
+        "private": false,
+        "pull_request_creation_policy": "all",
+        "pulls_url": "https://api.github.com/repos/Xanerix/guoapp/pulls{/number}",
+        "pushed_at": "2026-10-30T11:07:28Z",
+        "releases_url": "https://api.github.com/repos/Xanerix/guoapp/releases{/id}",
+        "size": 0,
+        "ssh_url": "git@github.com:Xanerix/guoapp.git",
+        "stargazers_count": 599,
+        "stargazers_url": "https://api.github.com/repos/Xanerix/guoapp/stargazers",
+        "statuses_url": "https://api.github.com/repos/Xanerix/guoapp/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/Xanerix/guoapp/subscribers",
+        "subscription_url": "https://api.github.com/repos/Xanerix/guoapp/subscription",
+        "svn_url": "https://github.com/Xanerix/guoapp",
+        "tags_url": "https://api.github.com/repos/Xanerix/guoapp/tags",
+        "teams_url": "https://api.github.com/repos/Xanerix/guoapp/teams",
+        "topics": [],
+        "trees_url": "https://api.github.com/repos/Xanerix/guoapp/git/trees{/sha}",
+        "updated_at": "2026-10-30T11:07:28Z",
+        "url": "https://api.github.com/repos/Xanerix/guoapp",
+        "visibility": "public",
+        "watchers": 599,
+        "watchers_count": 599,
+        "web_commit_signoff_required": false
+      },
+      "release": {
+        "tag_name": "app-v1.0.1-101",
+        "name": "红果鉴 / 真果鉴 1.0.1+101",
+        "published_at": "2026-10-29T10:39:52Z",
+        "prerelease": false,
+        "draft": false,
+        "html_url": "https://github.com/Xanerix/guoapp/releases/tag/app-v1.0.1-101",
+        "assets": [
+          {
+            "id": -2802898752,
+            "name": "hongguojian-1.0.1+101-arm64-v8a.apk",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 32020014,
+            "digest": "sha256:6a4259bfcc59820c2de59e8a2a3dbc8595d385f84a47ec46ac3dd73f113e6b20",
+            "download_count": 771,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-arm64-v8a.apk",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688205919"
+          },
+          {
+            "id": -452518412,
+            "name": "hongguojian-1.0.1+101-armeabi-v7a.apk",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 40691022,
+            "digest": "sha256:92eeedf1b71b7a4a07e66db2f0dad93e73bf1d77295e0ae369abe31c0c3e23f2",
+            "download_count": 288,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-armeabi-v7a.apk",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688205930"
+          },
+          {
+            "id": -80575018,
+            "name": "hongguojian-1.0.1+101-ios-unsigned.ipa",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 30489215,
+            "digest": "sha256:5e33377d042cfa0e05f38914bcb32bc7f0070e14c1a150b2eb01a11d15db2de9",
+            "download_count": 100,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-ios-unsigned.ipa",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688205924"
+          },
+          {
+            "id": -2134242562,
+            "name": "hongguojian-1.0.1+101-macos-universal.dmg",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 74529559,
+            "digest": "sha256:b7510331ce7444415500b77ef55e04fdd75b1e0e88a099b0b1e42b343f072325",
+            "download_count": 63,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-macos-universal.dmg",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688205933"
+          },
+          {
+            "id": -1991254996,
+            "name": "hongguojian-1.0.1+101-windows-x64.zip",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 94791906,
+            "digest": "sha256:fb54a23f045684cc0594a94e9c8b4d9c1fd4bfa9deb32700f6b8ff841923b3b3",
+            "download_count": 441,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-windows-x64.zip",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688205927"
+          },
+          {
+            "id": -4190437393,
+            "name": "hongguojian-1.0.1+101-x86_64.apk",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 33651639,
+            "digest": "sha256:e01cabb888e229d0258984a9b963c518be972590112efc607de9e1d1fd450c2d",
+            "download_count": 104,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-x86_64.apk",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206032"
+          },
+          {
+            "id": -2656584771,
+            "name": "zhenguojian-1.0.1+101-arm64-v8a.apk",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 32019546,
+            "digest": "sha256:424f0c3d20410fc46e0b7d002a5e4a6e30b796aac0405de3520965f60c3b4fce",
+            "download_count": 1472,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-arm64-v8a.apk",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206042"
+          },
+          {
+            "id": -2944911567,
+            "name": "zhenguojian-1.0.1+101-armeabi-v7a.apk",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 40693486,
+            "digest": "sha256:2c2592b7e5a52d8de4454616d4dceff67f2233a0d0974447fee720030a5d3cfb",
+            "download_count": 451,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-armeabi-v7a.apk",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206084"
+          },
+          {
+            "id": -2671147269,
+            "name": "zhenguojian-1.0.1+101-ios-unsigned.ipa",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/octet-stream",
+            "state": "uploaded",
+            "size": 30492704,
+            "digest": "sha256:162c656e1366c29799217e96f1b0ff53cd03c97a03c0b0b9962c9dd4810a92f4",
+            "download_count": 200,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-ios-unsigned.ipa",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206108"
+          },
+          {
+            "id": -489830745,
+            "name": "zhenguojian-1.0.1+101-macos-universal.dmg",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/x-apple-diskimage",
+            "state": "uploaded",
+            "size": 74534387,
+            "digest": "sha256:bd76b326da8f414ccab4d99d52be227f002347ceeea0750b1206e975367eabf0",
+            "download_count": 92,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-macos-universal.dmg",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206103"
+          },
+          {
+            "id": -2874640429,
+            "name": "zhenguojian-1.0.1+101-windows-x64.zip",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/zip",
+            "state": "uploaded",
+            "size": 94793550,
+            "digest": "sha256:629ba6015cc1794df85a438cc57bdf2dad9f7daa79b0c864cb42b5283a5b6e72",
+            "download_count": 676,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-windows-x64.zip",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206124"
+          },
+          {
+            "id": -1879100944,
+            "name": "zhenguojian-1.0.1+101-x86_64.apk",
+            "uploader": {
+              "login": "Xanerix",
+              "id": -62634656,
+              "type": "Organization",
+              "html_url": "https://github.com/Xanerix"
+            },
+            "content_type": "application/vnd.android.package-archive",
+            "state": "uploaded",
+            "size": 33655451,
+            "digest": "sha256:4e5d76c2632b1b87dc44720684e06e59756b70af971aa32862aa89176b2a494c",
+            "download_count": 87,
+            "created_at": "2026-10-29T10:39:52Z",
+            "updated_at": "2026-10-29T10:39:52Z",
+            "browser_download_url": "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-x86_64.apk",
+            "url": "https://api.github.com/repos/Xanerix/guoapp/releases/assets/688206150"
+          }
+        ]
+      },
+      "curation": {
+        "descriptionZh": "短剧内容客户端，随发行版提供 Windows 桌面程序。",
+        "recommendationSources": [
+          {
+            "platform": "github",
+            "title": "guoapp 官方发行版 app-v1.0.1-101",
+            "url": "https://github.com/Xanerix/guoapp/releases/tag/app-v1.0.1-101",
+            "discoveredAt": "2026-10-31T15:00:24.6890784+08:00",
+            "evidenceLevel": "full-text",
+            "quote": null
+          }
+        ],
+        "verification": {
+          "verifiedAt": "2026-10-31T15:00:24.6890784+08:00",
+          "repositoryUrl": "https://github.com/Xanerix/guoapp",
+          "scope": "repository-license-windows-metadata",
+          "evidenceUrls": [
+            "https://github.com/Xanerix/guoapp",
+            "https://github.com/Xanerix/guoapp/releases/tag/app-v1.0.1-101",
+            "https://github.com/Xanerix/guoapp/blob/main/README.md",
+            "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/hongguojian-1.0.1%2B101-windows-x64.zip",
+            "https://github.com/Xanerix/guoapp/releases/download/app-v1.0.1-101/zhenguojian-1.0.1%2B101-windows-x64.zip"
+          ],
+          "notes": [
+            "核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。",
+            "收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。",
+            "仓库 API 许可标识：GPL-3.0；具体条款以仓库内许可文件为准。",
+            "本条目收录的 Windows 发行资产：hongguojian-1.0.1%2B101-windows-x64.zip、zhenguojian-1.0.1%2B101-windows-x64.zip。"
+          ]
+        }
+      },
+      "packagePolicy": {
+        "releaseChannel": "Stable",
+        "pinnedTag": null,
+        "assetRules": [
+          {
+            "architecture": "Amd64",
+            "include": [
+              "zhenguojian-*-windows-x64.zip"
+            ],
+            "exclude": []
+          }
+        ],
+        "installFormat": "Auto",
+        "executableRelativePath": null,
+        "preservePaths": []
+      },
       "descriptionOverride": null
     },
     {

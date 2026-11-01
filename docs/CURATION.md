@@ -6,106 +6,127 @@
 
 核验覆盖官方仓库身份、许可标识、发行时间、发行资产和界面证据；不代表逐款安装或安全审计。实际安装验收另见 [开发与验证](../DEVELOPMENT.md)。
 
-当前随包快照为 **80** 条，与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 一致；快照时间为 2026-10-27 16:48:15（UTC+8）。其中 11 条来自在用客户端的本地目录（见 [本轮本地目录合并](#本轮本地目录合并)），其余 69 条为原有条目；用户在客户端中移除的 InkTimeRecord/TTime 已不再包含。历史核验原始记录共 **57** 条，使用的筛选范围与当前库不同，不能相加作为软件数量。
+当前随包快照为 **88** 条，与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 一致；快照时间为 2026-11-01 15:01:54（UTC+8）。其中 19 条来自在用客户端的本地目录（见 [本轮本地目录合并](#本轮本地目录合并)），其余 69 条为原有条目；用户在客户端中移除的 InkTimeRecord/TTime 已不再包含。历史核验原始记录共 **57** 条，使用的筛选范围与当前库不同，不能相加作为软件数量。
 
 ## 入库软件
 
 | 软件 | 仓库 | 分类 | 许可证 | 最近发行 | 推荐来源 |
 |---|---|---|---|---|---|
-| pi-agent-desktop | [abcwyc/pi-agent-desktop](https://github.com/abcwyc/pi-agent-desktop) | AI / LLM 工具 | MIT | v0.7.7 | GitHub 官方项目 |
-| dsh-desktop | [anywhere-labs/dsh-desktop](https://github.com/anywhere-labs/dsh-desktop) | AI / LLM 工具 | MIT | v2.0.18 | GitHub 官方项目 |
-| CodexPlusPlus | [BigPizzaV3/CodexPlusPlus](https://github.com/BigPizzaV3/CodexPlusPlus) | AI / LLM 工具 | AGPL-3.0 | v1.10.1 | GitHub 官方项目 |
-| oh-my-pi | [can1357/oh-my-pi](https://github.com/can1357/oh-my-pi) | AI / LLM 工具 | MIT | v18.13.1 | GitHub 官方项目 |
-| DeepSeek-Reasonix | [esengine/DeepSeek-Reasonix](https://github.com/esengine/DeepSeek-Reasonix) | AI / LLM 工具 | MIT | v2.48.0 | GitHub 官方项目 |
-| cc-switch | [farion1231/cc-switch](https://github.com/farion1231/cc-switch) | AI / LLM 工具 | MIT | v4.0.18 | GitHub 官方项目 |
-| OpenBitFun | [GCWing/OpenBitFun](https://github.com/GCWing/OpenBitFun) | AI / LLM 工具 | MIT | v1.0.7 | GitHub 官方项目 |
-| paseo | [getpaseo/paseo](https://github.com/getpaseo/paseo) | AI / LLM 工具 | NOASSERTION | v0.12.0 | GitHub 官方项目 |
+| pi-agent-desktop | [abcwyc/pi-agent-desktop](https://github.com/abcwyc/pi-agent-desktop) | AI / LLM 工具 | MIT | v0.7.8 | GitHub 官方项目 |
+| dsh-desktop | [anywhere-labs/dsh-desktop](https://github.com/anywhere-labs/dsh-desktop) | AI / LLM 工具 | MIT | v2.0.21-next | GitHub 官方项目 |
+| CodexPlusPlus | [BigPizzaV3/CodexPlusPlus](https://github.com/BigPizzaV3/CodexPlusPlus) | AI / LLM 工具 | AGPL-3.0 | v2.1.4 | GitHub 官方项目 |
+| oh-my-pi | [can1357/oh-my-pi](https://github.com/can1357/oh-my-pi) | AI / LLM 工具 | MIT | v18.14.0 | GitHub 官方项目 |
+| DeepSeek-Reasonix | [esengine/DeepSeek-Reasonix](https://github.com/esengine/DeepSeek-Reasonix) | AI / LLM 工具 | MIT | studio-v2.56.0 | GitHub 官方项目 |
+| cc-switch | [farion1231/cc-switch](https://github.com/farion1231/cc-switch) | AI / LLM 工具 | MIT | v4.0.22 | GitHub 官方项目 |
+| OpenBitFun | [GCWing/OpenBitFun](https://github.com/GCWing/OpenBitFun) | AI / LLM 工具 | MIT | v1.0.8 | GitHub 官方项目 |
+| paseo | [getpaseo/paseo](https://github.com/getpaseo/paseo) | AI / LLM 工具 | NOASSERTION | v0.14.0 | GitHub 官方项目 |
 | voicebox | [jamiepine/voicebox](https://github.com/jamiepine/voicebox) | AI / LLM 工具 | MIT | v0.5.0 | GitHub 官方项目 |
-| jan | [janhq/jan](https://github.com/janhq/jan) | AI / LLM 工具 | NOASSERTION | v0.8.7 | GitHub 官方项目 |
-| thinkrail | [JetBrains/thinkrail](https://github.com/JetBrains/thinkrail) | AI / LLM 工具 | Apache-2.0 | v0.2.0 | GitHub 官方项目 |
+| jan | [janhq/jan](https://github.com/janhq/jan) | AI / LLM 工具 | NOASSERTION | v0.8.8 | GitHub 官方项目 |
+| thinkrail | [JetBrains/thinkrail](https://github.com/JetBrains/thinkrail) | AI / LLM 工具 | Apache-2.0 | v0.3.0 | GitHub 官方项目 |
+| pi-gui | [minghinmatthewlam/pi-gui](https://github.com/minghinmatthewlam/pi-gui) | AI / LLM 工具 | MIT | v1.0.1 | GitHub 官方项目 |
 | Layerive | [newljs/Layerive](https://github.com/newljs/Layerive) | AI / LLM 工具 | LGPL-3.0 | v0.1.9 | GitHub 官方项目 |
-| openchamber | [openchamber/openchamber](https://github.com/openchamber/openchamber) | AI / LLM 工具 | MIT | v2.5.0 | GitHub 官方项目 |
-| openwhispr | [OpenWhispr/openwhispr](https://github.com/OpenWhispr/openwhispr) | AI / LLM 工具 | MIT | v1.10.4 | GitHub 官方项目 |
-| orca | [stablyai/orca](https://github.com/stablyai/orca) | AI / LLM 工具 | MIT | v1.4.237 | GitHub 官方项目 |
-| PI-Desktop | [vastsa/PI-Desktop](https://github.com/vastsa/PI-Desktop) | AI / LLM 工具 | LGPL-3.0 | v0.20.1 | GitHub 官方项目 |
-| magpie | [yetone/magpie](https://github.com/yetone/magpie) | AI / LLM 工具 | MIT | v0.1.1318 | GitHub 官方项目 |
+| openchamber | [openchamber/openchamber](https://github.com/openchamber/openchamber) | AI / LLM 工具 | MIT | v2.5.3 | GitHub 官方项目 |
+| openwhispr | [OpenWhispr/openwhispr](https://github.com/OpenWhispr/openwhispr) | AI / LLM 工具 | MIT | v1.11.0 | GitHub 官方项目 |
+| orca | [stablyai/orca](https://github.com/stablyai/orca) | AI / LLM 工具 | MIT | v1.4.245 | GitHub 官方项目 |
+| PI-Desktop | [vastsa/PI-Desktop](https://github.com/vastsa/PI-Desktop) | AI / LLM 工具 | LGPL-3.0 | v0.21.0 | GitHub 官方项目 |
+| magpie | [yetone/magpie](https://github.com/yetone/magpie) | AI / LLM 工具 | MIT | v0.1.2202 | GitHub 官方项目 |
 | Notepads | [0x7c13/Notepads](https://github.com/0x7c13/Notepads) | 开发工具 | MIT | v1.5.6.0 | 知乎 |
-| Lithe-IDEA | [1lck/Lithe-IDEA](https://github.com/1lck/Lithe-IDEA) | 开发工具 | Apache-2.0 | v0.6.4 | GitHub 官方项目 |
+| Lithe-IDEA | [1lck/Lithe-IDEA](https://github.com/1lck/Lithe-IDEA) | 开发工具 | Apache-2.0 | v0.6.5 | GitHub 官方项目 |
 | notepad-- | [cxasm/notepad--](https://github.com/cxasm/notepad--) | 开发工具 | GPL-3.0 | notepad-v3.9.1 | 知乎 |
 | NotepadNext | [dail8859/NotepadNext](https://github.com/dail8859/NotepadNext) | 开发工具 | GPL-3.0 | v0.15 | GitHub 官方项目 |
-| dbgate | [dbgate/dbgate](https://github.com/dbgate/dbgate) | 开发工具 | GPL-3.0 | v7.3.2 | GitHub 官方项目 |
-| DevToys | [DevToys-app/DevToys](https://github.com/DevToys-app/DevToys) | 开发工具 | MIT | v2.0.9.0 | GitHub 官方项目 |
-| jar-analyzer | [jar-analyzer/jar-analyzer](https://github.com/jar-analyzer/jar-analyzer) | 开发工具 | GPL-3.0 | 6.2 | GitHub 官方项目 |
+| dbgate | [dbgate/dbgate](https://github.com/dbgate/dbgate) | 开发工具 | GPL-3.0 | v7.3.3 | GitHub 官方项目 |
+| DevToys | [DevToys-app/DevToys](https://github.com/DevToys-app/DevToys) | 开发工具 | MIT | v1.0.13.0 | GitHub 官方项目 |
+| jar-analyzer | [jar-analyzer/jar-analyzer](https://github.com/jar-analyzer/jar-analyzer) | 开发工具 | GPL-3.0 | 6.3 | GitHub 官方项目 |
 | lapce | [lapce/lapce](https://github.com/lapce/lapce) | 开发工具 | Apache-2.0 | v0.4.6 | GitHub 官方项目 |
 | EasySpider | [NaiboWang/EasySpider](https://github.com/NaiboWang/EasySpider) | 开发工具 | AGPL-3.0 | v0.6.5 | GitHub 官方项目 |
 | notepad-plus-plus | [notepad-plus-plus/notepad-plus-plus](https://github.com/notepad-plus-plus/notepad-plus-plus) | 开发工具 | NOASSERTION | v8.9.8.1 | GitHub 官方项目 |
 | sidex | [Sidenai/sidex](https://github.com/Sidenai/sidex) | 开发工具 | MIT | v0.1.2 | GitHub 官方项目 |
-| dbx | [t8y2/dbx](https://github.com/t8y2/dbx) | 开发工具 | Apache-2.0 | v0.6.51 | GitHub 官方项目 |
+| dbx | [t8y2/dbx](https://github.com/t8y2/dbx) | 开发工具 | Apache-2.0 | v0.6.62 | GitHub 官方项目 |
 | escrcpy | [viarotel-org/escrcpy](https://github.com/viarotel-org/escrcpy) | 开发工具 | Apache-2.0 | v3.3.1 | GitHub 官方项目 |
 | doublecmd | [doublecmd/doublecmd](https://github.com/doublecmd/doublecmd) | 文件管理 | GPL-2.0 | v1.2.9 | GitHub 官方项目 |
 | ppsspp | [hrydgard/ppsspp](https://github.com/hrydgard/ppsspp) | 游戏 | NOASSERTION | v1.20.4 | GitHub 官方项目 |
 | RetroArch | [libretro/RetroArch](https://github.com/libretro/RetroArch) | 游戏 | GPL-3.0 | v1.22.2 | GitHub 官方项目 |
-| pcsx2 | [PCSX2/pcsx2](https://github.com/PCSX2/pcsx2) | 游戏 | GPL-3.0 | v2.9.138 | GitHub 官方项目 |
-| drawio-desktop | [jgraph/drawio-desktop](https://github.com/jgraph/drawio-desktop) | 图形设计 | GPL-3.0 | v32.5.5 | GitHub 官方项目 |
-| Captura | [MathewSachin/Captura](https://github.com/MathewSachin/Captura) | 图形设计 | MIT | v9.0.0-beta4 | GitHub 官方项目 |
+| pcsx2 | [PCSX2/pcsx2](https://github.com/PCSX2/pcsx2) | 游戏 | GPL-3.0 | v2.8.2 | GitHub 官方项目 |
+| drawio-desktop | [jgraph/drawio-desktop](https://github.com/jgraph/drawio-desktop) | 图形设计 | GPL-3.0 | v32.6.1 | GitHub 官方项目 |
+| Captura | [MathewSachin/Captura](https://github.com/MathewSachin/Captura) | 图形设计 | MIT | v8.0.0 | GitHub 官方项目 |
 | ScreenToGif | [NickeManarin/ScreenToGif](https://github.com/NickeManarin/ScreenToGif) | 图形设计 | MS-PL | 2.43.2 | 小红书 |
-| photocraft | [storytold/photocraft](https://github.com/storytold/photocraft) | 图形设计 | Apache-2.0 | v0.12.0 | GitHub 官方项目 |
+| photocraft | [storytold/photocraft](https://github.com/storytold/photocraft) | 图形设计 | Apache-2.0 | v0.17.0 | GitHub 官方项目 |
 | 48tools | [duan602728596/48tools](https://github.com/duan602728596/48tools) | 媒体影音 | GPL-3.0 | v4.19.4 | GitHub 官方项目 |
-| Screenbox | [huynhsontung/Screenbox](https://github.com/huynhsontung/Screenbox) | 媒体影音 | GPL-3.0 | v0.23.0 | GitHub 官方项目 |
-| obs-studio | [obsproject/obs-studio](https://github.com/obsproject/obs-studio) | 媒体影音 | GPL-2.0 | 32.2.2 | 知乎、B 站 |
+| go-music-dl | [guohuiyuan/go-music-dl](https://github.com/guohuiyuan/go-music-dl) | 媒体影音 | AGPL-3.0 | v1.1.3 | GitHub 官方项目 |
+| Screenbox | [huynhsontung/Screenbox](https://github.com/huynhsontung/Screenbox) | 媒体影音 | GPL-3.0 | v0.24.0 | GitHub 官方项目 |
+| obs-studio | [obsproject/obs-studio](https://github.com/obsproject/obs-studio) | 媒体影音 | GPL-2.0 | 33.0.1 | 知乎、B 站 |
 | YTSage | [oop7/YTSage](https://github.com/oop7/YTSage) | 媒体影音 | MIT | v5.6.0 | GitHub 官方项目 |
-| SPlayer-Next | [SPlayer-Dev/SPlayer-Next](https://github.com/SPlayer-Dev/SPlayer-Next) | 媒体影音 | AGPL-3.0 | v1.1.0 | GitHub 官方项目 |
+| SPlayer-Next | [SPlayer-Dev/SPlayer-Next](https://github.com/SPlayer-Dev/SPlayer-Next) | 媒体影音 | AGPL-3.0 | v1.2.0 | GitHub 官方项目 |
 | spotube | [team-spotube/spotube](https://github.com/team-spotube/spotube) | 媒体影音 | NOASSERTION | v5.1.2 | GitHub 官方项目 |
 | Recordly | [webadderallorg/Recordly](https://github.com/webadderallorg/Recordly) | 媒体影音 | NOASSERTION | v1.4.0 | GitHub 官方项目 |
-| rayburst | [AnInsomniacy/rayburst](https://github.com/AnInsomniacy/rayburst) | 网络 | MIT | v4.1.0 | GitHub 官方项目 |
-| FlClash | [chen08209/FlClash](https://github.com/chen08209/FlClash) | 网络 | GPL-3.0 | v0.9.1 | GitHub 官方项目 |
+| guoapp | [Xanerix/guoapp](https://github.com/Xanerix/guoapp) | 媒体影音 | GPL-3.0 | app-v1.0.1-101 | GitHub 官方项目 |
+| rayburst | [AnInsomniacy/rayburst](https://github.com/AnInsomniacy/rayburst) | 网络 | MIT | v4.1.1 | GitHub 官方项目 |
+| FlClash | [chen08209/FlClash](https://github.com/chen08209/FlClash) | 网络 | GPL-3.0 | v0.9.2 | GitHub 官方项目 |
 | clash-verge-rev | [clash-verge-rev/clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) | 网络 | GPL-3.0 | v2.5.8 | GitHub 官方项目 |
+| prism-download-manager | [FortoGraphy/prism-download-manager](https://github.com/FortoGraphy/prism-download-manager) | 网络 | MIT | v1.2.2 | GitHub 官方项目 |
 | sniffnet | [GyulyVGC/sniffnet](https://github.com/GyulyVGC/sniffnet) | 网络 | Apache-2.0 | v1.5.1 | GitHub 官方项目 |
 | localsend | [localsend/localsend](https://github.com/localsend/localsend) | 网络 | Apache-2.0 | v1.18.2 | 知乎 |
 | qBittorrent | [qbittorrent/qBittorrent](https://github.com/qbittorrent/qBittorrent) | 网络 | NOASSERTION | release-5.3.0 | GitHub 官方项目 |
 | SunnyNetTools | [qtgolang/SunnyNetTools](https://github.com/qtgolang/SunnyNetTools) | 网络 | NOASSERTION | v1.0.1 | GitHub 官方项目 |
 | rustdesk | [rustdesk/rustdesk](https://github.com/rustdesk/rustdesk) | 网络 | AGPL-3.0 | 1.5.0 | 知乎、小红书 |
-| VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 安全隐私 | NOASSERTION | VeraCrypt_1.26.30 | GitHub 官方项目 |
-| Pomodoist | [Kabanya/Pomodoist](https://github.com/Kabanya/Pomodoist) | 办公效率 | AGPL-3.0 | v1.1.5 | GitHub 官方项目 |
+| Pomodoist | [Kabanya/Pomodoist](https://github.com/Kabanya/Pomodoist) | 办公效率 | AGPL-3.0 | v1.1.7 | GitHub 官方项目 |
 | openless | [Open-Less/openless](https://github.com/Open-Less/openless) | 办公效率 | AGPL-3.0 | v2.0.1-tauri | GitHub 官方项目 |
-| siyuan | [siyuan-note/siyuan](https://github.com/siyuan-note/siyuan) | 办公效率 | AGPL-3.0 | v3.8.8 | GitHub 官方项目 |
+| siyuan | [siyuan-note/siyuan](https://github.com/siyuan-note/siyuan) | 办公效率 | AGPL-3.0 | v3.8.9 | GitHub 官方项目 |
 | STranslate | [STranslate/STranslate](https://github.com/STranslate/STranslate) | 办公效率 | MIT | v2.0.10 | GitHub 官方项目 |
-| Trilium | [TriliumNext/Trilium](https://github.com/TriliumNext/Trilium) | 办公效率 | AGPL-3.0 | v0.106.0 | GitHub 官方项目 |
+| Trilium | [TriliumNext/Trilium](https://github.com/TriliumNext/Trilium) | 办公效率 | AGPL-3.0 | v0.106.1 | GitHub 官方项目 |
+| anx-reader | [Anxcye/anx-reader](https://github.com/Anxcye/anx-reader) | 教育与科学 | MIT | v1.14.0 | GitHub 官方项目 |
 | RustGIS | [opengeos/RustGIS](https://github.com/opengeos/RustGIS) | 教育与科学 | Apache-2.0 | v0.4.0 | GitHub 官方项目 |
-| cryptomator | [cryptomator/cryptomator](https://github.com/cryptomator/cryptomator) | 安全隐私 | GPL-3.0 | 1.19.4 | GitHub 官方项目 |
-| Online_tools | [CuriousLearnerDev/Online_tools](https://github.com/CuriousLearnerDev/Online_tools) | 安全隐私 | 见仓库内许可文件 | 1.1.1 | GitHub 官方项目 |
+| cryptomator | [cryptomator/cryptomator](https://github.com/cryptomator/cryptomator) | 安全隐私 | GPL-3.0 | 1.19.6 | GitHub 官方项目 |
+| Online_tools | [CuriousLearnerDev/Online_tools](https://github.com/CuriousLearnerDev/Online_tools) | 安全隐私 | 见仓库内许可文件 | 无 GitHub 发行 | GitHub 官方项目 |
 | SysmonTools | [nshalabi/SysmonTools](https://github.com/nshalabi/SysmonTools) | 安全隐私 | GPL-3.0 | v2.2.1 | GitHub 官方项目 |
 | Wavely | [perlh/Wavely](https://github.com/perlh/Wavely) | 安全隐私 | GPL-3.0 | v3.3.3 | GitHub 官方项目 |
 | Slack | [qiwentaidi/Slack](https://github.com/qiwentaidi/Slack) | 安全隐私 | MIT | v2.2.9 | GitHub 官方项目 |
 | ReportGenX | [s1g0day/ReportGenX](https://github.com/s1g0day/ReportGenX) | 安全隐私 | 见仓库内许可文件 | v0.21.5 | GitHub 官方项目 |
 | WG-Win-Check | [SECWG/WG-Win-Check](https://github.com/SECWG/WG-Win-Check) | 安全隐私 | 见仓库内许可文件 | v1.9.0 | GitHub 官方项目 |
-| yakit | [yaklang/yakit](https://github.com/yaklang/yakit) | 安全隐私 | AGPL-3.0 | v1.1.1-1016-memfit | GitHub 官方项目 |
+| VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 安全隐私 | NOASSERTION | VeraCrypt_1.26.30 | GitHub 官方项目 |
+| yakit | [yaklang/yakit](https://github.com/yaklang/yakit) | 安全隐私 | AGPL-3.0 | v1.4.9-1030 | GitHub 官方项目 |
 | QtScrcpy | [barry-ran/QtScrcpy](https://github.com/barry-ran/QtScrcpy) | 系统工具 | Apache-2.0 | v4.2.1 | GitHub 官方项目 |
+| MangoDisk | [harry0703/MangoDisk](https://github.com/harry0703/MangoDisk) | 系统工具 | GPL-3.0 | v1.2.1 | GitHub 官方项目 |
+| TwinDesk | [InukaAsith/TwinDesk](https://github.com/InukaAsith/TwinDesk) | 系统工具 | GPL-3.0 | v2.4.0 | GitHub 官方项目 |
 | keepassxc | [keepassxreboot/keepassxc](https://github.com/keepassxreboot/keepassxc) | 系统工具 | NOASSERTION | 2.8.0 | GitHub 官方项目 |
 | Winhance | [memstechtips/Winhance](https://github.com/memstechtips/Winhance) | 系统工具 | NOASSERTION | v26.06.12 | GitHub 官方项目 |
-| PowerToys | [microsoft/PowerToys](https://github.com/microsoft/PowerToys) | 系统工具 | MIT | v0.101.2362.0 | 知乎 |
+| PowerToys | [microsoft/PowerToys](https://github.com/microsoft/PowerToys) | 系统工具 | MIT | v0.102.3001 | 知乎 |
 | winget-cli | [microsoft/winget-cli](https://github.com/microsoft/winget-cli) | 系统工具 | MIT | v1.29.380 | GitHub 官方项目 |
-| iloader | [nab138/iloader](https://github.com/nab138/iloader) | 系统工具 | MIT | v2.4.0 | GitHub 官方项目 |
+| iloader | [nab138/iloader](https://github.com/nab138/iloader) | 系统工具 | MIT | v2.4.1 | GitHub 官方项目 |
 | rufus | [pbatard/rufus](https://github.com/pbatard/rufus) | 系统工具 | GPL-3.0 | v4.15 | 知乎 |
 | syncthing | [syncthing/syncthing](https://github.com/syncthing/syncthing) | 系统工具 | MPL-2.0 | v2.1.7 | GitHub 官方项目 |
 | systeminformer | [winsiderss/systeminformer](https://github.com/winsiderss/systeminformer) | 系统工具 | MIT | v4.0.26241.138 | GitHub 官方项目 |
 | tabby | [Eugeny/tabby](https://github.com/Eugeny/tabby) | 终端与 Shell | MIT | v1.0.238 | GitHub 官方项目 |
 | opskat | [opskat/opskat](https://github.com/opskat/opskat) | 终端与 Shell | GPL-3.0 | v1.14.0 | GitHub 官方项目 |
-| shell-rs | [since2006/shell-rs](https://github.com/since2006/shell-rs) | 终端与 Shell | GPL-3.0 | v0.1.14 | GitHub 官方项目 |
+| shell-rs | [since2006/shell-rs](https://github.com/since2006/shell-rs) | 终端与 Shell | GPL-3.0 | v0.1.16 | GitHub 官方项目 |
+| motty | [t8y2/motty](https://github.com/t8y2/motty) | 终端与 Shell | Apache-2.0 | v0.2.5 | GitHub 官方项目 |
 
 ## 本轮本地目录合并
 
-本次更新把正在使用的 GitHubStore 客户端（安装版 0.1.14，本地目录 `github-catalog.json`，2026-10-27 11:48 状态）持有的软件集合合并进共享目录，转换脚本为 [import-local-catalog.ps1](../scripts/import-local-catalog.ps1)。
+本次更新把正在使用的 GitHubStore 客户端（本地目录 `github-catalog.json`，2026-11-01 14:58 状态）持有的软件集合合并进共享目录，转换脚本为 [import-local-catalog.ps1](../scripts/import-local-catalog.ps1)。
 
 | 项 | 内容 |
 |---|---|
-| 客户端目录规模 | schemaVersion 2，共 80 条（共享库 70 条 + 手动添加 11 条 - 用户移除 1 条） |
-| 转入共享库 | 80 条：原有 69 条保留原仓库与发行快照，新增 11 条 |
+| 客户端目录规模 | schemaVersion 2，共 88 条（共享库 80 条 + 手动添加 8 条） |
+| 转入共享库 | 88 条：原有 80 条保留原仓库与发行快照，新增 8 条 |
 | 用户移除 | InkTimeRecord/TTime（客户端 `suppressedRepositoryKeys`，不再包含） |
 | 保留按个人移除记录 | imrj05/orbit 同样在移除列表中，未包含 |
-| 快照时间 | 新增条目统一封顶为 2026-10-22 18:24:22，不写入晚于内置库快照时间的数据 |
+| 快照时间 | 新增条目统一封顶为 2026-11-01 14:58:23，不写入晚于该时间的快照 |
 
-新增条目与来源：以下仓库来自客户端的手动添加列表，推荐来源记为“GitHub 官方项目”（对应官方发行版页面），来源证据仍为官方仓库、发行版与 README：
+本批 8 条新增条目与来源：
+
+| 软件 | 仓库 | 分类 | 许可证 | 最近发行 |
+|---|---|---|---|---|
+| anx-reader | [anxcye/anx-reader](https://github.com/anxcye/anx-reader) | 教育与科学 | MIT | v1.14.0 |
+| prism-download-manager | [fortography/prism-download-manager](https://github.com/fortography/prism-download-manager) | 网络 | MIT | v1.2.2 |
+| go-music-dl | [guohuiyuan/go-music-dl](https://github.com/guohuiyuan/go-music-dl) | 媒体影音 | AGPL-3.0 | v1.1.3 |
+| mangodisk | [harry0703/MangoDisk](https://github.com/harry0703/MangoDisk) | 系统工具 | GPL-3.0 | v1.2.1 |
+| twindesk | [inukaasith/twindesk](https://github.com/inukaasith/twindesk) | 系统工具 | GPL-3.0 | v2.4.0 |
+| pi-gui | [minghinmatthewlam/pi-gui](https://github.com/minghinmatthewlam/pi-gui) | AI / LLM 工具 | MIT | v1.0.1 |
+| motty | [t8y2/motty](https://github.com/t8y2/motty) | 终端与 Shell | Apache-2.0 | v0.2.5 |
+| guoapp | [xanerix/guoapp](https://github.com/xanerix/guoapp) | 媒体影音 | GPL-3.0 | app-v1.0.1-101 |
+
+更早一批 11 条随 80 条快照一并发布，条目见下表：
 
 | 软件 | 仓库 | 分类 | 许可证 | 最近发行 |
 |---|---|---|---|---|
@@ -128,7 +149,7 @@
 | 仓库元数据 | 客户端按应用投影保存快照，不含 fork/pages/wiki 等布尔位与数字仓库 ID；这些字段按公开仓库默认值补齐，`id` 写成负值占位并在此处声明，未伪造真实 ID |
 | 分架构选包规则 | 沿用客户端中的 `packagePolicy`；固定标签（Pinned）渠道的策略不导出 |
 | 分类归属 | 按客户端的 `primaryCategory` 写入，新增条目使用原本未启用的 `files`（文件管理）与 `science`（教育与科学）分类；VeraCrypt 由“网络”改为“安全隐私”，依据其磁盘加密用途 |
-| 收录门槛 | 本批为“在用客户端持有”的软件集合，未重新执行 2026 年发行时间与图形界面筛选；winget-cli 以桌面扩展形式提供图形入口，可按命令行工具对待 |
+| 收录门槛 | 本批为“在用客户端持有”的软件集合，未重新执行 2026 年发行时间与图形界面筛选；winget-cli 以桌面扩展形式提供图形入口，可按命令行工具对待。go-music-dl 说明以命令行与 Web 服务为主，桌面程序随发行版提供 |
 | 未执行的操作 | 未逐款安装，未重新核验许可全文与发行资产安全性 |
 
 ## 收藏仓库本轮筛选

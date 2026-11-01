@@ -2,7 +2,7 @@
 
 [项目说明](../README.md) · [来源与许可核验](CURATION.md) · [安装说明](INSTALLATION.md) · [目录库维护](../catalog/README.md)
 
-当前随包快照共 **80** 款，数量与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 对应。下表供按用途浏览；Windows 发行包证据不代表逐款安装或安全审计，来源和许可限制见 [核验说明](CURATION.md#来源与限制)。
+当前随包快照共 **88** 款，数量与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 对应。下表供按用途浏览；Windows 发行包证据不代表逐款安装或安全审计，来源和许可限制见 [核验说明](CURATION.md#来源与限制)。
 
 | 分类 | 软件名称 | 作用 |
 |---|---|---|
@@ -17,6 +17,7 @@
 | AI / LLM 工具 | [voicebox](https://github.com/jamiepine/voicebox) | AI 语音工作室，提供声音克隆、听写与语音生成功能。 |
 | AI / LLM 工具 | [jan](https://github.com/janhq/jan) | 可完全离线运行的本地大模型聊天客户端。 |
 | AI / LLM 工具 | [thinkrail](https://github.com/JetBrains/thinkrail) | 桌面端思考轨迹查看工具，以 Windows 程序包发布。 |
+| AI / LLM 工具 | [pi-gui](https://github.com/minghinmatthewlam/pi-gui) | 面向 pi 编码代理运行时的桌面图形客户端。 |
 | AI / LLM 工具 | [Layerive](https://github.com/newljs/Layerive) | 本地 AI 图片创作工作台，支持文生图、局部重绘与批量改图。 |
 | AI / LLM 工具 | [openchamber](https://github.com/openchamber/openchamber) | 基于 OpenCode 的代理式开发环境桌面应用。 |
 | AI / LLM 工具 | [openwhispr](https://github.com/OpenWhispr/openwhispr) | 语音转文字听写应用，支持本地与云端模型，注重隐私。 |
@@ -45,15 +46,18 @@
 | 图形设计 | [ScreenToGif](https://github.com/NickeManarin/ScreenToGif) | 屏幕录制与 GIF/视频编辑工具。 |
 | 图形设计 | [photocraft](https://github.com/storytold/photocraft) | 纯 Rust 编写的开源图片编辑器，提供图层、选区、色彩调整与批量处理等专业功能。 |
 | 媒体影音 | [48tools](https://github.com/duan602728596/48tools) | 口袋48、B站、A站等平台的直播录制与视频下载工具，支持视频截取、GIF 导出与合并。 |
+| 媒体影音 | [go-music-dl](https://github.com/guohuiyuan/go-music-dl) | 全网音乐搜索与下载工具，支持命令行与桌面界面，可解析多个平台的音质。 |
 | 媒体影音 | [Screenbox](https://github.com/huynhsontung/Screenbox) | 基于 LibVLC 的桌面媒体播放器，支持常见音视频格式与播放列表。 |
 | 媒体影音 | [obs-studio](https://github.com/obsproject/obs-studio) | 开源免费的视频直播与录屏软件。 |
 | 媒体影音 | [YTSage](https://github.com/oop7/YTSage) | 带图形界面的 YouTube 视频与音频下载工具。 |
 | 媒体影音 | [SPlayer-Next](https://github.com/SPlayer-Dev/SPlayer-Next) | 跨平台桌面音乐播放器，支持丰富歌词显示与多种音频格式。 |
 | 媒体影音 | [spotube](https://github.com/team-spotube/spotube) | 开源音乐流媒体客户端，可接入多个音乐平台音源。 |
 | 媒体影音 | [Recordly](https://github.com/webadderallorg/Recordly) | 用于录制与生成演示视频的桌面工具。 |
+| 媒体影音 | [guoapp](https://github.com/Xanerix/guoapp) | 短剧内容客户端，随发行版提供 Windows 桌面程序。 |
 | 网络 | [rayburst](https://github.com/AnInsomniacy/rayburst) | 开源下载管理器，提供下载任务管理与界面操作。 |
 | 网络 | [FlClash](https://github.com/chen08209/FlClash) | 基于 ClashMeta 的多平台代理客户端，提供规则、订阅与流量管理界面。 |
 | 网络 | [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev) | 基于 Tauri 的 Clash Meta 图形客户端，提供订阅、规则与代理管理界面。 |
+| 网络 | [prism-download-manager](https://github.com/FortoGraphy/prism-download-manager) | 开源多线程下载管理器，支持浏览器集成、视频与音频下载和断点续传。 |
 | 网络 | [sniffnet](https://github.com/GyulyVGC/sniffnet) | 网络流量监控应用，可视化查看本机连接与流量情况。 |
 | 网络 | [localsend](https://github.com/localsend/localsend) | 局域网跨平台文件互传工具，AirDrop 的开源替代 |
 | 网络 | [qBittorrent](https://github.com/qbittorrent/qBittorrent) | 开源 BitTorrent 客户端，提供图形界面与完整的下载、分类管理。 |
@@ -64,6 +68,7 @@
 | 办公效率 | [siyuan](https://github.com/siyuan-note/siyuan) | 本地优先的自托管知识库与笔记工作空间，支持双向链接、块级引用与大纲编辑。 |
 | 办公效率 | [STranslate](https://github.com/STranslate/STranslate) | 基于 WPF 的即用即走翻译与 OCR 工具。 |
 | 办公效率 | [Trilium](https://github.com/TriliumNext/Trilium) | 层级化个人知识库笔记应用，支持笔记树与关系图。 |
+| 教育与科学 | [anx-reader](https://github.com/Anxcye/anx-reader) | 支持多种电子书格式与 AI 能力的本地阅读器，提供 Windows 桌面版。 |
 | 教育与科学 | [RustGIS](https://github.com/opengeos/RustGIS) | 用 Rust 编写的轻量 GIS 数据处理与查看桌面工具。 |
 | 安全隐私 | [cryptomator](https://github.com/cryptomator/cryptomator) | 云盘客户端加密工具，在本地对文件加密后再同步到云端。 |
 | 安全隐私 | [Online_tools](https://github.com/CuriousLearnerDev/Online_tools) | 安全与运维工具集合平台，提供工具下载、更新与自动化安装脚本。 |
@@ -72,9 +77,11 @@
 | 安全隐私 | [Slack](https://github.com/qiwentaidi/Slack) | 安全服务集成工具集，用于集中管理与启动常用安全脚本与工具。 |
 | 安全隐私 | [ReportGenX](https://github.com/s1g0day/ReportGenX) | 渗透测试报告生成桌面应用，支持模板与插件化输出。 |
 | 安全隐私 | [WG-Win-Check](https://github.com/SECWG/WG-Win-Check) | Windows 应急响应辅助检查工具。 |
-| 安全隐私 | [yakit](https://github.com/yaklang/yakit) | 网络安全综合平台，提供 MITM 被动扫描、漏洞检测等图形化能力。 |
 | 安全隐私 | [VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 基于 TrueCrypt 的磁盘加密工具，可创建并挂载加密卷。 |
+| 安全隐私 | [yakit](https://github.com/yaklang/yakit) | 网络安全综合平台，提供 MITM 被动扫描、漏洞检测等图形化能力。 |
 | 系统工具 | [QtScrcpy](https://github.com/barry-ran/QtScrcpy) | 基于 Qt 的安卓设备投屏与控制工具，支持鼠标键盘操作与批量连接。 |
+| 系统工具 | [MangoDisk](https://github.com/harry0703/MangoDisk) | 磁盘清理与空间分析工具，支持重复文件清理、应用卸载与启动项管理。 |
+| 系统工具 | [TwinDesk](https://github.com/InukaAsith/TwinDesk) | 在 Windows、macOS、Linux 与安卓之间共享屏幕、键盘鼠标、文件与剪贴板的协作工具。 |
 | 系统工具 | [keepassxc](https://github.com/keepassxreboot/keepassxc) | 跨平台本地密码管理器，集中保存账号密码并支持自动填充。 |
 | 系统工具 | [Winhance](https://github.com/memstechtips/Winhance) | Windows 优化与定制工具，用于调整系统设置、精简预装内容。 |
 | 系统工具 | [PowerToys](https://github.com/microsoft/PowerToys) | Windows 增强工具集（窗口管理、批量重命名、快速启动等） |
@@ -86,3 +93,4 @@
 | 终端与 Shell | [tabby](https://github.com/Eugeny/tabby) | 现代化终端模拟器，支持多标签、分屏与跨平台使用。 |
 | 终端与 Shell | [opskat](https://github.com/opskat/opskat) | 一体化服务器运维工作站，提供资产管理与远程操作界面。 |
 | 终端与 Shell | [shell-rs](https://github.com/since2006/shell-rs) | 以 Rust 编写的原生 SSH 客户端，集成主机管理、终端与 SFTP 传输。 |
+| 终端与 Shell | [motty](https://github.com/t8y2/motty) | 集成 SSH、SFTP、端口转发、VNC/RDP 与 AI 助手的原生桌面终端工具。 |
