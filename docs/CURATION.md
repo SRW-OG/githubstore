@@ -6,7 +6,7 @@
 
 核验覆盖官方仓库身份、许可标识、发行时间、发行资产和界面证据；不代表逐款安装或安全审计。实际安装验收另见 [开发与验证](../DEVELOPMENT.md)。
 
-当前随包快照为 **88** 条，与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 一致；快照时间为 2026-11-01 15:01:54（UTC+8）。其中 19 条来自在用客户端的本地目录（见 [本轮本地目录合并](#本轮本地目录合并)），其余 69 条为原有条目；用户在客户端中移除的 InkTimeRecord/TTime 已不再包含。历史核验原始记录共 **57** 条，使用的筛选范围与当前库不同，不能相加作为软件数量。
+当前随包快照为 **81** 条，与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 一致；快照时间为 2026-11-01 15:28:58（UTC+8）。其中 19 条最初来自在用客户端的本地目录（见 [本轮本地目录合并](#本轮本地目录合并)），其余为原有条目；用户在客户端中移除的 9 个仓库（InkTimeRecord/TTime、imrj05/orbit 及 7 个安全工具）已不再包含。历史核验原始记录共 **57** 条，使用的筛选范围与当前库不同，不能相加作为软件数量。
 
 ## 入库软件
 
@@ -77,14 +77,7 @@
 | anx-reader | [Anxcye/anx-reader](https://github.com/Anxcye/anx-reader) | 教育与科学 | MIT | v1.14.0 | GitHub 官方项目 |
 | RustGIS | [opengeos/RustGIS](https://github.com/opengeos/RustGIS) | 教育与科学 | Apache-2.0 | v0.4.0 | GitHub 官方项目 |
 | cryptomator | [cryptomator/cryptomator](https://github.com/cryptomator/cryptomator) | 安全隐私 | GPL-3.0 | 1.19.6 | GitHub 官方项目 |
-| Online_tools | [CuriousLearnerDev/Online_tools](https://github.com/CuriousLearnerDev/Online_tools) | 安全隐私 | 见仓库内许可文件 | 无 GitHub 发行 | GitHub 官方项目 |
-| SysmonTools | [nshalabi/SysmonTools](https://github.com/nshalabi/SysmonTools) | 安全隐私 | GPL-3.0 | v2.2.1 | GitHub 官方项目 |
-| Wavely | [perlh/Wavely](https://github.com/perlh/Wavely) | 安全隐私 | GPL-3.0 | v3.3.3 | GitHub 官方项目 |
-| Slack | [qiwentaidi/Slack](https://github.com/qiwentaidi/Slack) | 安全隐私 | MIT | v2.2.9 | GitHub 官方项目 |
-| ReportGenX | [s1g0day/ReportGenX](https://github.com/s1g0day/ReportGenX) | 安全隐私 | 见仓库内许可文件 | v0.21.5 | GitHub 官方项目 |
-| WG-Win-Check | [SECWG/WG-Win-Check](https://github.com/SECWG/WG-Win-Check) | 安全隐私 | 见仓库内许可文件 | v1.9.0 | GitHub 官方项目 |
 | VeraCrypt | [veracrypt/VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 安全隐私 | NOASSERTION | VeraCrypt_1.26.30 | GitHub 官方项目 |
-| yakit | [yaklang/yakit](https://github.com/yaklang/yakit) | 安全隐私 | AGPL-3.0 | v1.4.9-1030 | GitHub 官方项目 |
 | QtScrcpy | [barry-ran/QtScrcpy](https://github.com/barry-ran/QtScrcpy) | 系统工具 | Apache-2.0 | v4.2.1 | GitHub 官方项目 |
 | MangoDisk | [harry0703/MangoDisk](https://github.com/harry0703/MangoDisk) | 系统工具 | GPL-3.0 | v1.2.1 | GitHub 官方项目 |
 | TwinDesk | [InukaAsith/TwinDesk](https://github.com/InukaAsith/TwinDesk) | 系统工具 | GPL-3.0 | v2.4.0 | GitHub 官方项目 |
@@ -103,17 +96,29 @@
 
 ## 本轮本地目录合并
 
-本次更新把正在使用的 GitHubStore 客户端（本地目录 `github-catalog.json`，2026-11-01 14:58 状态）持有的软件集合合并进共享目录，转换脚本为 [import-local-catalog.ps1](../scripts/import-local-catalog.ps1)。
+本次更新把正在使用的 GitHubStore 客户端（本地目录 `github-catalog.json`，2026-11-01 15:27 状态）持有的软件集合合并进共享目录，转换脚本为 [import-local-catalog.ps1](../scripts/import-local-catalog.ps1)。
 
 | 项 | 内容 |
 |---|---|
-| 客户端目录规模 | schemaVersion 2，共 88 条（共享库 80 条 + 手动添加 8 条） |
-| 转入共享库 | 88 条：原有 80 条保留原仓库与发行快照，新增 8 条 |
-| 用户移除 | InkTimeRecord/TTime（客户端 `suppressedRepositoryKeys`，不再包含） |
-| 保留按个人移除记录 | imrj05/orbit 同样在移除列表中，未包含 |
-| 快照时间 | 新增条目统一封顶为 2026-11-01 14:58:23，不写入晚于该时间的快照 |
+| 客户端目录规模 | schemaVersion 2，共 81 条（同步后的共享库全部内容，无独立手动条目） |
+| 转入共享库 | 81 条：与上一版 88 条相比，按客户端移除记录删去 7 条 |
+| 本轮移除 | Online_tools、SysmonTools、Wavely、Slack、ReportGenX、WG-Win-Check、yakit 七个安全工具 |
+| 此前移除 | InkTimeRecord/TTime、imrj05/orbit 继续不包含 |
+| 快照时间 | 沿用既有快照，未写入晚于 2026-11-01 15:27:33 的数据 |
 
-本批 8 条新增条目与来源：
+本轮删除的 7 条（均在客户端“软件目录库”中被逐条移除）：
+
+| 软件 | 仓库 | 原分类 |
+|---|---|---|
+| Online_tools | [CuriousLearnerDev/Online_tools](https://github.com/CuriousLearnerDev/Online_tools) | 安全隐私 |
+| SysmonTools | [nshalabi/SysmonTools](https://github.com/nshalabi/SysmonTools) | 安全隐私 |
+| Wavely | [perlh/Wavely](https://github.com/perlh/Wavely) | 安全隐私 |
+| Slack | [qiwentaidi/Slack](https://github.com/qiwentaidi/Slack) | 安全隐私 |
+| ReportGenX | [s1g0day/ReportGenX](https://github.com/s1g0day/ReportGenX) | 安全隐私 |
+| WG-Win-Check | [SECWG/WG-Win-Check](https://github.com/SECWG/WG-Win-Check) | 安全隐私 |
+| yakit | [yaklang/yakit](https://github.com/yaklang/yakit) | 安全隐私 |
+
+上一批 8 条新增条目与来源：
 
 | 软件 | 仓库 | 分类 | 许可证 | 最近发行 |
 |---|---|---|---|---|

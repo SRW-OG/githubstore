@@ -2,7 +2,7 @@
 
 [项目说明](../README.md) · [来源与许可核验](CURATION.md) · [安装说明](INSTALLATION.md) · [目录库维护](../catalog/README.md)
 
-当前随包快照共 **88** 款，数量与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 对应。下表供按用途浏览；Windows 发行包证据不代表逐款安装或安全审计，来源和许可限制见 [核验说明](CURATION.md#来源与限制)。
+当前随包快照共 **81** 款，数量与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 对应。下表供按用途浏览；Windows 发行包证据不代表逐款安装或安全审计，来源和许可限制见 [核验说明](CURATION.md#来源与限制)。
 
 | 分类 | 软件名称 | 作用 |
 |---|---|---|
@@ -71,14 +71,7 @@
 | 教育与科学 | [anx-reader](https://github.com/Anxcye/anx-reader) | 支持多种电子书格式与 AI 能力的本地阅读器，提供 Windows 桌面版。 |
 | 教育与科学 | [RustGIS](https://github.com/opengeos/RustGIS) | 用 Rust 编写的轻量 GIS 数据处理与查看桌面工具。 |
 | 安全隐私 | [cryptomator](https://github.com/cryptomator/cryptomator) | 云盘客户端加密工具，在本地对文件加密后再同步到云端。 |
-| 安全隐私 | [Online_tools](https://github.com/CuriousLearnerDev/Online_tools) | 安全与运维工具集合平台，提供工具下载、更新与自动化安装脚本。 |
-| 安全隐私 | [SysmonTools](https://github.com/nshalabi/SysmonTools) | Sysmon 事件查看与分析工具，用于 Windows 日志取证排查。 |
-| 安全隐私 | [Wavely](https://github.com/perlh/Wavely) | Nuclei 模板管理与漏洞验证图形工具。 |
-| 安全隐私 | [Slack](https://github.com/qiwentaidi/Slack) | 安全服务集成工具集，用于集中管理与启动常用安全脚本与工具。 |
-| 安全隐私 | [ReportGenX](https://github.com/s1g0day/ReportGenX) | 渗透测试报告生成桌面应用，支持模板与插件化输出。 |
-| 安全隐私 | [WG-Win-Check](https://github.com/SECWG/WG-Win-Check) | Windows 应急响应辅助检查工具。 |
 | 安全隐私 | [VeraCrypt](https://github.com/veracrypt/VeraCrypt) | 基于 TrueCrypt 的磁盘加密工具，可创建并挂载加密卷。 |
-| 安全隐私 | [yakit](https://github.com/yaklang/yakit) | 网络安全综合平台，提供 MITM 被动扫描、漏洞检测等图形化能力。 |
 | 系统工具 | [QtScrcpy](https://github.com/barry-ran/QtScrcpy) | 基于 Qt 的安卓设备投屏与控制工具，支持鼠标键盘操作与批量连接。 |
 | 系统工具 | [MangoDisk](https://github.com/harry0703/MangoDisk) | 磁盘清理与空间分析工具，支持重复文件清理、应用卸载与启动项管理。 |
 | 系统工具 | [TwinDesk](https://github.com/InukaAsith/TwinDesk) | 在 Windows、macOS、Linux 与安卓之间共享屏幕、键盘鼠标、文件与剪贴板的协作工具。 |

@@ -13,7 +13,6 @@
     "chen08209/FlClash",
     "clash-verge-rev/clash-verge-rev",
     "cryptomator/cryptomator",
-    "CuriousLearnerDev/Online_tools",
     "cxasm/notepad--",
     "dail8859/NotepadNext",
     "dbgate/dbgate",
@@ -52,7 +51,6 @@
     "newljs/Layerive",
     "NickeManarin/ScreenToGif",
     "notepad-plus-plus/notepad-plus-plus",
-    "nshalabi/SysmonTools",
     "obsproject/obs-studio",
     "oop7/YTSage",
     "Open-Less/openless",
@@ -62,13 +60,9 @@
     "opskat/opskat",
     "pbatard/rufus",
     "PCSX2/pcsx2",
-    "perlh/Wavely",
     "qbittorrent/qBittorrent",
-    "qiwentaidi/Slack",
     "qtgolang/SunnyNetTools",
     "rustdesk/rustdesk",
-    "s1g0day/ReportGenX",
-    "SECWG/WG-Win-Check",
     "Sidenai/sidex",
     "since2006/shell-rs",
     "siyuan-note/siyuan",
@@ -87,7 +81,6 @@
     "webadderallorg/Recordly",
     "winsiderss/systeminformer",
     "Xanerix/guoapp",
-    "yaklang/yakit",
     "yetone/magpie"
   ]
 }
