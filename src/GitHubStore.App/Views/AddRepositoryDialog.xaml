@@ -14,7 +14,13 @@
                   SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" IsEnabled="{Binding IsEditable}" HorizontalAlignment="Stretch" />
         <TextBox Header="{Binding Text[WizardPinnedTag]}" Text="{Binding PinnedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  IsEnabled="{Binding IsEditable}" />
-        <Button Content="{Binding Text[Preview]}" IsEnabled="{Binding IsEditable}" Command="{Binding PreviewCommand}" AutomationProperties.AutomationId="PreviewRepositoryButton" />
+        <StackPanel Spacing="6">
+            <TextBlock Text="{Binding Text[PreviewActionHint]}" TextWrapping="Wrap" FontWeight="SemiBold"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <Button Content="{Binding Text[Preview]}" IsEnabled="{Binding IsEditable}" Command="{Binding PreviewCommand}"
+                    Style="{StaticResource AccentButtonStyle}" HorizontalAlignment="Stretch" MinHeight="44"
+                    FontWeight="SemiBold" AutomationProperties.AutomationId="PreviewRepositoryButton" />
+        </StackPanel>
         <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibility}}" />
         <TextBlock Text="{Binding ErrorMessage}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" TextWrapping="Wrap" />
         <Border Padding="16" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">

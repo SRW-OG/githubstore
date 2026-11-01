@@ -12,8 +12,8 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Padding="24" Spacing="20" MaxWidth="900" HorizontalAlignment="Left">
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch">
+            <StackPanel Padding="24" Spacing="20" MaxWidth="900" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding Text[SettingsTitle]}" Style="{StaticResource TitleTextBlockStyle}" />
                 <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
@@ -307,7 +307,7 @@
             </StackPanel>
         </ScrollViewer>
         <!-- Feedback stays visible while the settings form scrolls. -->
-        <StackPanel Grid.Row="1" Margin="24,0,24,16" Spacing="8" MaxWidth="900" HorizontalAlignment="Left"
+        <StackPanel Grid.Row="1" Margin="24,0,24,16" Spacing="8" MaxWidth="900" HorizontalAlignment="Center"
                     Visibility="{Binding HasFeedback, Converter={StaticResource BooleanToVisibility}}">
             <InfoBar IsOpen="{Binding ErrorMessage, Converter={StaticResource MessageOpen}}" IsClosable="False"
                      Severity="Error" Message="{Binding ErrorMessage}" AutomationProperties.Name="{Binding ErrorMessage}"
