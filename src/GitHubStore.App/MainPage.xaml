@@ -19,6 +19,8 @@
             <NavigationViewItemHeader Content="{Binding Text[Categories]}" />
         </NavigationView.MenuItems>
         <NavigationView.FooterMenuItems>
+            <!-- 设置保持在固定底部，并用分隔线与可滚动的分类区域区分。 -->
+            <NavigationViewItemSeparator />
             <NavigationViewItem Content="{Binding Text[NavSettings]}" Tag="settings" Icon="Setting" AutomationProperties.AutomationId="SettingsNavigationItem" />
         </NavigationView.FooterMenuItems>
         <!--

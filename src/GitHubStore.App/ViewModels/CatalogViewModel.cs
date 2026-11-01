@@ -19,6 +19,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
     private CancellationTokenSource? _loadCancellation;
     private CancellationTokenSource? _detailCancellation;
     private readonly CancellationTokenSource _lifetime = new();
+    public const int PageSize = 10;
     private int _loadVersion;
     private int _total;
     private bool _disposed;
@@ -76,12 +77,16 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
     [ObservableProperty] private SortKey _sort = SortKey.Stars;
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsWorking))]
+    [NotifyPropertyChangedFor(nameof(IsWorking), nameof(CanGoToPreviousPage), nameof(CanGoToNextPage))]
     private bool _isBusy;
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsWorking))]
+    [NotifyPropertyChangedFor(nameof(IsWorking), nameof(CanGoToPreviousPage), nameof(CanGoToNextPage))]
     private bool _isRefreshing;
     [ObservableProperty] private bool _hasMore;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalPages), nameof(IsPaginationVisible), nameof(CanGoToPreviousPage),
+        nameof(CanGoToNextPage), nameof(PageStatus))]
+    private int _currentPage = 1;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty] private CatalogApp? _selectedApp;
@@ -96,6 +101,13 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _title = string.Empty;
 
     public bool IsWorking => IsBusy || IsRefreshing;
+    /// <summary>排行榜与具体分类使用固定分页；目录首页仍保留原有“加载更多”。</summary>
+    public bool IsPagedView => _ranking || SelectedCategory is not null;
+    public int TotalPages => !IsPagedView || _total <= 0 ? 1 : Math.Max(1, (_total + PageSize - 1) / PageSize);
+    public bool IsPaginationVisible => IsPagedView && _total > 0;
+    public bool CanGoToPreviousPage => IsPaginationVisible && CurrentPage > 1 && !IsWorking;
+    public bool CanGoToNextPage => IsPaginationVisible && CurrentPage < TotalPages && !IsWorking;
+    public string PageStatus => Text.Format("PageStatus", CurrentPage, TotalPages, _total);
     public bool HasDetail => SelectedDetail is not null;
     public string DetailTitle => SelectedDetail?.App.DisplayName ?? string.Empty;
     public string DetailDescription => SelectedDetail?.App.Description ?? string.Empty;
@@ -207,6 +219,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         _ranking = false;
         SelectedCategory = null;
         SearchText = string.Empty;
+        ResetPagination();
         UpdateTitle();
         await LoadAsync(ct);
     }
@@ -216,6 +229,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         _ranking = false;
         SelectedCategory = category;
         SearchText = string.Empty;
+        ResetPagination();
         UpdateTitle();
         await LoadAsync(ct);
     }
@@ -225,6 +239,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         _ranking = true;
         SelectedCategory = null;
         SearchText = string.Empty;
+        ResetPagination();
         UpdateTitle();
         await LoadAsync(ct);
     }
@@ -249,6 +264,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
             IReadOnlyList<CatalogApp> items;
             int total;
             bool hasMore;
+            var paged = IsPagedView;
             _searchResults = !string.IsNullOrWhiteSpace(SearchText);
             if (_searchResults)
             {
@@ -258,33 +274,53 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
                     Limit = 500,
                     IncludeRemote = false
                 }, token);
-                items = result.Items;
-                total = result.Total;
+                // 本地搜索单次返回全部可显示结果；进入当前页前先在内存中切片。
+                total = result.Total > 0 ? Math.Min(result.Total, result.Items.Count) : result.Items.Count;
+                items = paged
+                    ? result.Items.Skip(PageOffsetFor(total)).Take(PageSize).ToArray()
+                    : result.Items;
                 hasMore = false;
             }
             else if (_ranking)
             {
-                items = await _catalog.RankAsync(BoardKind.Stars, 60, token);
-                total = items.Count;
+                // 排行榜服务目前返回前 60 名；在这份稳定快照上按 10 条分页。
+                var ranked = await _catalog.RankAsync(BoardKind.Stars, 60, token);
+                total = ranked.Count;
+                items = ranked.Skip(PageOffsetFor(total)).Take(PageSize).ToArray();
                 hasMore = false;
             }
             else
             {
-                var result = await _catalog.BrowseAsync(new CatalogQuery
+                CatalogQuery Query(int offset, int limit) => new()
                 {
                     Category = SelectedCategory?.Id,
                     Sort = Sort,
-                    Offset = append ? Apps.Count : 0,
-                    Limit = 12
-                }, token);
-                items = result.Items;
+                    Offset = offset,
+                    Limit = limit
+                };
+
+                var requestedOffset = paged ? (CurrentPage - 1) * PageSize : append ? Apps.Count : 0;
+                var result = await _catalog.BrowseAsync(Query(requestedOffset, paged ? PageSize : 12), token);
                 total = result.Total;
-                hasMore = result.HasMore;
+                if (paged)
+                {
+                    var clampedOffset = PageOffsetFor(total);
+                    if (clampedOffset != requestedOffset)
+                        result = await _catalog.BrowseAsync(Query(clampedOffset, PageSize), token);
+                    items = result.Items;
+                    hasMore = false;
+                }
+                else
+                {
+                    items = result.Items;
+                    hasMore = result.HasMore;
+                }
             }
             if (version != _loadVersion || token.IsCancellationRequested) return;
             if (!append) Apps.Clear();
             foreach (var item in items) Apps.Add(item);
             _total = total;
+            NotifyPaginationState();
             HasMore = hasMore;
             UpdateStatus();
             await RefreshCardsAsync(token);
@@ -356,10 +392,36 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private Task SearchAsync(CancellationToken ct) => LoadAsync(ct);
+    private Task SearchAsync(CancellationToken ct)
+    {
+        ResetPagination();
+        return LoadAsync(ct);
+    }
+
+    public Task ReloadFromFirstPageAsync(CancellationToken ct = default)
+    {
+        ResetPagination();
+        return LoadAsync(ct);
+    }
 
     [RelayCommand]
-    private Task LoadMoreAsync(CancellationToken ct) => HasMore && !IsWorking && !_searchResults
+    private async Task PreviousPageAsync(CancellationToken ct)
+    {
+        if (!CanGoToPreviousPage) return;
+        CurrentPage--;
+        await LoadPageAsync(false, ct);
+    }
+
+    [RelayCommand]
+    private async Task NextPageAsync(CancellationToken ct)
+    {
+        if (!CanGoToNextPage) return;
+        CurrentPage++;
+        await LoadPageAsync(false, ct);
+    }
+
+    [RelayCommand]
+    private Task LoadMoreAsync(CancellationToken ct) => HasMore && !IsWorking && !_searchResults && !IsPagedView
         ? LoadPageAsync(true, ct) : Task.CompletedTask;
 
     [RelayCommand]
@@ -425,6 +487,7 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
         _ = RefreshCardsAsync(_lifetime.Token);
         UpdateTitle();
         UpdateStatus();
+        NotifyPaginationState();
         OnPropertyChanged(nameof(CacheStatusText));
         var selectedId = SelectedAsset?.Asset.InstallerId;
         OnSelectedDetailChanged(SelectedDetail);
@@ -434,6 +497,30 @@ public sealed partial class CatalogViewModel : ObservableObject, IDisposable
 
     private void UpdateTitle() => Title = SelectedCategory is { } category
         ? Text[$"category.{category.Id.Value}"] : Text[_ranking ? "RankingsTitle" : "DiscoverTitle"];
+
+    private void ResetPagination()
+    {
+        CurrentPage = 1;
+        NotifyPaginationState();
+    }
+
+    private int PageOffsetFor(int total)
+    {
+        var pageCount = Math.Max(1, (total + PageSize - 1) / PageSize);
+        if (CurrentPage > pageCount) CurrentPage = pageCount;
+        if (CurrentPage < 1) CurrentPage = 1;
+        return (CurrentPage - 1) * PageSize;
+    }
+
+    private void NotifyPaginationState()
+    {
+        OnPropertyChanged(nameof(IsPagedView));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(IsPaginationVisible));
+        OnPropertyChanged(nameof(CanGoToPreviousPage));
+        OnPropertyChanged(nameof(CanGoToNextPage));
+        OnPropertyChanged(nameof(PageStatus));
+    }
 
     private void UpdateStatus() => StatusMessage = Apps.Count == 0 ? Text["EmptyCatalog"]
         : string.Format(CultureInfo.CurrentCulture, Text["ShowingCount"], Apps.Count, _total);

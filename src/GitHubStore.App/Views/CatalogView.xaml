@@ -200,11 +200,20 @@
                 </ItemsControl>
             </StackPanel>
             <ProgressBar IsIndeterminate="True" Visibility="{Binding IsWorking, Converter={StaticResource BooleanToVisibility}}" />
-            <Grid>
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="{Binding Text[LoadMore]}" Command="{Binding LoadMoreCommand}"
                         Visibility="{Binding HasMore, Converter={StaticResource BooleanToVisibility}}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
+                            Visibility="{Binding IsPaginationVisible, Converter={StaticResource BooleanToVisibility}}">
+                    <Button Content="{Binding Text[PreviousPage]}" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoToPreviousPage}"
+                            AutomationProperties.AutomationId="CatalogPreviousPageButton" />
+                    <TextBlock Text="{Binding PageStatus}" MinWidth="180" TextAlignment="Center" VerticalAlignment="Center"
+                               AutomationProperties.AutomationId="CatalogPageStatus" />
+                    <Button Content="{Binding Text[NextPage]}" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoToNextPage}"
+                            AutomationProperties.AutomationId="CatalogNextPageButton" />
+                </StackPanel>
             </Grid>
         </StackPanel>
     </Grid>

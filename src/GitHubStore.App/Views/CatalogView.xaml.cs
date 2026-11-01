@@ -195,7 +195,7 @@ public sealed partial class CatalogView : UserControl, IDisposable
         {
             if (_suppressSortChange || !IsLoaded || ViewModel is not { } vm || sender is not ComboBox combo) return;
             vm.Sort = combo.SelectedIndex switch { 1 => SortKey.Updated, 2 => SortKey.Name, _ => SortKey.Stars };
-            await vm.LoadAsync();
+            await vm.ReloadFromFirstPageAsync();
         }
         catch (Exception ex) { ReportError(ex); }
     }

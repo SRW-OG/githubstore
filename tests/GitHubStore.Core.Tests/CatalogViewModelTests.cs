@@ -64,6 +64,61 @@ public sealed class CatalogViewModelTests
     }
 
     [Fact]
+    public async Task Ranking_UsesTenItemsPerPageAndStopsAtTheLastPage()
+    {
+        var ranked = Enumerable.Range(1, 25).Select(index => App($"rank-{index:00}")).ToArray();
+        var fake = new FakeCatalog { Rank = (_, _, _) => Task.FromResult<IReadOnlyList<CatalogApp>>(ranked) };
+        using var vm = new CatalogViewModel(fake, fake);
+
+        await vm.ShowRankingAsync();
+        Assert.Equal(ranked[..10], vm.Apps);
+        Assert.Equal(1, vm.CurrentPage);
+        Assert.Equal(3, vm.TotalPages);
+        Assert.True(vm.IsPaginationVisible);
+        Assert.False(vm.CanGoToPreviousPage);
+        Assert.True(vm.CanGoToNextPage);
+        Assert.Contains("1 / 3", vm.PageStatus);
+
+        await vm.NextPageCommand.ExecuteAsync(null);
+        Assert.Equal(ranked[10..20], vm.Apps);
+        Assert.Equal(2, vm.CurrentPage);
+        Assert.True(vm.CanGoToPreviousPage);
+
+        await vm.NextPageCommand.ExecuteAsync(null);
+        Assert.Equal(ranked[20..25], vm.Apps);
+        Assert.Equal(3, vm.CurrentPage);
+        Assert.False(vm.CanGoToNextPage);
+        Assert.All(fake.RankCalls, call => Assert.Equal(60, call.Limit));
+    }
+
+    [Fact]
+    public async Task Category_RequestsTenItemsWithPageOffsetsAndSortResetsToFirstPage()
+    {
+        var apps = Enumerable.Range(1, 23).Select(index => App($"office-{index:00}")).ToArray();
+        var fake = new FakeCatalog
+        {
+            Browse = (query, _) => Task.FromResult(Page(apps.Skip(query.Offset).Take(query.Limit).ToArray(), apps.Length,
+                query.Offset + query.Limit < apps.Length)),
+        };
+        using var vm = new CatalogViewModel(fake, fake);
+
+        await vm.ShowCategoryAsync(fake.CategoryList[0]);
+        Assert.Equal(apps[..10], vm.Apps);
+        Assert.Equal((0, 10), (fake.BrowseCalls[0].Offset, fake.BrowseCalls[0].Limit));
+        Assert.Equal(3, vm.TotalPages);
+
+        await vm.NextPageCommand.ExecuteAsync(null);
+        Assert.Equal(apps[10..20], vm.Apps);
+        Assert.Equal((10, 10), (fake.BrowseCalls[1].Offset, fake.BrowseCalls[1].Limit));
+
+        vm.Sort = SortKey.Name;
+        await vm.ReloadFromFirstPageAsync();
+        Assert.Equal(1, vm.CurrentPage);
+        Assert.Equal((0, 10), (fake.BrowseCalls[2].Offset, fake.BrowseCalls[2].Limit));
+        Assert.Equal(SortKey.Name, fake.BrowseCalls[2].Sort);
+    }
+
+    [Fact]
     public async Task CategoryAndSort_AreForwardedToBrowseAndEmptyResultsClearDetail()
     {
         var fake = new FakeCatalog();
@@ -478,9 +533,12 @@ public sealed class CatalogViewModelTests
         public IReadOnlyList<Category> CategoryList { get; } =
             [new Category { Id = new CategoryId("office"), Name = "办公效率", NameEn = "Office" }];
         public List<CatalogQuery> BrowseCalls { get; } = [];
+        public List<(BoardKind Board, int Limit)> RankCalls { get; } = [];
         public List<(string Query, SearchOptions Options)> SearchCalls { get; } = [];
         public Func<CatalogQuery, CancellationToken, Task<CatalogPage>> Browse { get; set; }
             = (_, _) => Task.FromResult(Page([], 0));
+        public Func<BoardKind, int, CancellationToken, Task<IReadOnlyList<CatalogApp>>> Rank { get; set; }
+            = (_, _, _) => Task.FromResult<IReadOnlyList<CatalogApp>>([]);
         public Func<string, SearchOptions, CancellationToken, Task<SearchResult>> Search { get; set; }
             = (_, _, _) => Task.FromResult(new SearchResult());
         public Func<AppId, CancellationToken, Task<AppDetail>> Detail { get; set; }
@@ -495,7 +553,10 @@ public sealed class CatalogViewModelTests
             return Browse(query, ct);
         }
         public Task<IReadOnlyList<CatalogApp>> RankAsync(BoardKind board, int limit, CancellationToken ct = default)
-            => Task.FromResult<IReadOnlyList<CatalogApp>>([]);
+        {
+            RankCalls.Add((board, limit));
+            return Rank(board, limit, ct);
+        }
         public Task<AppDetail> GetAppAsync(AppId id, CancellationToken ct = default) => Detail(id, ct);
         public Task RefreshAsync(RefreshScope scope, IProgress<RefreshProgress>? progress = null, CancellationToken ct = default)
             => Refresh(ct);
