@@ -36,6 +36,71 @@ public sealed class ManagedAppLauncherTests
     }
 
     [Fact]
+    public async Task ExternalInstallerReceiptReopensLaunchesAndUsesRegisteredUninstaller()
+    {
+        using var fixture = new Fixture();
+        var target = Path.Combine(fixture.BaseDirectory, "Programs", "Zed");
+        Directory.CreateDirectory(target);
+        var executable = Path.Combine(target, "zed.exe");
+        await File.WriteAllTextAsync(executable, "fixture application; never executed");
+        var receipt = fixture.Installation("zed") with
+        {
+            TargetDir = target, ExePath = executable, Installer = InstallerKind.Inno, Strategy = Strategy.Custom,
+        };
+        await fixture.Launcher().RegisterCompletedInstallAsync(receipt, "Zed");
+        var launcher = fixture.Launcher((path, workingDirectory) =>
+        {
+            Assert.Equal(executable, path);
+            Assert.Equal(target, workingDirectory);
+            return true;
+        });
+        var app = Assert.Single(await launcher.ListAsync());
+        Assert.True(app.IsAvailable);
+        Assert.False(app.StoreManagedRemoval);
+        Assert.Equal(target, app.InstallDirectory);
+        Assert.True((await launcher.LaunchAsync(app.InstallId)).Started);
+        var uninstaller = Path.Combine(target, "unins000.exe");
+        await File.WriteAllTextAsync(uninstaller, "fixture uninstaller; never executed");
+        GitHubStore.App.Services.Inventory.RegisteredUninstaller[] rows =
+            [new("zed-key", "Zed", target, "\"" + uninstaller + "\"", false)];
+        var registered = new GitHubStore.App.Services.Inventory.RegisteredUninstallService(launcher,
+            () => rows, (command, elevate, _) =>
+            {
+                Assert.Equal(uninstaller, command.FileName);
+                Assert.False(elevate);
+                rows = [];
+                return Task.FromResult(0);
+            });
+        var inventory = new GitHubStore.App.Services.Inventory.ManagedInstalledProgramService(launcher, registered: registered);
+        var program = Assert.Single(await inventory.ScanAsync());
+        Assert.True(program.CanUninstall);
+        Assert.Equal(target, program.InstallLocation);
+        Assert.True((await inventory.LaunchUninstallAsync(program)).Started);
+        Assert.Empty(await fixture.Launcher().ListAsync());
+        Assert.True(File.Exists(executable)); // Only the external uninstaller owns application files.
+    }
+
+    [Theory]
+    [InlineData(Strategy.Green, InstallerKind.Portable)]
+    [InlineData(Strategy.Custom, InstallerKind.Portable)]
+    [InlineData(Strategy.Green, InstallerKind.Unknown)]
+    public async Task PortableOwnershipStillRejectsTargetsOutsideConfiguredRoot(Strategy strategy, InstallerKind installer)
+    {
+        using var fixture = new Fixture();
+        var target = Path.Combine(fixture.BaseDirectory, "external");
+        Directory.CreateDirectory(target);
+        var executable = Path.Combine(target, "tool.exe");
+        await File.WriteAllTextAsync(executable, "fixture; never executed");
+        var receipt = fixture.Installation() with
+        {
+            TargetDir = target, ExePath = executable, Strategy = strategy, Installer = installer,
+        };
+        Assert.Equal("launcher_invalid_path", (await Assert.ThrowsAsync<LauncherException>(
+            () => fixture.Launcher().RegisterCompletedInstallAsync(receipt, "Tool"))).Code);
+        Assert.False(File.Exists(fixture.Manifest));
+    }
+
+    [Fact]
     public async Task EmptyLauncherDoesNotCreateAFileOrDiscoverExistingExecutables()
     {
         using var fixture = new Fixture();

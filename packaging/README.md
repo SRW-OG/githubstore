@@ -10,6 +10,12 @@
 
 ## 当前产物状态（2026-11-02）
 
+最新本地安装包为 **v0.1.23**：[GitHubStore-Setup-0.1.23-win-x64.exe](../dist/GitHubStore-Setup-0.1.23-win-x64.exe)，附 [SHA-256 校验文件](../dist/GitHubStore-Setup-0.1.23-win-x64.exe.sha256)。包含 EXE/MSI 优先使用配置目录及外部实际目录核对登记修复。大小 **50,639,171 字节**，文件版本 `0.1.23.0`，SHA-256 为 `c4ebe314874a96171b1e04ca9dc86391723d8a916e5a1ce7aa3cebf08ad6d95f`。构建元数据见 [installer-build.json](../dist/installer-build.json)。
+
+Release x64 测试项目构建 0 警告、0 错误，全部 **1,932 项测试通过、0 失败、0 跳过**，报告 [release-0.1.23-Release-x64.json](../artifacts/test-results/release-0.1.23-Release-x64.json)。自包含发布及 Inno Setup 编译成功，安装包版本与摘要已核验。首次打包因 NuGet 审计服务不可达而失败，重试仅在打包进程中临时设置 `NuGetAudit=false`，未修改长期配置。本次没有替换已安装客户端，也未执行新包的安装卸载全流程或上传远端 Release。
+
+### 历史 v0.1.22 产物
+
 本次交付版本为 **v0.1.22**，已生成 [GitHubStore-Setup-0.1.22-win-x64.exe](../dist/GitHubStore-Setup-0.1.22-win-x64.exe) 与 [SHA-256 文件](../dist/GitHubStore-Setup-0.1.22-win-x64.exe.sha256)，包含当前 128×128 方卡、只编辑路径/参数、快捷方式解析及路径/参数原子保存。安装包为 **50,656,049 字节**，文件版本 `0.1.22.0`，SHA-256 为 `571c97b79340d9cbf00105631c1c61c62ead4c1c15ff8081c303203214d05a9f`；构建元数据见 [installer-build.json](../dist/installer-build.json)。
 
 Release x64 测试项目构建 0 警告、0 错误，完整回归 **1908 通过、0 失败、0 跳过**，报告 [release-0.1.22-Release-x64.json](../artifacts/test-results/release-0.1.22-Release-x64.json)；自包含 `dotnet publish` 与 Inno Setup 编译成功。发布输出使用隔离数据目录启动，PID `18876`，窗口标题“GitHubStore · 开源应用目录”，句柄 `395604`，`Responding=true`，请求正常关闭后退出码 0，报告 [release-0.1.22-smoke.json](../artifacts/test-results/release-0.1.22-smoke.json)。该结果不代替安装器安装/卸载全流程或最新属性界面点击验收；本节也不提前宣称远端 CI 或正式 Release 已成功。

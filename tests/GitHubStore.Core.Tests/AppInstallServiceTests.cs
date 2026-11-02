@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using GitHubStore.App.Services.Installation;
+using GitHubStore.App.Services.Inventory;
 using GitHubStore.App.Services.Launcher;
 using GitHubStore.App.Services.Preferences;
 using GitHubStore.Core.Abstractions;
@@ -333,6 +334,202 @@ public sealed class AppInstallServiceTests
     }
 
     [Theory]
+    [InlineData(".exe", false)]
+    [InlineData(".msi", false)]
+    [InlineData(".exe", true)]
+    public async Task ExternalInstallerRegistersActualDirectoryFromNewOrChangedRegistration(string extension, bool changed)
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        var actual = Path.Combine(f.Data, "external", "Tool");
+        if (changed) f.InstalledPrograms.Add(new("product", "T-o-o-l", f.Target, "old uninstall", false));
+        var result = await f.Service((_, _) =>
+        {
+            Assert.False(Directory.Exists(f.Root));
+            Directory.CreateDirectory(actual);
+            File.WriteAllBytes(Path.Combine(actual, "Tool.exe"), Pe());
+            f.InstalledPrograms.Clear();
+            f.InstalledPrograms.Add(new("product", "T-o-o-l", actual + Path.DirectorySeparatorChar, "new uninstall", false));
+            return Task.FromResult(new InstallerProcessResult(0));
+        }).InstallAsync(f.Request("Tool" + extension));
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(actual, result.TargetDirectory);
+        var receipt = Assert.Single(f.Launcher.Receipts);
+        Assert.Equal(actual, receipt.TargetDir);
+        Assert.Equal(Path.Combine(actual, "Tool.exe"), receipt.ExePath);
+        Assert.False(Directory.Exists(f.Root));
+    }
+
+    [Theory]
+    [InlineData("io")]
+    [InlineData("access")]
+    [InlineData("security")]
+    public async Task UnavailableRegistrationReaderStillAllowsVerifiedSuggestedDirectory(string failure)
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        var reads = 0;
+        var service = new AppInstallService(f.Download, f.Launcher, f.Preferences, f.Data,
+            (_, _) =>
+            {
+                Assert.Equal(1, reads);
+                Directory.CreateDirectory(f.Target);
+                File.WriteAllBytes(Path.Combine(f.Target, "Tool.exe"), Pe());
+                return Task.FromResult(new InstallerProcessResult(0));
+            }, () => f.Root, installedProgramsReader: () =>
+            {
+                reads++;
+                throw failure switch
+                {
+                    "io" => (Exception)new IOException(),
+                    "access" => new UnauthorizedAccessException(),
+                    _ => new System.Security.SecurityException(),
+                };
+            });
+        var result = await service.InstallAsync(f.Request("Tool.exe"));
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(2, reads);
+        Assert.Equal(f.Target, Assert.Single(f.Launcher.Receipts).TargetDir);
+    }
+
+    [Fact]
+    public async Task NewRepoNameMatchTakesPriorityOverUnchangedDisplayNameRegistration()
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        f.InstalledPrograms.Add(new("old", "Tool", f.Target, "uninstall", false));
+        var actual = Path.Combine(f.Data, "external");
+        var request = f.Request("Tool.exe") with { App = f.App with { Repo = "tool-repo" } };
+        var result = await f.Service((_, _) =>
+        {
+            Directory.CreateDirectory(actual);
+            File.WriteAllBytes(Path.Combine(actual, "Tool.exe"), Pe());
+            f.InstalledPrograms.Add(new("new", "TOOL Repo", actual, "uninstall", false));
+            return Task.FromResult(new InstallerProcessResult(0));
+        }).InstallAsync(request);
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(actual, Assert.Single(f.Launcher.Receipts).TargetDir);
+    }
+
+    [Fact]
+    public async Task ExistingUniqueRegistrationSupportsReinstallDespiteExistingSuggestedDirectory()
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        Directory.CreateDirectory(f.Target);
+        var actual = Path.Combine(f.Data, "external");
+        Directory.CreateDirectory(actual);
+        File.WriteAllBytes(Path.Combine(actual, "Tool.exe"), Pe());
+        f.InstalledPrograms.Add(new("product", "Tool", actual, "uninstall", false));
+        var result = await f.Service((_, _) => Task.FromResult(new InstallerProcessResult(0)))
+            .InstallAsync(f.Request("Tool.exe"));
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(actual, Assert.Single(f.Launcher.Receipts).TargetDir);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AmbiguousExactRegistrationsNeverChooseADirectory(bool existing)
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        Directory.CreateDirectory(f.Target);
+        File.WriteAllBytes(Path.Combine(f.Target, "Tool.exe"), Pe());
+        void AddEntries()
+        {
+            f.InstalledPrograms.Add(new("one", "Tool", f.Target, "uninstall", false));
+            f.InstalledPrograms.Add(new("two", "T-o-o-l", f.Target, "uninstall", false));
+        }
+        if (existing) AddEntries();
+        var result = await f.Service((_, _) =>
+        {
+            if (!existing) AddEntries();
+            return Task.FromResult(new InstallerProcessResult(0));
+        }).InstallAsync(f.Request("Tool.exe"));
+        Assert.Equal("install_target_not_honored", result.ErrorCode);
+        Assert.True(result.FilesMayRemain);
+        Assert.Empty(f.Launcher.Receipts);
+    }
+
+    [Theory]
+    [InlineData("empty", "install_target_not_honored")]
+    [InlineData("missing", "install_target_not_honored")]
+    [InlineData("relative", "install_unsafe_path")]
+    [InlineData("cache", "install_unsafe_path")]
+    [InlineData("cache-parent", "install_unsafe_path")]
+    [InlineData("invalid-exe", "install_executable_missing")]
+    public async Task DiscoveredDirectoryMustBePresentSafeOutsideCacheAndContainAValidProgram(string fault, string error)
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        var actual = Path.Combine(f.Data, "external");
+        // Even a valid suggested directory must not hide a bad matching registration.
+        Directory.CreateDirectory(f.Target);
+        File.WriteAllBytes(Path.Combine(f.Target, "Tool.exe"), Pe());
+        var result = await f.Service((_, _) =>
+        {
+            var location = fault switch
+            {
+                "empty" => "",
+                "relative" => "relative/path",
+                "cache" => Path.GetDirectoryName(f.Download.Last!.TargetPath)!,
+                "cache-parent" => f.Data,
+                _ => actual,
+            };
+            if (fault == "invalid-exe")
+            {
+                Directory.CreateDirectory(actual);
+                File.WriteAllText(Path.Combine(actual, "Tool.exe"), "not a PE");
+            }
+            f.InstalledPrograms.Add(new("product", "Tool", location, "uninstall", false));
+            return Task.FromResult(new InstallerProcessResult(0));
+        }).InstallAsync(f.Request("Tool.exe"));
+        Assert.Equal(error, result.ErrorCode);
+        Assert.Empty(f.Launcher.Receipts);
+    }
+
+    [Theory]
+    [InlineData("Tool Helper")]
+    [InlineData("OtherTool")]
+    public async Task PartialNameRegistrationsDoNotAuthorizeExternalDirectory(string displayName)
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = Pe();
+        var result = await f.Service((_, _) =>
+        {
+            Directory.CreateDirectory(f.Data);
+            File.WriteAllBytes(Path.Combine(f.Data, "Tool.exe"), Pe());
+            f.InstalledPrograms.Add(new("product", displayName, f.Data, "uninstall", false));
+            return Task.FromResult(new InstallerProcessResult(0));
+        }).InstallAsync(f.Request("Tool.exe"));
+        Assert.Equal("install_target_not_honored", result.ErrorCode);
+        Assert.Empty(f.Launcher.Receipts);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task KnownOrDetectedInnoInstallerPrefillsSuggestedDirectoryInteractively(bool detected)
+    {
+        using var f = new Fixture();
+        f.Download.Bytes = detected
+            ? Pe().Concat(System.Text.Encoding.ASCII.GetBytes("Inno Setup Setup Data (6.4.0)")).ToArray()
+            : Pe();
+        var request = f.Request("Tool.exe");
+        if (!detected) request = Bind(request, request.Asset with { Installer = InstallerKind.Inno });
+        var result = await f.Service((process, _) =>
+        {
+            Assert.True(process.UseShellExecute);
+            Assert.Equal(new[] { "/DIR=" + f.Target }, process.Arguments);
+            Directory.CreateDirectory(f.Target);
+            File.WriteAllBytes(Path.Combine(f.Target, "Tool.exe"), Pe());
+            return Task.FromResult(new InstallerProcessResult(0));
+        }).InstallAsync(request);
+        Assert.True(result.Succeeded, result.ErrorCode);
+    }
+
+    [Theory]
     [InlineData(1, "install_installer_failed")]
     [InlineData(1603, "install_installer_failed")]
     [InlineData(1602, "install_installer_cancelled")]
@@ -582,6 +779,7 @@ public sealed class AppInstallServiceTests
         public string Target => Path.Combine(Root, "Tool");
         public FakeDownload Download { get; } = new();
         public FakeLauncher Launcher { get; } = new();
+        public List<RegisteredUninstaller> InstalledPrograms { get; } = new();
         public PreferencesService Preferences { get; }
         public GitHubStore.Core.Abstractions.App App { get; } = new()
         {
@@ -592,7 +790,7 @@ public sealed class AppInstallServiceTests
         public AppInstallService Service(Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>>? runner = null,
             Func<string?>? bsdtar = null) =>
             new(Download, Launcher, Preferences, Data, runner ?? ((_, _) => throw new Exception("unexpected external execution")), () => Root,
-                bsdtarProvider: bsdtar);
+                bsdtarProvider: bsdtar, installedProgramsReader: () => InstalledPrograms);
         public AppInstallRequest Request(string name = "Tool.zip")
         {
             var asset = new Asset { InstallerId = "asset-1", ReleaseKey = "release-1", Name = name, DownloadUrl = "https://example.com/" + name };

@@ -33,7 +33,8 @@ public sealed record InstallDiagnostic
     public DateTimeOffset FailedAt { get; init; }
 }
 
-/// <summary>Only registers a Store receipt after verifying a real executable in the installation target.</summary>
+/// <summary>Registers a Store receipt after verifying a real executable in the actual installation directory.
+/// External installers prefer the configured target and may use a directory verified from Windows registration.</summary>
 public interface IAppInstallService
 {
     string GetTargetDirectory(App app);

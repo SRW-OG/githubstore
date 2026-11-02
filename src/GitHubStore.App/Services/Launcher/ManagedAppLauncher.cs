@@ -378,7 +378,11 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
             throw new LauncherException("launcher_invalid_installation");
         var target = NormalizeLocalPath(installation.TargetDir);
         var executable = NormalizeLocalPath(installation.ExePath);
-        if (!SamePath(Path.GetDirectoryName(target) ?? string.Empty, _root)
+        // Portable files belong to the configured root. External installers retain their
+        // actual directory; the receipt grants no permission to delete those files.
+        if (SamePath(target, Path.GetPathRoot(target)!)
+            || StoreOwnedInstallation.OwnsExtractedFiles(installation)
+                && !SamePath(Path.GetDirectoryName(target) ?? string.Empty, _root)
             || !executable.StartsWith(target + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
             || !Path.GetExtension(executable).Equals(".exe", StringComparison.OrdinalIgnoreCase))
             throw new LauncherException("launcher_invalid_path");

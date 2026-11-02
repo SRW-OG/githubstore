@@ -102,7 +102,7 @@ public sealed class RegisteredUninstallService
         catch (Exception) { return false; }
     }
 
-    private static IReadOnlyList<RegisteredUninstaller> ReadWindowsRegistrations()
+    public static IReadOnlyList<RegisteredUninstaller> ReadWindowsRegistrations()
     {
         if (!OperatingSystem.IsWindows()) return [];
         return ReadRegistry();

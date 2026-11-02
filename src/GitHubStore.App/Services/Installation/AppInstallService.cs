@@ -16,7 +16,7 @@ public sealed record InstallerProcessRequest(string FileName, IReadOnlyList<stri
     string WorkingDirectory, bool UseShellExecute);
 public sealed record InstallerProcessResult(int ExitCode);
 
-/// <summary>External installers are interactive and must honor the target chosen by the user.</summary>
+/// <summary>External installers are interactive, prefer the configured target, and retain a verified actual directory.</summary>
 public sealed class AppInstallService : IAppInstallService
 {
     private static readonly SemaphoreSlim Gate = new(1, 1);
@@ -29,17 +29,20 @@ public sealed class AppInstallService : IAppInstallService
     private readonly Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>> _runner;
     private readonly Func<string> _root;
     private readonly PackageCacheService _packageCache;
+    private readonly Func<IReadOnlyList<RegisteredUninstaller>> _installedProgramsReader;
 
     public AppInstallService(IDownloadService downloads, IManagedAppLauncher launcher, PreferencesService preferences,
         string dataDirectory, Func<InstallerProcessRequest, CancellationToken, Task<InstallerProcessResult>>? processRunner = null,
         Func<string>? installRootProvider = null, PackageCacheService? packageCache = null,
-        Func<string?>? bsdtarProvider = null)
+        Func<string?>? bsdtarProvider = null,
+        Func<IReadOnlyList<RegisteredUninstaller>>? installedProgramsReader = null)
     {
         _downloads = downloads;
         _launcher = launcher;
         _preferences = preferences;
         _dataDirectory = dataDirectory;
         _runner = processRunner ?? RunProcessAsync;
+        _installedProgramsReader = installedProgramsReader ?? RegisteredUninstallService.ReadWindowsRegistrations;
         // Retained for constructor compatibility. A tar executable alone cannot provide a safe
         // pre-extraction contract for 7z entry types, links and expanded byte counts.
         _ = bsdtarProvider;
@@ -94,11 +97,18 @@ public sealed class AppInstallService : IAppInstallService
             var app = request.App;
             var asset = request.Asset;
             var snapshot = _preferences.Current;
+            var extension = Path.GetExtension(asset.Name).ToLowerInvariant();
+            var portable = request.PackagePolicy?.InstallFormat switch
+            {
+                PackageInstallFormat.PortableArchive or PackageInstallFormat.PortableExecutable => true,
+                PackageInstallFormat.Installer => false,
+                _ => extension == ".zip" || asset.Kind == AssetKind.PortableExe
+                    || DefaultAssetSelectionPolicy.IsRecognizedPortable(asset, $"{app.Owner}/{app.Repo}"),
+            };
             target = GetTargetDirectory(app);
-            if (Exists(target)) return Fail("install_target_exists");
+            if (portable && Exists(target)) return Fail("install_target_exists");
             if ((await _launcher.ListAsync(ct).ConfigureAwait(false)).Any(x => x.AppId == app.Id
                 || string.Equals(x.InstallDirectory, target, StringComparison.OrdinalIgnoreCase))) return Fail("install_already_installed");
-            var extension = Path.GetExtension(asset.Name).ToLowerInvariant();
             // System tar cannot prove entry types, link targets and expanded sizes before
             // writing files. Fail closed before touching the cache or starting a download.
             if (extension == ".7z") return Fail("install_7z_unsupported");
@@ -106,10 +116,7 @@ public sealed class AppInstallService : IAppInstallService
             await using var cacheLease = await _packageCache.AcquireAsync(ct).ConfigureAwait(false);
             var packageCache = cacheLease.Cache;
             var cacheRoot = SafePath(packageCache.Root);
-            if (string.Equals(cacheRoot, target, StringComparison.OrdinalIgnoreCase)
-                || cacheRoot.StartsWith(target + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-                || target.StartsWith(cacheRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-                return Fail("install_unsafe_path");
+            EnsureCacheIsolation(target, cacheRoot);
             Directory.CreateDirectory(cacheRoot);
             SafePath(cacheRoot);
             var package = packageCache.TryResolvePath(new Uri(asset.DownloadUrl), asset.Name);
@@ -158,13 +165,6 @@ public sealed class AppInstallService : IAppInstallService
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 { System.Diagnostics.Trace.WriteLine("Package retained; its cache verification record could not be saved."); }
             }
-            var portable = request.PackagePolicy?.InstallFormat switch
-            {
-                PackageInstallFormat.PortableArchive or PackageInstallFormat.PortableExecutable => true,
-                PackageInstallFormat.Installer => false,
-                _ => extension == ".zip" || asset.Kind == AssetKind.PortableExe
-                    || DefaultAssetSelectionPolicy.IsRecognizedPortable(asset, $"{app.Owner}/{app.Repo}"),
-            };
             string relative;
             bool restart = false;
             if (portable)
@@ -192,10 +192,8 @@ public sealed class AppInstallService : IAppInstallService
             else
             {
                 if (extension == ".exe" && !IsExecutable(package)) return Fail("install_executable_invalid");
-                var root = SafePath(Path.GetDirectoryName(target)!);
-                Directory.CreateDirectory(root);
-                SafePath(root);
-                if (Exists(target)) return Fail("install_target_exists");
+                // The installer owns its destination; pre-creating our suggested root can
+                // fail on C:\ even when the wizard installs successfully under the user's profile.
                 ct.ThrowIfCancellationRequested();
                 InstallerProcessRequest processRequest;
                 if (extension == ".msi")
@@ -218,7 +216,16 @@ public sealed class AppInstallService : IAppInstallService
                     if (!prefilledInstallRoot)
                         Trace.WriteLine("MSI exposes no public install-root property; the wizard is not pre-filled.");
                 }
-                else processRequest = new InstallerProcessRequest(package, Array.Empty<string>(), packageDirectory, true);
+                else
+                {
+                    var inno = asset.Installer == InstallerKind.Inno
+                        || asset.Installer == InstallerKind.Unknown && HasInnoSignature(package);
+                    processRequest = new InstallerProcessRequest(package,
+                        inno ? new[] { "/DIR=" + target } : Array.Empty<string>(), packageDirectory, true);
+                }
+                // Copy the reader's result so a mutable injected list cannot change our snapshot.
+                var installedBefore = ReadInstalledPrograms();
+                ct.ThrowIfCancellationRequested();
                 Report(AppInstallPhase.RunningInstaller);
                 // A runner may have started a child even if it throws: retain cache conservatively.
                 externalStarted = true;
@@ -230,6 +237,12 @@ public sealed class AppInstallService : IAppInstallService
                 if (result.ExitCode is not (0 or 3010)) return Fail("install_installer_failed");
                 restart = result.ExitCode == 3010;
                 Report(AppInstallPhase.Verifying);
+                var registeredDirectory = FindInstalledDirectory(app, installedBefore, ReadInstalledPrograms());
+                if (registeredDirectory is not null) target = Path.TrimEndingDirectorySeparator(SafePath(registeredDirectory));
+                // Registrations are evidence of location, never permission to traverse unsafe
+                // paths or adopt downloaded cache files as an installed application.
+                SafePath(target);
+                EnsureCacheIsolation(target, cacheRoot);
                 if (!Directory.Exists(target)) return Fail("install_target_not_honored");
                 relative = await SelectExecutableAsync(target, app, chooseExecutable, ct, request.PackagePolicy?.ExecutableRelativePath).ConfigureAwait(false);
             }
@@ -287,6 +300,77 @@ public sealed class AppInstallService : IAppInstallService
             try { progress?.Report(new(phase, percent)); }
             catch (Exception) { /* Observers cannot change installation ownership or outcome. */ }
         }
+    }
+
+    private RegisteredUninstaller[] ReadInstalledPrograms()
+    {
+        try { return _installedProgramsReader().ToArray(); }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Optional discovery must not prevent the existing suggested-directory
+            // verification flow when Windows registrations are unavailable.
+            Trace.WriteLine("Installed-program registrations are unavailable for directory discovery.");
+            return [];
+        }
+    }
+
+    private static bool HasInnoSignature(string package)
+    {
+        // Official setup-data marker, searched only in the bounded header region.
+        // Keep overlap between blocks so a marker crossing a read boundary is recognized.
+        ReadOnlySpan<byte> marker = "Inno Setup Setup Data ("u8;
+        using var stream = File.OpenRead(package);
+        var buffer = new byte[8192 + marker.Length - 1];
+        var retained = 0;
+        var remaining = 4 * 1024 * 1024;
+        while (remaining > 0)
+        {
+            var read = stream.Read(buffer, retained, Math.Min(8192, remaining));
+            if (read == 0) break;
+            remaining -= read;
+            var length = retained + read;
+            if (buffer.AsSpan(0, length).IndexOf(marker) >= 0) return true;
+            retained = Math.Min(marker.Length - 1, length);
+            buffer.AsSpan(length - retained, retained).CopyTo(buffer);
+        }
+        return false;
+    }
+
+    private static string? FindInstalledDirectory(CatalogApp app, IReadOnlyList<RegisteredUninstaller> before,
+        IReadOnlyList<RegisteredUninstaller> after)
+    {
+        static string Name(string value) => new(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+        var displayName = Name(app.DisplayName);
+        var repo = Name(app.Repo);
+        var matches = after.Where(item =>
+        {
+            var name = Name(item.DisplayName);
+            return name.Length > 0 && (name == displayName || name == repo);
+        }).ToArray();
+        // Record equality includes key, location, command and product code. A changed
+        // registration under the same key is evidence just like a newly added key.
+        var previous = before.ToHashSet();
+        var changed = matches.Where(item => !previous.Contains(item)).ToArray();
+        var candidates = changed.Length > 0 ? changed : matches;
+        if (candidates.Length > 1) throw new InstallException("install_target_not_honored");
+        if (candidates.Length == 0) return null;
+        var location = candidates[0].InstallLocation;
+        // A matching registration without a location must not silently adopt an
+        // unrelated pre-existing suggested directory.
+        if (string.IsNullOrWhiteSpace(location)) throw new InstallException("install_target_not_honored");
+        return location;
+    }
+
+    private static void EnsureCacheIsolation(string target, string cacheRoot)
+    {
+        target = Path.TrimEndingDirectorySeparator(target);
+        cacheRoot = Path.TrimEndingDirectorySeparator(cacheRoot);
+        var targetPrefix = Path.EndsInDirectorySeparator(target) ? target : target + Path.DirectorySeparatorChar;
+        var cachePrefix = Path.EndsInDirectorySeparator(cacheRoot) ? cacheRoot : cacheRoot + Path.DirectorySeparatorChar;
+        if (string.Equals(cacheRoot, target, StringComparison.OrdinalIgnoreCase)
+            || cacheRoot.StartsWith(targetPrefix, StringComparison.OrdinalIgnoreCase)
+            || target.StartsWith(cachePrefix, StringComparison.OrdinalIgnoreCase))
+            throw new InstallException("install_unsafe_path");
     }
 
     private static void ValidateRequest(AppInstallRequest request)
