@@ -29,10 +29,13 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
     private readonly string _dataDirectory;
     private readonly SemaphoreSlim _gate;
     private readonly Func<string, string, bool>? _processStarter;
+    private readonly Func<ProcessStartInfo, bool>? _optionProcessStarter;
 
     public ManagedAppLauncher(string dataDirectory, string? installRoot = null,
-        Func<string, string, bool>? processStarter = null, Func<string>? installRootProvider = null)
+        Func<string, string, bool>? processStarter = null, Func<string>? installRootProvider = null,
+        Func<ProcessStartInfo, bool>? optionProcessStarter = null)
     {
+        _optionProcessStarter = optionProcessStarter;
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
         _fixedRoot = NormalizeLocalPath(installRoot ?? @"C:\githubapps");
         _installRootProvider = installRootProvider;
@@ -231,6 +234,58 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
         }
         catch (LauncherException ex) { return new(false, ex.Code); }
         finally { _gate.Release(); }
+    }
+
+    public async Task<LauncherLaunchResult> LaunchWithOptionsAsync(string installId, LauncherEntryOptions options,
+        CancellationToken ct = default)
+    {
+        if (!LauncherEntryOptionsValidation.IsValid(options)) return new(false, "launcher_invalid_options");
+        if (!LauncherEntryOptionsValidation.RequiresCustomLaunch(options)) return await LaunchAsync(installId, ct).ConfigureAwait(false);
+        if (!ValidText(installId, 256)) return new(false, "launcher_invalid_install_id");
+        await _gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            var entries = await ReadAsync(ct).ConfigureAwait(false);
+            if (HasPendingRecovery(installId)) return new(false, "launcher_recovery_required");
+            var entry = entries.SingleOrDefault(e => string.Equals(e.Installation.InstallId, installId, StringComparison.Ordinal));
+            if (entry is null) return new(false, "launcher_not_found");
+            // The executable always comes from the validated receipt, never from caller-supplied options.
+            var installation = ValidateInstallation(entry.Installation);
+            EnsureExecutableAvailable(installation);
+            ct.ThrowIfCancellationRequested();
+            var executable = installation.ExePath!;
+            var directory = string.IsNullOrWhiteSpace(options.WorkingDirectory)
+                ? Path.GetDirectoryName(executable)! : options.WorkingDirectory!;
+            if (!string.IsNullOrWhiteSpace(options.WorkingDirectory) && !Directory.Exists(options.WorkingDirectory))
+                return new(false, "launcher_invalid_working_directory");
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = executable,
+                Arguments = options.Arguments,
+                WorkingDirectory = directory,
+                UseShellExecute = true,
+                Verb = options.RunAsAdministrator ? "runas" : string.Empty,
+            };
+            try
+            {
+                var started = _optionProcessStarter is not null ? _optionProcessStarter(startInfo) : StartProcess(startInfo);
+                return started ? new(true) : new(false, "launcher_start_failed");
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                return new(false, "launcher_launch_cancelled");
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+            catch (Exception) { return new(false, "launcher_start_failed"); }
+        }
+        catch (LauncherException ex) { return new(false, ex.Code); }
+        finally { _gate.Release(); }
+    }
+
+    private static bool StartProcess(ProcessStartInfo startInfo)
+    {
+        using var process = Process.Start(startInfo);
+        return process is not null;
     }
 
     private bool HasPendingRecovery(string installId) =>

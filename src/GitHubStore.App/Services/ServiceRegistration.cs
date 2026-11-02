@@ -112,9 +112,15 @@ public static class ServiceRegistration
             new GitHubStore.App.Services.Discovery.DiscoveryReviewService(sp.GetRequiredService<GitHubStore.App.Services.Ai.IAiClient>()));
         services.AddSingleton<DiscoveryHomeViewModel>();
         services.AddSingleton<CatalogViewModel>();
+        services.AddSingleton<ILauncherProgramResolver, GitHubStore.App.Services.Launcher.LauncherProgramResolver>();
+        services.AddSingleton<IManualAppLauncher>(_ => new GitHubStore.App.Services.Launcher.ManualAppLauncher(DataDirectory));
+        services.AddSingleton<ILauncherCustomizationStore>(_ => new GitHubStore.App.Services.Launcher.LauncherCustomizationStore(DataDirectory));
+        services.AddSingleton<ILauncherHotkeyRegistry>(_ => new GitHubStore.App.Services.Launcher.LauncherHotkeyRegistry());
         services.AddSingleton<LauncherViewModel>(sp => new LauncherViewModel(
             sp.GetRequiredService<IManagedAppLauncher>(), sp.GetRequiredService<LocalizationService>(),
-            sp.GetRequiredService<ICatalogService>()));
+            sp.GetRequiredService<ICatalogService>(), sp.GetRequiredService<IManualAppLauncher>(),
+            sp.GetRequiredService<ILauncherCustomizationStore>(), sp.GetRequiredService<ILauncherHotkeyRegistry>(),
+            sp.GetRequiredService<ILauncherProgramResolver>()));
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton(sp => new InstalledViewModel(
             sp.GetRequiredService<IInstalledProgramService>(), sp.GetRequiredService<LocalizationService>(),

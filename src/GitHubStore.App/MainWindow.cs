@@ -15,11 +15,14 @@ public sealed class MainWindow : Window
     private readonly PreferencesService _preferences;
     private readonly MainPage _shell;
     private readonly AccessibilitySettings _accessibilitySettings = new();
+    private readonly GitHubStore.Core.Abstractions.ILauncherHotkeyRegistry? _hotkeys;
 
-    public MainWindow(MainPage shell, WindowController windows, PreferencesService preferences)
+    public MainWindow(MainPage shell, WindowController windows, PreferencesService preferences,
+        GitHubStore.Core.Abstractions.ILauncherHotkeyRegistry? hotkeys = null)
     {
         _shell = shell;
         _preferences = preferences;
+        _hotkeys = hotkeys;
         Title = "GitHubStore · 开源应用目录";
         Content = shell;
         if (MicaControllerSupported()) SystemBackdrop = new MicaBackdrop();
@@ -27,6 +30,9 @@ public sealed class MainWindow : Window
         var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "githubstore.ico");
         if (File.Exists(iconPath)) AppWindow.SetIcon(iconPath);
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        // Launcher shortcuts are registered on this window so WM_HOTKEY reaches the view model.
+        try { _hotkeys?.Attach(handle); }
+        catch (Exception ex) { System.Diagnostics.Trace.WriteLine(ex); }
         var scale = windows.GetDpi(handle) / 96d;
         AppWindow.Resize(new SizeInt32((int)(1360 * scale), (int)(860 * scale)));
         _shell.Loaded += OnShellLoaded;
@@ -111,6 +117,7 @@ public sealed class MainWindow : Window
         _preferences.Changed -= OnPreferencesChanged;
         _shell.Loaded -= OnShellLoaded;
         _shell.ActualThemeChanged -= OnActualThemeChanged;
+        _hotkeys?.Dispose();
         _shell.Dispose();
     }
 

@@ -5,7 +5,7 @@
 ## 环境
 
 - Windows 11 或满足项目最低要求的 Windows 10；编译目标为 `net8.0-windows10.0.19041.0`。
-- .NET SDK **8.0.425**，版本由 [global.json](global.json) 约束。
+- .NET SDK 基准版本 **8.0.425**，由 [global.json](global.json) 设置 `rollForward=latestPatch`；同一 feature band 内允许使用后续补丁版本（历史 0.1.15 验证使用 8.0.426）。
 - PowerShell 7。Visual Studio 用户需要相应的 .NET / Windows 开发组件。
 - 首次还原需要访问 NuGet；普通构建和测试不需要 GitHub Token 或 AI 密钥。
 - x64 为当前验证平台；项目也有 ARM64 配置，ARM64 设备兼容性仍需单独验证。
@@ -58,10 +58,10 @@ pwsh -File scripts\run-desktop.ps1 -Configuration Debug
 按 [Windows 安装包说明](packaging/README.md) 准备 Inno Setup 6，再运行：
 
 ```powershell
-pwsh -File scripts\build-installer.ps1 -Version 0.1.15 -CompilerPath 'C:\Path\To\ISCC.exe'
+pwsh -File scripts\build-installer.ps1 -Version 0.1.22 -CompilerPath 'C:\Path\To\ISCC.exe'
 ```
 
-版本号按实际发布递增。脚本生成自包含 Release 安装包和 SHA256 文件，写入 `dist`；已存在的同版本安装包不会被静默覆盖。
+本次交付版本为 v0.1.22，已生成自包含 Release 安装包及 SHA256 文件，写入 `dist`；上述命令展示对应打包方式，已存在的同版本安装包不会被静默覆盖。后续打包应按实际发布计划递增版本号。本次发布产物、源码验证与远端发布的边界见下方“2026-11-02：当前启动器验证与版本状态”。
 
 默认客户端安装位置是 `%LOCALAPPDATA%\Programs\GitHubStore`，按当前用户安装，无需管理员权限。卸载客户端保留用户数据和通过客户端安装的软件。
 
@@ -74,6 +74,41 @@ pwsh -File scripts\build-installer.ps1 -Version 0.1.15 -CompilerPath 'C:\Path\To
 内嵌的 aria2 ZIP 是构建输入，必须随源码保留；其版本、摘要和许可见 [第三方声明](src/GitHubStore.App/Assets/Tools/THIRD-PARTY-NOTICES.md)。不要用全局 `*.zip` 忽略规则排除这些输入。
 
 用户 AI 密钥和代理密码由当前 Windows 用户 DPAPI 保护，不能通过复制设置文件在另一用户环境中解密。真实设置、安装登记、下载缓存和凭据均不应上传。
+
+## 2026-11-02：当前启动器验证与版本状态
+
+本节记录当前源码状态。后续按日期保留的 0.1.15 等章节属于历史验证，不代表当前版本或本次新增验收；自动测试、真实程序启动、UI 点击验收与安装包发布分别记录。
+
+- **本次 Release x64 验证：** v0.1.22 测试项目 Release 构建 0 警告、0 错误，同进程完整回归 1,908 通过、0 失败、0 跳过；报告 [release-0.1.22-Release-x64.json](artifacts/test-results/release-0.1.22-Release-x64.json) 的 `success=true`，`errors` 为空。客户端 Release 自包含 `dotnet publish` 与 Inno Setup 编译成功。本次文档同步引用已有证据，未重复执行构建或测试，远端 CI 结果仍应以实际运行记录为准。
+- **同日 Debug x64 验证：** App 与测试项目构建均为 0 警告、0 错误，同进程回归同为 1,908 通过、0 失败、0 跳过；报告 [launcher-path-arguments-Debug-x64.json](artifacts/test-results/launcher-path-arguments-Debug-x64.json)。
+- **新增测试范围：** 真实 Windows 快捷方式的中文路径、带引号参数与原生读取；嵌套快捷方式、循环/失效目标拒绝；添加时保存解析后的 EXE 与参数、重载后启动；旧 `.lnk` 编辑保存转换并保留身份/名称/分类/计数；重复目标保留既有参数；非法参数与单清单原子写失败均不改变原路径/参数；显式清空旧 customization 参数后重载仍为空。具体用例见 [LauncherProgramResolverTests](tests/GitHubStore.Core.Tests/LauncherProgramResolverTests.cs)，计数/分类、启动选项与热键的既有回归仍包含在完整测试集中。快捷方式读取使用真实 Windows COM；合成 EXE 的启动目标与参数通过注入启动委托核对，没有执行这些合成文件，也不等于逐款第三方应用的端到端启动验收。
+- **真实程序启动：** 最新开发程序 Build ID `EDD3170783B7ED66`、PID `20024` 已实际启动并确认 `Responding=true`，于 2026-11-02 09:44（Asia/Shanghai）正常退出，退出码 0。Windows UI Automation 未能读取本次窗口内部控件，因此没有本次“打开属性 → 编辑路径/参数 → 保存”的真实点击验收；程序响应与自动测试通过不替代此项。
+- **本次自包含发布输出启动：** 使用独立 `GITHUBSTORE_DATA_DIR` 启动 v0.1.22 发布输出，PID `18876`，窗口标题“GitHubStore · 开源应用目录”，窗口句柄 `395604`，`Responding=true`；正常请求关闭后已退出，退出码 0。证据 [release-0.1.22-smoke.json](artifacts/test-results/release-0.1.22-smoke.json)。此项覆盖发布输出启动/响应/退出，不是安装器安装卸载全流程，也不补足上述属性 UI 点击验收。
+- **本次发布产物：** [GitHubStore-Setup-0.1.22-win-x64.exe](dist/GitHubStore-Setup-0.1.22-win-x64.exe) 已生成，50,656,049 字节，文件版本 `0.1.22.0`；SHA-256 为 `571c97b79340d9cbf00105631c1c61c62ead4c1c15ff8081c303203214d05a9f`，构建元数据见 [installer-build.json](dist/installer-build.json)。本包包含当前方卡、精简属性、快捷方式解析及路径/参数原子保存改动。
+- **历史本地安装包：** 0.1.21 已于 2026-11-01 本地生成，对应当时 1,894 项测试通过；它不包含后续 128×128 方卡和精简属性编辑/快捷方式解析保存改动，不能用该旧包代表本次交付。
+- **远端状态边界：** 本次交付版本为 v0.1.22，源码与安装包上传按发布流程执行；本节不提前宣称远端 CI 或正式 Release 已成功，远端状态以实际上传和运行结果为准。
+
+复现本次 Debug x64 构建及同进程测试的主要命令如下；如依赖尚未还原，先运行前文的还原命令。构建失败时应停止，不运行旧测试二进制：
+
+```powershell
+dotnet build src/GitHubStore.App/GitHubStore.App.csproj -c Debug -p:Platform=x64 --no-restore -m:1 /nr:false -v:minimal
+dotnet build tests/GitHubStore.Core.Tests/GitHubStore.Core.Tests.csproj -c Debug -p:Platform=x64 --no-restore -m:1 /nr:false -v:minimal
+dotnet tests/GitHubStore.Core.Tests/bin/x64/Debug/net8.0/GitHubStore.Core.Tests.dll --result artifacts/test-results/launcher-path-arguments-Debug-x64.json
+```
+
+当前启动器的维护边界如下，服务分工见 [架构文档](docs/ARCHITECTURE.md#应用启动器)，用户操作见 [启动器使用说明](docs/LAUNCHER.md)：
+
+- [IManualAppLauncher](src/GitHubStore.Core/Abstractions/ManualLauncherContracts.cs) / [ManualAppLauncher](src/GitHubStore.App/Services/Launcher/ManualAppLauncher.cs) 独立维护 `manual-launcher.json`；安装回执仍由 [ManagedAppLauncher](src/GitHubStore.App/Services/Launcher/ManagedAppLauncher.cs) 保存于 `managed-apps.json`，手动入口不授予安装/卸载所有权。
+- [LauncherProgramResolver](src/GitHubStore.App/Services/Launcher/LauncherProgramResolver.cs) 将添加或重新选择的 EXE/`.lnk` 解析为程序路径与参数，快捷方式通过 STA 原生读取而不执行。新手动记录和简化属性保存将 path + arguments 写入同一清单并原子替换。手动 `Arguments=null` 兼容旧 customization 参数，`Arguments=""` 明确清空；旧 `.lnk` 在编辑保存后转换为 EXE 与参数。
+- [LauncherCustomizationStore](src/GitHubStore.App/Services/Launcher/LauncherCustomizationStore.cs) 保存成功启动计数与兼容选项；[LauncherViewModel](src/GitHubStore.App/ViewModels/LauncherViewModel.cs) 按来源 + ID 隔离手动/受管项，按目录分类分组、成功启动次数降序排序，失败与取消不累计。受管分类来自目录并兼容旧覆盖，手动分类来自入口记录。
+- [启动器界面](src/GitHubStore.App/Views/LauncherView.xaml) 使用 128×128 DIP 方卡；Store 使用主题默认配色，manual 使用青色，已有自定义颜色优先。当前属性框只编辑程序路径与参数，受管路径只读；添加入口仍可填写名称、选择分类并确认解析结果。旧名称/分类覆盖、图标、颜色、工作目录、提权、热键、备注等配置保留兼容，运行或显示所需选项仍生效，但不再作为属性框可编辑字段。
+- [ShellIconReader](src/GitHubStore.Platform.Win32/Shell/ShellIconReader.cs) 补充原生 Shell/快捷方式图标读取；[LauncherHotkeyRegistry](src/GitHubStore.App/Services/Launcher/LauncherHotkeyRegistry.cs) 继续为已有热键配置注册主窗口 `WM_HOTKEY`，注册仅在应用运行期间有效。
+
+更新与回退的当前实现也已核对：[PortableUpgradeService](src/GitHubStore.App/Services/Installation/PortableUpgradeService.cs) 在升级提交后删除被替换的旧目录，仅保留切换过程中供失败恢复的临时备份；显式回退从绑定软件源选择比当前版本更旧的最近可用 release，优先复用下载缓存，否则重新下载，并按同一流程替换安装。它不依赖长期保留一份本地旧目录。当前文档核对不新增绿色升级/回退的实机验收结论。
+
+## 历史验证记录
+
+以下保留原日期、版本和验证边界，便于追溯。
 
 ## 2026-10-22 AI 助手集成验证
 

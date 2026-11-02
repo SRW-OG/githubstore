@@ -15,6 +15,10 @@
     <Compile Include="..\..\src\GitHubStore.App\Services\Discovery\*.cs" Link="Services\Discovery\%(Filename)%(Extension)" />
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\LauncherViewModel.cs" Link="ViewModels\LauncherViewModel.cs" />
     <Compile Include="..\..\src\GitHubStore.App\Services\Launcher\ManagedAppLauncher.cs" Link="Services\Launcher\ManagedAppLauncher.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Launcher\ManualAppLauncher.cs" Link="Services\Launcher\ManualAppLauncher.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Launcher\LauncherCustomizationStore.cs" Link="Services\Launcher\LauncherCustomizationStore.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Launcher\LauncherHotkeyRegistry.cs" Link="Services\Launcher\LauncherHotkeyRegistry.cs" />
+    <Compile Include="..\..\src\GitHubStore.App\Services\Launcher\LauncherProgramResolver.cs" Link="Services\Launcher\LauncherProgramResolver.cs" />
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.Cards.cs" Link="ViewModels\CatalogViewModel.Cards.cs" />
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogCardViewModel.cs" Link="ViewModels\CatalogCardViewModel.cs" />
     <Compile Include="..\..\src\GitHubStore.App\ViewModels\CatalogViewModel.ChineseReadme.cs" Link="ViewModels\CatalogViewModel.ChineseReadme.cs" />

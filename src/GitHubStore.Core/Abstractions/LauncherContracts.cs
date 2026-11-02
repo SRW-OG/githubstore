@@ -60,6 +60,11 @@ public interface IManagedAppLauncher
     Task RegisterCompletedInstallAsync(InstallRecord installation, string displayName, CancellationToken ct = default);
     Task UnregisterAsync(string installId, CancellationToken ct = default);
     Task<LauncherLaunchResult> LaunchAsync(string installId, CancellationToken ct = default);
+    Task<LauncherLaunchResult> LaunchWithOptionsAsync(string installId, LauncherEntryOptions options, CancellationToken ct = default) =>
+        !LauncherEntryOptionsValidation.IsValid(options)
+            ? Task.FromResult(new LauncherLaunchResult(false, "launcher_invalid_options"))
+            : LauncherEntryOptionsValidation.RequiresCustomLaunch(options)
+                ? Task.FromResult(new LauncherLaunchResult(false, "launcher_options_unsupported")) : LaunchAsync(installId, ct);
 
     /// <summary>
     /// 按安装 ID 重新读取登记原文（已通过实现自身的校验与路径规范化）。

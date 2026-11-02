@@ -3,7 +3,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:GitHubStore.App.Views">
-    <Grid Padding="24" RowSpacing="14">
+    <UserControl.Resources>
+        <local:LauncherSourceBrushConverter x:Key="LauncherSourceBrush" />
+    </UserControl.Resources>
+    <Grid Padding="24" RowSpacing="14" Background="Transparent" AllowDrop="True" DragOver="OnManualDragOver" Drop="OnManualDrop">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -14,15 +17,19 @@
             <TextBlock Text="{Binding Text[LauncherHeading]}" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="{Binding Text[LauncherDescription]}" TextWrapping="Wrap"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock Text="{Binding Text[LauncherDropHint]}" TextWrapping="Wrap"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </StackPanel>
         <Grid Grid.Row="1" ColumnSpacing="12">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      PlaceholderText="{Binding Text[LauncherSearch]}" AutomationProperties.Name="{Binding Text[LauncherSearch]}"
                      AutomationProperties.AutomationId="LauncherSearchInput" />
             <Button Grid.Column="1" Content="{Binding Text[LauncherRefresh]}" Command="{Binding RefreshCommand}"
                     AutomationProperties.AutomationId="LauncherRefreshButton" />
-            <Button Grid.Column="2" Content="{Binding Text[HomeExplore]}" Click="OnExploreRequested"
+            <Button x:Name="AddManualButton" Grid.Column="2" Content="{Binding Text[LauncherAddManual]}" Click="OnAddManualClick"
+                    AutomationProperties.AutomationId="LauncherAddManualButton" />
+            <Button Grid.Column="3" Content="{Binding Text[HomeExplore]}" Click="OnExploreRequested"
                     AutomationProperties.AutomationId="HomeExploreButton" />
         </Grid>
         <Grid Grid.Row="2">
@@ -40,6 +47,8 @@
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" />
                                     <TextBlock Text="{Binding CountText}" VerticalAlignment="Center" FontSize="12"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding SortDescription}" VerticalAlignment="Center" FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
                                 <GridView ItemsSource="{Binding Apps}" SelectionMode="None" IsItemClickEnabled="True"
                                           ItemClick="OnApplicationClick" HorizontalAlignment="Stretch"
@@ -49,12 +58,21 @@
                                     </GridView.ItemsPanel>
                                     <GridView.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Width="124" Height="124" Padding="10" Margin="3" CornerRadius="8"
-                                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                            <Border Width="128" Height="128" Padding="10" Margin="3" CornerRadius="8"
+                                                    Background="{Binding Converter={StaticResource LauncherSourceBrush}, ConverterParameter=Fill}"
+                                                    BorderBrush="{Binding Converter={StaticResource LauncherSourceBrush}}" BorderThickness="1"
                                                     ToolTipService.ToolTip="{Binding Tooltip}" AutomationProperties.Name="{Binding DisplayName}">
+                                                <Border.ContextFlyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyoutItem Tag="{Binding}" Name="LaunchEntryMenuItem" Loaded="OnEntryMenuLoaded" Click="OnLaunchEntryMenuClick" />
+                                                        <MenuFlyoutItem Tag="{Binding}" Name="EntryPropertiesMenuItem" Loaded="OnEntryMenuLoaded" Click="OnEntryPropertiesClick" />
+                                                        <MenuFlyoutItem Tag="{Binding}" Loaded="OnRemoveManualMenuLoaded" Click="OnRemoveManualClick"
+                                                                        Visibility="{Binding IsManual, Converter={StaticResource BooleanToVisibility}}" />
+                                                    </MenuFlyout>
+                                                </Border.ContextFlyout>
                                                 <StackPanel Spacing="6" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                                                    <local:LauncherAppIcon Width="48" Height="48" ExecutablePath="{Binding ExecutablePath}" HorizontalAlignment="Center" />
+                                                    <local:LauncherAppIcon Width="48" Height="48" Margin="0,2" ExecutablePath="{Binding ExecutablePath}"
+                                                                           IconPath="{Binding Options.IconPath}" HorizontalAlignment="Center" />
                                                     <TextBlock Text="{Binding DisplayName}" TextAlignment="Center" TextWrapping="Wrap"
                                                                TextTrimming="CharacterEllipsis" MaxLines="2" FontWeight="SemiBold" />
                                                 </StackPanel>

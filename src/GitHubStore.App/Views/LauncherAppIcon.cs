@@ -8,7 +8,7 @@ using Windows.Storage.Streams;
 
 namespace GitHubStore.App.Views;
 
-/// <summary>Reads embedded executable icons first; shell thumbnails and a local glyph provide fallbacks.</summary>
+/// <summary>Reads embedded executable icons first; native shell icons, thumbnails and a local glyph provide fallbacks.</summary>
 public sealed class LauncherAppIcon : Grid
 {
     private readonly FontIcon _fallback = new() { Glyph = "\uE8A5", FontSize = 40, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
@@ -31,6 +31,15 @@ public sealed class LauncherAppIcon : Grid
     public static readonly DependencyProperty ExecutablePathProperty = DependencyProperty.Register(
         nameof(ExecutablePath), typeof(string), typeof(LauncherAppIcon), new PropertyMetadata(null, OnPathChanged));
 
+    /// <summary>Optional user-selected icon file; falls back to the executable's own icon.</summary>
+    public string? IconPath
+    {
+        get => (string?)GetValue(IconPathProperty);
+        set => SetValue(IconPathProperty, value);
+    }
+    public static readonly DependencyProperty IconPathProperty = DependencyProperty.Register(
+        nameof(IconPath), typeof(string), typeof(LauncherAppIcon), new PropertyMetadata(null, OnPathChanged));
+
     private static void OnPathChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
     {
         var control = (LauncherAppIcon)sender;
@@ -46,9 +55,33 @@ public sealed class LauncherAppIcon : Grid
 
     private static async Task<BitmapImage?> ReadEmbeddedImageAsync(string path)
     {
+        try { return await DecodeIconAsync(await Task.Run(() => ExecutableIconReader.ReadIcon(path))); }
+        catch (Exception) { return null; }
+    }
+
+    private static async Task<BitmapImage?> ReadShellImageAsync(string path)
+    {
+        try { return await DecodeIconAsync(await ShellIconReader.ReadIconAsync(path)); }
+        catch (Exception) { return null; }
+    }
+
+    private static async Task<BitmapImage?> DecodeFileAsync(string path)
+    {
         try
         {
-            var bytes = await Task.Run(() => ExecutableIconReader.ReadIcon(path));
+            var file = await StorageFile.GetFileFromPathAsync(path);
+            using var stream = await file.OpenReadAsync();
+            var image = new BitmapImage { DecodePixelWidth = 128 };
+            await image.SetSourceAsync(stream);
+            return image;
+        }
+        catch (Exception) { return null; }
+    }
+
+    private static async Task<BitmapImage?> DecodeIconAsync(byte[]? bytes)
+    {
+        try
+        {
             if (bytes is null) return null;
             using var stream = new InMemoryRandomAccessStream();
             using var writer = new DataWriter(stream);
@@ -71,13 +104,41 @@ public sealed class LauncherAppIcon : Grid
         _fallback.Visibility = Visibility.Visible;
         try
         {
-            if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path)
-                || !path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) return;
-            var embedded = await ReadEmbeddedImageAsync(path);
+            if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path)) return;
+            var custom = IconPath;
+            if (!string.IsNullOrWhiteSpace(custom) && Path.IsPathFullyQualified(custom) && File.Exists(custom))
+            {
+                var extension = Path.GetExtension(custom).ToLowerInvariant();
+                var customImage = extension is ".ico" or ".png" or ".jpg" or ".jpeg" or ".bmp"
+                    ? await DecodeFileAsync(custom)
+                    : await ReadShellImageAsync(custom);
+                if (!IsLoaded || version != _version) return;
+                if (customImage is not null)
+                {
+                    _image.Source = customImage;
+                    _fallback.Visibility = Visibility.Collapsed;
+                    return;
+                }
+            }
+            var isExecutable = path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
+            var isShortcut = path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase);
+            if (!isExecutable && !isShortcut) return;
+            // Shortcuts use the shell's resolved icon; only PE files have embedded executable icons.
+            var embedded = isExecutable ? await ReadEmbeddedImageAsync(path) : null;
             if (!IsLoaded || version != _version) return;
             if (embedded is not null)
             {
                 _image.Source = embedded;
+                _fallback.Visibility = Visibility.Collapsed;
+                return;
+            }
+            // The WinRT thumbnail provider can return nothing for .lnk files. Ask the shell
+            // directly on its own STA worker before trying that final image fallback.
+            var shellImage = await ReadShellImageAsync(path);
+            if (!IsLoaded || version != _version) return;
+            if (shellImage is not null)
+            {
+                _image.Source = shellImage;
                 _fallback.Visibility = Visibility.Collapsed;
                 return;
             }
