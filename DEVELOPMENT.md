@@ -79,13 +79,14 @@ pwsh -File scripts\build-installer.ps1 -Version 0.1.22 -CompilerPath 'C:\Path\To
 
 本节记录当前源码状态。后续按日期保留的 0.1.15 等章节属于历史验证，不代表当前版本或本次新增验收；自动测试、真实程序启动、UI 点击验收与安装包发布分别记录。
 
-- **本次 Release x64 验证：** v0.1.22 测试项目 Release 构建 0 警告、0 错误，同进程完整回归 1,908 通过、0 失败、0 跳过；报告 [release-0.1.22-Release-x64.json](artifacts/test-results/release-0.1.22-Release-x64.json) 的 `success=true`，`errors` 为空。客户端 Release 自包含 `dotnet publish` 与 Inno Setup 编译成功。本次文档同步引用已有证据，未重复执行构建或测试，远端 CI 结果仍应以实际运行记录为准。
+- **本次 Release x64 验证：** v0.1.22 测试项目 Release 构建 0 警告、0 错误，同进程完整回归 1,908 通过、0 失败、0 跳过；报告 [release-0.1.22-Release-x64.json](artifacts/test-results/release-0.1.22-Release-x64.json) 的 `success=true`，`errors` 为空。客户端 Release 自包含 `dotnet publish` 与 Inno Setup 编译成功。以上为本次发布流程实际执行的本地验证，远端 CI 结果仍应以实际运行记录为准。
 - **同日 Debug x64 验证：** App 与测试项目构建均为 0 警告、0 错误，同进程回归同为 1,908 通过、0 失败、0 跳过；报告 [launcher-path-arguments-Debug-x64.json](artifacts/test-results/launcher-path-arguments-Debug-x64.json)。
 - **新增测试范围：** 真实 Windows 快捷方式的中文路径、带引号参数与原生读取；嵌套快捷方式、循环/失效目标拒绝；添加时保存解析后的 EXE 与参数、重载后启动；旧 `.lnk` 编辑保存转换并保留身份/名称/分类/计数；重复目标保留既有参数；非法参数与单清单原子写失败均不改变原路径/参数；显式清空旧 customization 参数后重载仍为空。具体用例见 [LauncherProgramResolverTests](tests/GitHubStore.Core.Tests/LauncherProgramResolverTests.cs)，计数/分类、启动选项与热键的既有回归仍包含在完整测试集中。快捷方式读取使用真实 Windows COM；合成 EXE 的启动目标与参数通过注入启动委托核对，没有执行这些合成文件，也不等于逐款第三方应用的端到端启动验收。
 - **真实程序启动：** 最新开发程序 Build ID `EDD3170783B7ED66`、PID `20024` 已实际启动并确认 `Responding=true`，于 2026-11-02 09:44（Asia/Shanghai）正常退出，退出码 0。Windows UI Automation 未能读取本次窗口内部控件，因此没有本次“打开属性 → 编辑路径/参数 → 保存”的真实点击验收；程序响应与自动测试通过不替代此项。
 - **本次自包含发布输出启动：** 使用独立 `GITHUBSTORE_DATA_DIR` 启动 v0.1.22 发布输出，PID `18876`，窗口标题“GitHubStore · 开源应用目录”，窗口句柄 `395604`，`Responding=true`；正常请求关闭后已退出，退出码 0。证据 [release-0.1.22-smoke.json](artifacts/test-results/release-0.1.22-smoke.json)。此项覆盖发布输出启动/响应/退出，不是安装器安装卸载全流程，也不补足上述属性 UI 点击验收。
 - **本次发布产物：** [GitHubStore-Setup-0.1.22-win-x64.exe](dist/GitHubStore-Setup-0.1.22-win-x64.exe) 已生成，50,656,049 字节，文件版本 `0.1.22.0`；SHA-256 为 `571c97b79340d9cbf00105631c1c61c62ead4c1c15ff8081c303203214d05a9f`，构建元数据见 [installer-build.json](dist/installer-build.json)。本包包含当前方卡、精简属性、快捷方式解析及路径/参数原子保存改动。
 - **历史本地安装包：** 0.1.21 已于 2026-11-01 本地生成，对应当时 1,894 项测试通过；它不包含后续 128×128 方卡和精简属性编辑/快捷方式解析保存改动，不能用该旧包代表本次交付。
+- **CI 兼容性修正：** 首轮 GitHub Windows Server 2022 验证在测试准备阶段给 `WScript.Shell.TargetPath` 设置中文目标路径时失败，尚未执行快捷方式解析器。测试夹具改用 Unicode `IShellLinkW` / `IPersistFile` 创建真实快捷方式，保留中文路径与引号参数输入，不跳过或弱化用例。本地重新执行 Debug / Release 各 1,908 项回归均通过，报告为 `artifacts/test-results/release-0.1.22-Debug-x64.json` 与上述 Release 报告；该修正只改测试和文档，不改变应用发布文件。
 - **远端状态边界：** 本次交付版本为 v0.1.22，源码与安装包上传按发布流程执行；本节不提前宣称远端 CI 或正式 Release 已成功，远端状态以实际上传和运行结果为准。
 
 复现本次 Debug x64 构建及同进程测试的主要命令如下；如依赖尚未还原，先运行前文的还原命令。构建失败时应停止，不运行旧测试二进制：

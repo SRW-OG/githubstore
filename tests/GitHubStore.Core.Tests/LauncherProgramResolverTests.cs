@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using GitHubStore.App.Services.Launcher;
 using GitHubStore.App.Services.Localization;
 using GitHubStore.App.ViewModels;
@@ -229,30 +231,51 @@ public sealed class LauncherProgramResolverTests
                 done.TrySetException(new PlatformNotSupportedException());
                 return;
             }
-            object? shell = null;
-            object? link = null;
+            object? instance = null;
             try
             {
-                shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell", true)!);
-                dynamic dynamicShell = shell!;
-                link = dynamicShell.CreateShortcut(shortcut);
-                dynamic dynamicLink = link;
-                dynamicLink.TargetPath = exe;
-                dynamicLink.Arguments = arguments;
-                dynamicLink.WorkingDirectory = Path.GetDirectoryName(exe)!;
-                dynamicLink.Save();
+                // WScript.Shell.TargetPath can reject Unicode paths on English Windows/Server.
+                // Create the real fixture with the Unicode Shell interface, preserving the full test input.
+                instance = Activator.CreateInstance(Type.GetTypeFromCLSID(new Guid("00021401-0000-0000-C000-000000000046"), true)!);
+                var link = (ITestShellLinkW)instance!;
+                link.SetPath(exe);
+                link.SetArguments(arguments);
+                link.SetWorkingDirectory(Path.GetDirectoryName(exe)!);
+                ((IPersistFile)instance!).Save(shortcut, true);
                 done.TrySetResult();
             }
             catch (Exception ex) { done.TrySetException(ex); }
             finally
             {
-                if (link is not null) Marshal.FinalReleaseComObject(link);
-                if (shell is not null) Marshal.FinalReleaseComObject(shell);
+                if (instance is not null) Marshal.FinalReleaseComObject(instance);
             }
         }) { IsBackground = true };
         thread.SetApartmentState(ApartmentState.STA);
         thread.Start();
         return done.Task;
+    }
+
+    [ComImport, Guid("000214F9-0000-0000-C000-000000000046"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    private interface ITestShellLinkW
+    {
+        void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path, int capacity, nint findData, uint flags);
+        void GetIDList(out nint idList);
+        void SetIDList(nint idList);
+        void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder description, int capacity);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string description);
+        void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder directory, int capacity);
+        void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string directory);
+        void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder arguments, int capacity);
+        void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string arguments);
+        void GetHotkey(out short hotkey);
+        void SetHotkey(short hotkey);
+        void GetShowCmd(out int command);
+        void SetShowCmd(int command);
+        void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder path, int capacity, out int index);
+        void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string path, int index);
+        void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string path, uint reserved);
+        void Resolve(nint window, uint flags);
+        void SetPath([MarshalAs(UnmanagedType.LPWStr)] string path);
     }
 
     private sealed class Fixture : IDisposable
