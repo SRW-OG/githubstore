@@ -122,8 +122,10 @@ public sealed class LauncherAppIcon : Grid
             }
             var isExecutable = path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
             var isShortcut = path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase);
-            if (!isExecutable && !isShortcut) return;
-            // Shortcuts use the shell's resolved icon; only PE files have embedded executable icons.
+            var isScript = path.EndsWith(".vbs", StringComparison.OrdinalIgnoreCase);
+            if (!isExecutable && !isShortcut && !isScript) return;
+            // Shortcuts (.lnk) and scripts (.vbs) use the shell's associated icon;
+            // only PE files have embedded executable icons.
             var embedded = isExecutable ? await ReadEmbeddedImageAsync(path) : null;
             if (!IsLoaded || version != _version) return;
             if (embedded is not null)

@@ -68,6 +68,21 @@ $descriptionZhByKey = @{
     'minghinmatthewlam/pi-gui'            = '面向 pi 编码代理运行时的桌面图形客户端。'
     't8y2/motty'                          = '集成 SSH、SFTP、端口转发、VNC/RDP 与 AI 助手的原生桌面终端工具。'
     'xanerix/guoapp'                      = '短剧内容客户端，随发行版提供 Windows 桌面程序。'
+    'anefzaoui/misterdownloadmanager'     = '用纯 Rust 编写的开源下载管理器，跨 Windows、macOS 与 Linux 提供简洁界面。'
+    'd2phap/imageglass'                   = '快速开源的现代图片查看器，支持 90 多种格式，包括 WEBP、GIF、SVG、AVIF、JXL 与 HEIC。'
+    'frigadehq/yogurt'                    = '完全在本地运行的私密 AI 会议记录工具，是 Granola 的开源替代，支持 Windows、macOS 与 Linux。'
+    'hkneptune/freefilesync'              = 'FreeFileSync 的源码镜像仓库，发行版提供旧版免费安装包。'
+    'huanfeng/windinput'                  = '清风输入法：轻量、快速、可定制的开源中文输入法，专为五笔与码表方案设计。'
+    'luolangaga/tubatools'                = '图吧工具箱：基于 WinUI 3 重构的 Windows 硬件检测与常用工具集合。'
+    'milind-soni/openmausbot'             = '开源 Grok Bot 替代方案，内置可供机器人使用的虚拟机。'
+    'openselena/omniget'                  = '开源课程与视频下载管理器，支持 Udemy、Hotmart、YouTube 及 1800 多个站点。'
+    'pdfcrafttool/pdfcraft'               = '隐私优先、完全在浏览器内运行的 PDF 工具箱，提供 90 多种编辑、转换、合并与加密工具。'
+    'tianyu199509/deskbox'                = '免费开源的 Windows 桌面整理工具，提供原生质感的 WinUI 3 小组件。'
+    'yashwanthkamireddi/skykeep'          = '在 Windows、Linux 与 Android 上使用苹果备忘录、提醒、日历、通讯录、iCloud 云盘与照片的原生应用。'
+    'yetone/alma-releases'                = 'Alma 桌面应用的发行版仓库，随仓库提供 Windows 安装包。'
+    'zanbinxu/shuting'                    = '以「听读」为核心的本地电子书阅读器，支持 EPUB、PDF、TXT、MOBI、AZW3 并可导出 MP3。'
+    'zed-industries/zed'                  = '高性能、多人协作的代码编辑器，由 Atom 与 Tree-sitter 团队打造。'
+    'zenvyzenshiro/zenlink'               = 'Windows 端的 iPhone、iPad 与 Android 屏幕镜像工具，支持硬件解码与鼠标键盘控制。'
 }
 
 function Get-StableToken([string]$value, [int]$length) {
@@ -248,7 +263,7 @@ function New-Curation($entry, [string]$key, [string]$fullName, [string]$tag) {
     $evidence += $windowsAssets
     $notes = @(
         '核验范围限官方仓库身份、许可标识、发行时间、Windows 发行资产与项目说明；未执行第三方程序安装或安全审计。',
-        '收录依据：由用户在用客户端手动添加（本地目录 2026-10-27 状态），随本仓库的目录文件一起发布。',
+        '收录依据：由用户在用客户端手动添加（本地目录 2026-11-15 状态），随本仓库的目录文件一起发布。',
         "仓库 API 许可标识：$license；具体条款以仓库内许可文件为准。"
     )
     if ($windowsAssets.Count -gt 0) {

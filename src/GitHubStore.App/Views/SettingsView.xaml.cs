@@ -267,6 +267,23 @@ public sealed partial class SettingsView : UserControl, IDisposable
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI XAML 事件必须返回 void；处理器内捕获所有异常。")]
+    private async void OnApplyPowerShellClick(object sender, RoutedEventArgs args)
+    {
+        try
+        {
+            if (ViewModel is not { } viewModel) return;
+            await viewModel.ApplyPowerShellAsync();
+        }
+        catch (Exception ex)
+        {
+            if (ViewModel is { } viewModel) viewModel.ReportFailure();
+            System.Diagnostics.Trace.WriteLine(ex);
+        }
+    }
+
+    private void OnDetectPowerShellClick(object sender, RoutedEventArgs args) => ViewModel?.DetectPowerShell();
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI XAML 事件必须返回 void；处理器内捕获所有异常。")]
     private async void OnApplyPathsClick(object sender, RoutedEventArgs args)
     {
         try

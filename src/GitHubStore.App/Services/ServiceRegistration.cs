@@ -48,8 +48,15 @@ public static class ServiceRegistration
         services.AddSingleton<ISearchService>(sp => sp.GetRequiredService<GitHubCatalogService>());
         services.AddSingleton<IRepositoryCatalogService>(sp => sp.GetRequiredService<GitHubCatalogService>());
         services.AddSingleton<WindowsRuntimeInfo>();
+        // 命令行工具在 PowerShell 中启动：环境解析读取用户设置里的 pwsh 路径，未配置时回落到系统 Windows PowerShell。
+        services.AddSingleton(sp => new GitHubStore.App.Services.Launcher.PowerShellEnvironmentResolver(
+            () => sp.GetRequiredService<PreferencesService>().Current.PowerShell7Path));
+        services.AddSingleton(sp => new GitHubStore.App.Services.Launcher.ConsoleLauncher(
+            sp.GetRequiredService<GitHubStore.App.Services.Launcher.PowerShellEnvironmentResolver>()));
         services.AddSingleton<IManagedAppLauncher>(sp => new GitHubStore.App.Services.Launcher.ManagedAppLauncher(DataDirectory,
-            installRootProvider: () => StorageLocations.ResolveInstallRoot(sp.GetRequiredService<PreferencesService>().Current)));
+            installRootProvider: () => StorageLocations.ResolveInstallRoot(sp.GetRequiredService<PreferencesService>().Current),
+            consoleStarter: (path, directory, arguments, keepOpen) => sp.GetRequiredService<GitHubStore.App.Services.Launcher.ConsoleLauncher>()
+                .Launch(path, directory, arguments, keepOpen)));
         services.AddSingleton<IAppInstallService>(sp => new GitHubStore.App.Services.Installation.AppInstallService(
             sp.GetRequiredService<IDownloadService>(), sp.GetRequiredService<IManagedAppLauncher>(),
             sp.GetRequiredService<PreferencesService>(), DataDirectory,
@@ -113,7 +120,9 @@ public static class ServiceRegistration
         services.AddSingleton<DiscoveryHomeViewModel>();
         services.AddSingleton<CatalogViewModel>();
         services.AddSingleton<ILauncherProgramResolver, GitHubStore.App.Services.Launcher.LauncherProgramResolver>();
-        services.AddSingleton<IManualAppLauncher>(_ => new GitHubStore.App.Services.Launcher.ManualAppLauncher(DataDirectory));
+        services.AddSingleton<IManualAppLauncher>(sp => new GitHubStore.App.Services.Launcher.ManualAppLauncher(DataDirectory,
+            consoleStarter: (path, directory, arguments, keepOpen) => sp.GetRequiredService<GitHubStore.App.Services.Launcher.ConsoleLauncher>()
+                .Launch(path, directory, arguments, keepOpen)));
         services.AddSingleton<ILauncherCustomizationStore>(_ => new GitHubStore.App.Services.Launcher.LauncherCustomizationStore(DataDirectory));
         services.AddSingleton<ILauncherHotkeyRegistry>(_ => new GitHubStore.App.Services.Launcher.LauncherHotkeyRegistry());
         services.AddSingleton<LauncherViewModel>(sp => new LauncherViewModel(

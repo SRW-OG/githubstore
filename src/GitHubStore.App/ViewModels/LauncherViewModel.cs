@@ -185,8 +185,12 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
     public Task<bool> AddManualEntryAsync(string path, string displayName, CategoryId? category,
         CancellationToken ct = default) => AddManualEntryAsync(path, displayName, category, string.Empty, ct);
 
+    public Task<bool> AddManualEntryAsync(string path, string displayName, CategoryId? category,
+        string arguments, CancellationToken ct = default) =>
+        AddManualEntryAsync(path, displayName, category, arguments, LaunchMode.Auto, true, ct);
+
     public async Task<bool> AddManualEntryAsync(string path, string displayName, CategoryId? category,
-        string arguments, CancellationToken ct = default)
+        string arguments, LaunchMode launchMode, bool keepConsoleWindowOpen, CancellationToken ct = default)
     {
         if (_disposed || IsAddingManual || _manualLauncher is null) return false;
         IsAddingManual = true;
@@ -197,10 +201,22 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
         {
             var target = await ResolveProgramAsync(path, cancellation.Token);
             var effectiveArguments = JoinArguments(target.Arguments, arguments);
-            var options = new LauncherEntryOptions { Arguments = effectiveArguments };
+            var options = new LauncherEntryOptions
+            {
+                Arguments = effectiveArguments, LaunchMode = launchMode, KeepConsoleWindowOpen = keepConsoleWindowOpen,
+            };
             if (!LauncherEntryOptionsValidation.IsValid(options)) throw new LauncherException("manual_launcher_invalid_options");
             // Path and arguments share one atomic manifest write. Duplicate targets keep their saved settings.
-            await _manualLauncher.AddProgramAsync(target.Path, displayName.Trim(), category, effectiveArguments, cancellation.Token);
+            var added = await _manualLauncher.AddProgramAsync(target.Path, displayName.Trim(), category, effectiveArguments, cancellation.Token);
+            // 启动方式/保留窗口仅在与默认值不同时才写入定制记录，普通新增（Auto + 保留窗口）不额外写一次。
+            if (_customizationStore is not null && RequiresOptionStorage(options))
+            {
+                var saved = await _customizationStore.SavePropertiesAsync(true, added.Id,
+                    displayName.Trim(), category, options, cancellation.Token);
+                if (_disposed || cancellation.IsCancellationRequested) return false;
+                _customizations[(true, added.Id)] = saved;
+                _customizationVersion++;
+            }
             // Keep the new entry visible even if a previous search was active.
             SearchText = string.Empty;
             await RefreshEntriesAsync(cancellation.Token);
@@ -233,14 +249,27 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
     private static string JoinArguments(string original, string extra) =>
         original.Length == 0 ? extra : extra.Length == 0 ? original : original + " " + extra;
 
+    /// <summary>启动方式/保留窗口是否偏离默认值，需要写入定制记录（参数本身不在定制记录里）。</summary>
+    private static bool RequiresOptionStorage(LauncherEntryOptions options) =>
+        options.LaunchMode != LaunchMode.Auto || !options.KeepConsoleWindowOpen;
+
     /// <summary>The simplified editor changes only the launch target and arguments, preserving metadata.</summary>
     public async Task<bool> SaveLaunchPropertiesAsync(LauncherItemViewModel item, string path, string arguments,
-        CancellationToken ct = default)
+        CancellationToken ct = default) =>
+        await SaveLaunchPropertiesAsync(item, path, arguments, item.Options.LaunchMode,
+            item.Options.KeepConsoleWindowOpen, ct).ConfigureAwait(false);
+
+    /// <summary>保存启动目标、参数以及启动方式/保留窗口，其余元数据保持不变。</summary>
+    public async Task<bool> SaveLaunchPropertiesAsync(LauncherItemViewModel item, string path, string arguments,
+        LaunchMode launchMode, bool keepConsoleWindowOpen, CancellationToken ct = default)
     {
         if (_disposed || IsAddingManual) return false;
+        var newOptions = item.Options with
+        {
+            Arguments = arguments, LaunchMode = launchMode, KeepConsoleWindowOpen = keepConsoleWindowOpen,
+        };
         if (!item.IsManual)
-            return await SaveEntryPropertiesAsync(item, item.DisplayName, item.Category, path,
-                item.Options with { Arguments = arguments }, ct);
+            return await SaveEntryPropertiesAsync(item, item.DisplayName, item.Category, path, newOptions, ct);
         IsAddingManual = true;
         ErrorMessage = string.Empty;
         StatusMessage = string.Empty;
@@ -251,6 +280,16 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
             var target = await ResolveProgramAsync(path, cancellation.Token);
             await _manualLauncher.UpdateProgramAsync(item.InstallId, target.Path,
                 JoinArguments(target.Arguments, arguments), cancellation.Token);
+            // 手动条目的参数存在自身索引里；启动方式/保留窗口仅在确实不同于默认值时才写入定制记录，
+            // 避免用户只改参数时触发一次不必要的定制写入。
+            if (_customizationStore is not null && RequiresOptionStorage(newOptions))
+            {
+                var savedManual = await _customizationStore.SavePropertiesAsync(true, item.InstallId,
+                    item.DisplayName, item.Category, newOptions, cancellation.Token);
+                if (_disposed || cancellation.IsCancellationRequested) return false;
+                _customizations[(true, item.InstallId)] = savedManual;
+                _customizationVersion++;
+            }
             SearchText = string.Empty;
             await RefreshEntriesAsync(cancellation.Token);
             if (_disposed || cancellation.IsCancellationRequested) return false;
@@ -434,6 +473,8 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
         "launcher_access_denied" => "LauncherAccessDenied",
         "launcher_invalid_manifest" or "launcher_manifest_too_large" => "LauncherRegistryInvalid",
         "launcher_start_failed" or "manual_launcher_start_failed" => "LauncherLaunchFailed",
+        "launcher_console_elevation_unsupported" => "LauncherConsoleElevationUnsupported",
+        "launcher_powershell_missing" => "LauncherPowerShellMissing",
         "launcher_invalid_options" or "manual_launcher_invalid_options" or "launcher_customization_invalid_options"
             or "launcher_customization_invalid_color" or "launcher_customization_invalid_hotkey" => "LauncherInvalidOptions",
         "launcher_invalid_working_directory" or "manual_launcher_invalid_working_directory" => "LauncherInvalidWorkingDirectory",
@@ -477,8 +518,7 @@ public sealed class LauncherItemViewModel
 
     public LauncherItemViewModel(LauncherApp app, LocalizationService text,
         LauncherCustomization? customization = null, CategoryId? category = null)
-    {
-        _text = text;
+    {        _text = text;
         InstallId = app.InstallId;
         DisplayName = customization?.DisplayName ?? app.DisplayName;
         Category = customization is { HasCategoryOverride: true } ? customization.Category : category;
@@ -505,6 +545,17 @@ public sealed class LauncherItemViewModel
         IsManual = true;
         var legacyOptions = customization?.Options ?? new LauncherEntryOptions();
         Options = entry.Arguments is null ? legacyOptions : legacyOptions with { Arguments = entry.Arguments };
+        // 命令行工具识别：仅对可执行程序有意义。快捷方式(.lnk)与脚本(.vbs)始终交给 ShellExecute，
+        // 不走 PowerShell 启动器，因此不显示命令行标识，避免与实际启动方式不符。
+        try
+        {
+            var extension = Path.GetExtension(entry.Path);
+            var isShellDocument = extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals(".vbs", StringComparison.OrdinalIgnoreCase);
+            IsConsoleApp = !isShellDocument
+                && Services.Launcher.ConsoleProgramDetector.ShouldLaunchInConsole(Options.LaunchMode, entry.Path);
+        }
+        catch (Exception) { IsConsoleApp = false; }
     }
 
     public string InstallId { get; }
@@ -514,6 +565,8 @@ public sealed class LauncherItemViewModel
     public string Version { get; } = string.Empty;
     public bool RequiresRecovery { get; }
     public bool IsManual { get; }
+    /// <summary>该条目是否在 PowerShell 终端中启动（命令行工具）。</summary>
+    public bool IsConsoleApp { get; }
     public CategoryId? Category { get; }
     public long LaunchCount { get; }
     public LauncherEntryOptions Options { get; }

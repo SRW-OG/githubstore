@@ -1,8 +1,8 @@
 # 软件管理优化实施记录
 
-## 当前文档索引（2026-11-02）
+## 当前文档索引（2026-11-15）
 
-最新导航/分页、设置布局、已安装列表与更新/回退、手动启动器、方形卡片、精简属性和快捷方式解析见 [近期更新](CHANGELOG.md) 与 [启动器使用说明](LAUNCHER.md)。本次交付版本为 **v0.1.22**，Release x64 测试项目构建 0 警告、0 错误，完整回归 **1908 通过、0 失败、0 跳过**；客户端自包含发布与 Inno Setup 打包成功。测试报告为 [release-0.1.22-Release-x64.json](../artifacts/test-results/release-0.1.22-Release-x64.json)，包大小、摘要和元数据见 [开发与验证](../DEVELOPMENT.md)。自包含发布输出在隔离数据目录启动并保持响应，正常关闭退出码 0，证据为 [release-0.1.22-smoke.json](../artifacts/test-results/release-0.1.22-smoke.json)。本轮文档同步引用这些已有证据，没有重复执行验证，也不提前宣称远端 CI 或正式 Release 成功。本地 0.1.21 旧包仍作为历史保留，不包含其后方卡和精简编辑/解析改动。
+最新命令行工具 PowerShell 启动、导航/分页、设置布局、已安装列表与更新/回退、手动启动器、方形卡片、精简属性和快捷方式解析见 [近期更新](CHANGELOG.md) 与 [启动器使用说明](LAUNCHER.md)。本次交付版本为 **v0.1.29**，Release x64 应用与测试项目构建 0 警告、0 错误，完整回归 **1958 通过、0 失败、0 跳过**；客户端自包含发布与 Inno Setup 打包成功。测试报告为 [inprocess-Release-x64.json](../artifacts/test-results/inprocess-Release-x64.json)，包大小、摘要和元数据见 [开发与验证](../DEVELOPMENT.md)。
 
 用户于 2026-10-25 14:25（Asia/Shanghai）确认当时版本验收完成、DevToys 启动崩溃已解决；该历史反馈不代表最新属性窗口已经点击验收。更新机制后续已调整为成功后清理旧目录、回退时从来源重新取得较旧版本，现行行为以 [安装与更新说明](INSTALLATION.md#升级与回退绿色便携安装) 为准。
 

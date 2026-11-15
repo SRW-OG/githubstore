@@ -351,6 +351,7 @@ public sealed class PreferencesService
             DownloadCacheDirectory = NormalizeOptionalPath(preferences.DownloadCacheDirectory, nameof(preferences.DownloadCacheDirectory)),
             InstallRootDirectory = NormalizeOptionalPath(preferences.InstallRootDirectory, nameof(preferences.InstallRootDirectory)),
             Aria2ExecutablePath = NormalizeExecutablePath(preferences.Aria2ExecutablePath),
+            PowerShell7Path = NormalizePowerShellPath(preferences.PowerShell7Path),
             XgetInstance = NormalizeXgetInstance(preferences.XgetInstance),
             ProxyHost = proxyHost,
             ProxyPort = proxyPort,
@@ -453,6 +454,17 @@ public sealed class PreferencesService
             || Path.GetFileNameWithoutExtension(normalized).Length == 0
             || Path.EndsInDirectorySeparator(path!.Trim()))
             throw new ArgumentException("aria2 must be an absolute .exe file path.", nameof(AppPreferences.Aria2ExecutablePath));
+        return normalized;
+    }
+
+    private static string? NormalizePowerShellPath(string? path)
+    {
+        var normalized = NormalizeOptionalPath(path, nameof(AppPreferences.PowerShell7Path));
+        if (normalized is null) return null;
+        if (!Path.GetExtension(normalized).Equals(".exe", StringComparison.OrdinalIgnoreCase)
+            || Path.GetFileNameWithoutExtension(normalized).Length == 0
+            || Path.EndsInDirectorySeparator(path!.Trim()))
+            throw new ArgumentException("PowerShell 7 must be an absolute .exe file path.", nameof(AppPreferences.PowerShell7Path));
         return normalized;
     }
 

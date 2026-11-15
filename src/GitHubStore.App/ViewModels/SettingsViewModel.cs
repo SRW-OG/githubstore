@@ -60,6 +60,11 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     /// <summary>默认安装目录；留空使用 C:\githubapps。</summary>
     [ObservableProperty] private string _installRootDirectory = string.Empty;
 
+    /// <summary>命令行工具的 PowerShell 7 路径；留空使用系统 Windows PowerShell。</summary>
+    [ObservableProperty] private string _powerShell7Path = string.Empty;
+    [ObservableProperty] private string _powerShellStatus = string.Empty;
+    [ObservableProperty] private string _powerShellError = string.Empty;
+
     /// <summary>提示当前生效的默认目录，让“留空”也有明确含义。</summary>
     public string DefaultCacheHint => Text.Format("SettingsUseDefault") + ": " + StorageLocations.DefaultCacheDirectory;
     public string DefaultInstallHint => Text.Format("SettingsUseDefault") + ": " + StorageLocations.DefaultInstallRoot;
@@ -243,6 +248,39 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     public Task ApplyNetworkAsync(CancellationToken ct = default) =>
         ApplyCoreAsync(() => WithNetworkDraft(Preferences.Current), RestoreNetwork, validateNetwork: true, ct);
 
+    /// <summary>保存命令行运行环境（PowerShell 7 路径）；留空表示使用系统 Windows PowerShell。</summary>
+    public async Task ApplyPowerShellAsync(CancellationToken ct = default)
+    {
+        if (_disposed || !CanApply) return;
+        PowerShellError = string.Empty;
+        PowerShellStatus = string.Empty;
+        var trimmed = PowerShell7Path.Trim();
+        if (trimmed.Length > 0 && !Path.IsPathFullyQualified(trimmed))
+        {
+            PowerShellError = Text["SettingsPowerShellInvalid"];
+            return;
+        }
+        await ApplyCoreAsync(() => Preferences.Current with
+        {
+            PowerShell7Path = trimmed.Length == 0 ? null : trimmed,
+        }, RestorePowerShell, validateNetwork: false, ct);
+    }
+
+    /// <summary>在常见位置寻找 PowerShell 7 并填入文本框，不自动保存。</summary>
+    public void DetectPowerShell()
+    {
+        PowerShellError = string.Empty;
+        var found = GitHubStore.App.Services.Launcher.PowerShellEnvironmentResolver.FindPowerShell7();
+        if (found is null)
+        {
+            PowerShellStatus = string.Empty;
+            PowerShellError = Text["SettingsPowerShellNotFound"];
+            return;
+        }
+        PowerShell7Path = found;
+        PowerShellStatus = Text.Format("SettingsPowerShellFound", found);
+    }
+
     public Task ApplyAppearanceAsync(ThemeMode theme, string language, CancellationToken ct = default) =>
         ApplyCoreAsync(() => Preferences.Current with { Theme = theme, Language = language },
             RestoreAppearance, validateNetwork: false, ct);
@@ -319,6 +357,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
                 nameof(AppPreferences.CatalogLibraryUrl) => "SettingsCatalogLibraryUrlInvalid",
                 nameof(AppPreferences.AiEndpoint) => "SettingsAiEndpointInvalid",
                 nameof(AppPreferences.AiModel) => "SettingsAiModelInvalid",
+                nameof(AppPreferences.PowerShell7Path) => "SettingsPowerShellInvalid",
                 _ => "SettingsInvalidSelection",
             });
         }
@@ -359,8 +398,16 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         RestoreNetwork();
         RestoreAi();
         RestoreCatalogLibrary();
+        RestorePowerShell();
         Aria2ExecutablePath = Preferences.Current.Aria2ExecutablePath ?? string.Empty;
         XgetInstance = Preferences.Current.XgetInstance ?? string.Empty;
+    }
+
+    private void RestorePowerShell()
+    {
+        PowerShell7Path = Preferences.Current.PowerShell7Path ?? string.Empty;
+        PowerShellStatus = string.Empty;
+        PowerShellError = string.Empty;
     }
 
     private void RestoreAppearance()

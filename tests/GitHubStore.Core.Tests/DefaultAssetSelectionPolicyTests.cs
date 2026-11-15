@@ -56,6 +56,41 @@ public sealed class DefaultAssetSelectionPolicyTests
             Assert.Null(DefaultAssetSelectionPolicy.Select([asset], other));
     }
 
+    [Theory]
+    [InlineData("cindy-0.1.136-win32-x64-cn.exe", Arch.Amd64)]
+    [InlineData("cindy-0.1.136-win32-x64-global.exe", Arch.Amd64)]
+    [InlineData("VSCodium-win32-x64-1.140.06880.zip", Arch.Amd64)]
+    [InlineData("VSCodium-win32-arm64-1.140.06880.zip", Arch.Arm64)]
+    public void InferArchitecture_TreatsWin32AsPlatformWhenPairedWith64BitToken(string name, Arch architecture)
+        => Assert.Equal(architecture, DefaultAssetSelectionPolicy.InferArchitecture(Asset(name)));
+
+    [Fact]
+    public void Select_RecommendsElectronWin32X64InstallerAlongsideOtherPlatforms()
+    {
+        // 真实案例：cindy 只提供 win32-x64 命名的 Windows 安装包；旧逻辑把 win32 当成
+        // 32 位、与 x64 冲突，导致整个仓库被判定为“无 Windows 资产”，无法获取安装包。
+        var cn = Asset("cindy-0.1.136-win32-x64-cn.exe");
+        var global = Asset("cindy-0.1.136-win32-x64-global.exe");
+        var dmg = Asset("cindy-0.1.136-darwin-arm64-cn.dmg");
+        var deb = Asset("cindy-0.1.136-linux-x64-cn.deb");
+        Assert.Same(cn, Select(cn, global, dmg, deb));
+        Assert.Null(DefaultAssetSelectionPolicy.Select([cn], Arch.Arm64));
+        Assert.Null(DefaultAssetSelectionPolicy.Select([cn], Arch.X86));
+    }
+
+    [Fact]
+    public void GetEligibleAssets_AllowsElectronWin32X64UnderBroadPolicy()
+    {
+        // 自定义软件源（手动添加仓库）用通配 Include 枚举可选安装包，必须能看到该安装包。
+        var cn = Asset("cindy-0.1.136-win32-x64-cn.exe");
+        var global = Asset("cindy-0.1.136-win32-x64-global.exe");
+        var policy = new PackagePolicy { AssetRules = [new PackageAssetRule { Architecture = Arch.Unknown, Include = ["*"] }] };
+        var eligible = DefaultAssetSelectionPolicy.GetEligibleAssets([cn, global], Arch.Amd64, "makecindy/cindy", policy);
+        Assert.Equal(2, eligible.Count);
+        Assert.Contains(cn, eligible);
+        Assert.Contains(global, eligible);
+    }
+
     [Fact]
     public void Select_UsesFilenameToCorrectLegacyX86Underscore64Metadata()
     {

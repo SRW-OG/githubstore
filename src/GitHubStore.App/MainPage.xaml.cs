@@ -31,6 +31,13 @@ public sealed partial class MainPage : Page, IDisposable
         Launcher.Attach(launcherRegistry);
         viewModel.Settings.CatalogLibrarySynchronized += OnCatalogLibrarySynchronized;
         Navigation.SelectedItem = Navigation.MenuItems[0];
+        // 分类区与设置之间只保留 FooterMenuItems 里那一条显式分隔线：
+        // 把模板自带的 VisualItemsSeparator 固定隐藏，避免它在某些布局状态下
+        // 与我们添加的分隔线同时出现（两条）或因滚动被隐藏而一条都没有。
+        if (Navigation.FindName("VisualItemsSeparator") is NavigationViewItemSeparator visualItemsSeparator)
+        {
+            visualItemsSeparator.Visibility = Visibility.Collapsed;
+        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI XAML 事件必须返回 void；处理器内捕获所有异常。")]

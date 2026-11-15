@@ -94,7 +94,8 @@ public sealed partial class LauncherView : UserControl, IDisposable
         && Path.IsPathFullyQualified(item.Path)
         && !item.Path.StartsWith(@"\\", StringComparison.Ordinal)
         && (string.Equals(Path.GetExtension(item.Path), ".exe", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(Path.GetExtension(item.Path), ".lnk", StringComparison.OrdinalIgnoreCase));
+            || string.Equals(Path.GetExtension(item.Path), ".lnk", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(Path.GetExtension(item.Path), ".vbs", StringComparison.OrdinalIgnoreCase));
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI event boundary; the shared manual flow catches failures.")]
     private async void OnAddManualClick(object sender, RoutedEventArgs args)
@@ -104,6 +105,7 @@ public sealed partial class LauncherView : UserControl, IDisposable
             var picker = new FileOpenPicker();
             picker.FileTypeFilter.Add(".exe");
             picker.FileTypeFilter.Add(".lnk");
+            picker.FileTypeFilter.Add(".vbs");
             var handle = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
             WinRT.Interop.InitializeWithWindow.Initialize(picker, handle);
             var file = await picker.PickSingleFileAsync().AsTask(ct);
@@ -250,6 +252,27 @@ public sealed partial class LauncherView : UserControl, IDisposable
 
         var argumentsInput = new TextBox { Header = viewModel.Text["LauncherArguments"], Text = arguments };
         AutomationProperties.SetAutomationId(argumentsInput, isEditing ? "LauncherPropertiesArgumentsInput" : "LauncherManualArgumentsInput");
+        // 启动方式：自动 / 直接启动 / PowerShell 运行；并可选执行后是否保留窗口。
+        var launchModes = new[] { LaunchMode.Auto, LaunchMode.Direct, LaunchMode.PowerShell };
+        var launchModeInput = new ComboBox
+        {
+            Header = viewModel.Text["LauncherLaunchMode"],
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            ItemsSource = new[]
+            {
+                viewModel.Text["LauncherLaunchModeAuto"],
+                viewModel.Text["LauncherLaunchModeDirect"],
+                viewModel.Text["LauncherLaunchModePowerShell"],
+            },
+            SelectedIndex = Math.Max(0, Array.IndexOf(launchModes, item?.Options.LaunchMode ?? LaunchMode.Auto)),
+        };
+        AutomationProperties.SetAutomationId(launchModeInput, "LauncherPropertiesLaunchModeInput");
+        var keepOpenInput = new CheckBox
+        {
+            Content = viewModel.Text["LauncherKeepWindowOpen"],
+            IsChecked = item?.Options.KeepConsoleWindowOpen ?? true,
+        };
+        AutomationProperties.SetAutomationId(keepOpenInput, "LauncherPropertiesKeepWindowOpenInput");
         var pathEditor = canEditPath
             ? new StackPanel { Spacing = 8, Children = { pathInput, choosePathButton } }
             : (FrameworkElement)pathInput;
@@ -265,6 +288,8 @@ public sealed partial class LauncherView : UserControl, IDisposable
             fields.Children.Add(categoryInput);
         }
         fields.Children.Add(argumentsInput);
+        fields.Children.Add(launchModeInput);
+        fields.Children.Add(keepOpenInput);
         fields.Children.Add(error);
         var content = new ScrollViewer { Content = fields, MaxHeight = 560, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         var dialog = new ContentDialog
@@ -321,6 +346,7 @@ public sealed partial class LauncherView : UserControl, IDisposable
                 var picker = new FileOpenPicker();
                 picker.FileTypeFilter.Add(".exe");
                 picker.FileTypeFilter.Add(".lnk");
+                picker.FileTypeFilter.Add(".vbs");
                 var handle = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
                 WinRT.Interop.InitializeWithWindow.Initialize(picker, handle);
                 var file = await picker.PickSingleFileAsync().AsTask(ct);
@@ -377,10 +403,13 @@ public sealed partial class LauncherView : UserControl, IDisposable
             try
             {
                 var category = (categoryInput.SelectedItem as ManualCategoryChoice)?.Id;
+                var selectedMode = launchModeInput.SelectedIndex >= 0 && launchModeInput.SelectedIndex < launchModes.Length
+                    ? launchModes[launchModeInput.SelectedIndex] : LaunchMode.Auto;
+                var keepOpen = keepOpenInput.IsChecked == true;
                 added = item is null
-                    ? await viewModel.AddManualEntryAsync(path, nameInput.Text, category, argumentsInput.Text, ct)
+                    ? await viewModel.AddManualEntryAsync(path, nameInput.Text, category, argumentsInput.Text, selectedMode, keepOpen, ct)
                     : await viewModel.SaveLaunchPropertiesAsync(item,
-                        canEditPath ? pathInput.Text : path, argumentsInput.Text, ct);
+                        canEditPath ? pathInput.Text : path, argumentsInput.Text, selectedMode, keepOpen, ct);
                 ct.ThrowIfCancellationRequested();
                 args.Cancel = !added;
                 if (!added) error.Text = viewModel.ErrorMessage;

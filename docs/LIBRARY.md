@@ -2,7 +2,7 @@
 
 [项目说明](../README.md) · [来源与许可核验](CURATION.md) · [安装说明](INSTALLATION.md) · [目录库维护](../catalog/README.md)
 
-当前随包快照共 **81** 款，数量与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 对应。下表供按用途浏览；Windows 发行包证据不代表逐款安装或安全审计，来源和许可限制见 [核验说明](CURATION.md#来源与限制)。
+当前随包快照共 **96** 款，数量与 [内置资源](../src/GitHubStore.Core/Catalog/CuratedCatalog.seed.json) 对应。下表供按用途浏览；Windows 发行包证据不代表逐款安装或安全审计，来源和许可限制见 [核验说明](CURATION.md#来源与限制)。
 
 | 分类 | 软件名称 | 作用 |
 |---|---|---|
@@ -87,3 +87,25 @@
 | 终端与 Shell | [opskat](https://github.com/opskat/opskat) | 一体化服务器运维工作站，提供资产管理与远程操作界面。 |
 | 终端与 Shell | [shell-rs](https://github.com/since2006/shell-rs) | 以 Rust 编写的原生 SSH 客户端，集成主机管理、终端与 SFTP 传输。 |
 | 终端与 Shell | [motty](https://github.com/t8y2/motty) | 集成 SSH、SFTP、端口转发、VNC/RDP 与 AI 助手的原生桌面终端工具。 |
+
+## 2026-11-15 新增收录（并入本机手工软件源）
+
+以下 15 款来自本机客户端手工添加的公开仓库，已并入随包软件库：
+
+| 分类 | 软件名称 | 作用 |
+|---|---|---|
+| AI / LLM 工具 | [OpenMausBot](https://github.com/milind-soni/OpenMausBot) | 开源 Grok Bot 替代方案，内置可供机器人使用的虚拟机。 |
+| AI / LLM 工具 | [alma-releases](https://github.com/yetone/alma-releases) | Alma 桌面应用的发行版仓库，随仓库提供 Windows 安装包。 |
+| 开发工具 | [zed](https://github.com/zed-industries/zed) | 高性能、多人协作的代码编辑器，由 Atom 与 Tree-sitter 团队打造。 |
+| 图形设计 | [ImageGlass](https://github.com/d2phap/ImageGlass) | 快速开源的现代图片查看器，支持 90 多种格式，包括 WEBP、GIF、SVG、AVIF、JXL 与 HEIC。 |
+| 媒体影音 | [omniget](https://github.com/OpenSelena/omniget) | 开源课程与视频下载管理器，支持 Udemy、Hotmart、YouTube 及 1800 多个站点。 |
+| 网络 | [misterdownloadmanager](https://github.com/anefzaoui/misterdownloadmanager) | 用纯 Rust 编写的开源下载管理器，跨 Windows、macOS 与 Linux 提供简洁界面。 |
+| 办公效率 | [WindInput](https://github.com/huanfeng/WindInput) | 清风输入法：轻量、快速、可定制的开源中文输入法，专为五笔与码表方案设计。 |
+| 办公效率 | [pdfcraft](https://github.com/PDFCraftTool/pdfcraft) | 隐私优先、完全在浏览器内运行的 PDF 工具箱，提供 90 多种编辑、转换、合并与加密工具。 |
+| 办公效率 | [zenlink](https://github.com/zenvyzenshiro/zenlink) | Windows 端的 iPhone、iPad 与 Android 屏幕镜像工具，支持硬件解码与鼠标键盘控制。 |
+| 教育与科学 | [shuting](https://github.com/zanbinxu/shuting) | 以「听读」为核心的本地电子书阅读器，支持 EPUB、PDF、TXT、MOBI、AZW3 并可导出 MP3。 |
+| 系统工具 | [yogurt](https://github.com/FrigadeHQ/yogurt) | 完全在本地运行的私密 AI 会议记录工具，是 Granola 的开源替代，支持 Windows、macOS 与 Linux。 |
+| 系统工具 | [FreeFileSync](https://github.com/hkneptune/FreeFileSync) | FreeFileSync 的源码镜像仓库，发行版提供旧版免费安装包。 |
+| 系统工具 | [tubatools](https://github.com/luolangaga/tubatools) | 图吧工具箱：基于 WinUI 3 重构的 Windows 硬件检测与常用工具集合。 |
+| 系统工具 | [DeskBox](https://github.com/Tianyu199509/DeskBox) | 免费开源的 Windows 桌面整理工具，提供原生质感的 WinUI 3 小组件。 |
+| 系统工具 | [Skykeep](https://github.com/YashwanthKamireddi/Skykeep) | 在 Windows、Linux 与 Android 上使用苹果备忘录、提醒、日历、通讯录、iCloud 云盘与照片的原生应用。 |

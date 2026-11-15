@@ -18,7 +18,10 @@ public sealed class LauncherProgramResolver : ILauncherProgramResolver
     {
         ct.ThrowIfCancellationRequested();
         var normalized = ManualAppLauncher.NormalizePath(path);
-        if (Path.GetExtension(normalized).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+        var extension = Path.GetExtension(normalized);
+        // .exe 直接执行；.vbs 由系统脚本宿主执行，本身即是最终入口，无需像快捷方式那样解析目标。
+        if (extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".vbs", StringComparison.OrdinalIgnoreCase))
             return new(normalized, string.Empty);
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Windows shortcuts require Windows.");
         await Workers.WaitAsync(ct).ConfigureAwait(false);

@@ -6,7 +6,7 @@ using GitHubStore.Core.Abstractions;
 
 namespace GitHubStore.App.Services.Launcher;
 
-/// <summary>Stores explicit user-selected local exe/lnk entries separately from managed installations.</summary>
+/// <summary>Stores explicit user-selected local exe/lnk/vbs entries separately from managed installations.</summary>
 public sealed class ManualAppLauncher : IManualAppLauncher
 {
     private const int MaximumManifestBytes = 1024 * 1024;
@@ -24,10 +24,15 @@ public sealed class ManualAppLauncher : IManualAppLauncher
     private readonly Func<string, string, bool>? _processStarter;
     private readonly Func<ProcessStartInfo, bool>? _optionProcessStarter;
 
+    /// <summary>可选：命令行工具启动委托；为空时退回直接启动，保持既有行为与测试不变。</summary>
+    private readonly Func<string, string?, string?, bool, LauncherLaunchResult>? _consoleStarter;
+
     public ManualAppLauncher(string dataDirectory, Func<string, string, bool>? processStarter = null,
-        Func<ProcessStartInfo, bool>? optionProcessStarter = null)
+        Func<ProcessStartInfo, bool>? optionProcessStarter = null,
+        Func<string, string?, string?, bool, LauncherLaunchResult>? consoleStarter = null)
     {
         _optionProcessStarter = optionProcessStarter;
+        _consoleStarter = consoleStarter;
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
         _manifestPath = Path.Combine(Path.GetFullPath(dataDirectory), "manual-launcher.json");
         _gate = Gates.GetOrAdd(_manifestPath, _ => new SemaphoreSlim(1, 1));
@@ -209,11 +214,24 @@ public sealed class ManualAppLauncher : IManualAppLauncher
             EnsureAvailable(entry.Path);
             ct.ThrowIfCancellationRequested();
             var isShortcut = Path.GetExtension(entry.Path).Equals(".lnk", StringComparison.OrdinalIgnoreCase);
+            // .vbs 由系统脚本宿主（wscript.exe）经 ShellExecute 打开，不属于控制台/PE 程序，
+            // 也不参与“在 PowerShell 中运行”的判定，避免把脚本当命令行工具拼进脚本命令。
+            var isScript = Path.GetExtension(entry.Path).Equals(".vbs", StringComparison.OrdinalIgnoreCase);
             var directory = string.IsNullOrWhiteSpace(options.WorkingDirectory)
                 ? isShortcut ? string.Empty : Path.GetDirectoryName(entry.Path)!
                 : options.WorkingDirectory!;
             if (!string.IsNullOrWhiteSpace(options.WorkingDirectory) && !Directory.Exists(options.WorkingDirectory))
                 return new(false, "manual_launcher_invalid_working_directory");
+
+            // 命令行工具走 PowerShell（仅对 .exe；.lnk/.vbs 交给 ShellExecute 解析）。
+            if (_consoleStarter is not null && !isShortcut && !isScript
+                && ConsoleProgramDetector.ShouldLaunchInConsole(options.LaunchMode, entry.Path))
+            {
+                if (options.RunAsAdministrator) return new(false, "launcher_console_elevation_unsupported");
+                return _consoleStarter(entry.Path, directory, entry.Arguments ?? options.Arguments,
+                    options.KeepConsoleWindowOpen);
+            }
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = entry.Path,
@@ -335,8 +353,11 @@ public sealed class ManualAppLauncher : IManualAppLauncher
             }
             var normalized = Path.GetFullPath(path);
             var extension = Path.GetExtension(normalized);
+            // 支持本机可执行程序、快捷方式，以及 VBScript 脚本：.vbs 由系统脚本宿主（wscript）执行，
+            // 与 .exe/.lnk 一样只接受绝对本地路径，不解析或改写脚本内容。
             if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)
-                && !extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase)) throw Error("invalid_path");
+                && !extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase)
+                && !extension.Equals(".vbs", StringComparison.OrdinalIgnoreCase)) throw Error("invalid_path");
             return normalized;
         }
         catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)

@@ -48,6 +48,12 @@ public sealed record AppPreferences
     /// <summary>是否经 Xget 加速 GitHub 下载。</summary>
     public bool UseAccelerator { get; init; }
 
+    /// <summary>
+    /// 命令行工具使用的 PowerShell 7（pwsh.exe）绝对路径；null 表示未配置，
+    /// 启动命令行工具时回落到系统自带的 Windows PowerShell。仅用于启动，不修改系统环境。
+    /// </summary>
+    public string? PowerShell7Path { get; init; }
+
     /// <summary>是否允许 P2P 下载（需要 aria2）。</summary>
     public bool EnableP2P { get; init; }
 

@@ -58,10 +58,10 @@ pwsh -File scripts\run-desktop.ps1 -Configuration Debug
 按 [Windows 安装包说明](packaging/README.md) 准备 Inno Setup 6，再运行：
 
 ```powershell
-pwsh -File scripts\build-installer.ps1 -Version 0.1.22 -CompilerPath 'C:\Path\To\ISCC.exe'
+pwsh -File scripts\build-installer.ps1 -Version 0.1.29 -CompilerPath 'C:\Path\To\ISCC.exe'
 ```
 
-本次交付版本为 v0.1.22，已生成自包含 Release 安装包及 SHA256 文件，写入 `dist`；上述命令展示对应打包方式，已存在的同版本安装包不会被静默覆盖。后续打包应按实际发布计划递增版本号。本次发布产物、源码验证与远端发布的边界见下方“2026-11-02：当前启动器验证与版本状态”。
+本次交付版本为 v0.1.29，已生成自包含 Release 安装包及 SHA256 文件，写入 `dist`；上述命令展示对应打包方式，已存在的同版本安装包不会被静默覆盖。后续打包应按实际发布计划递增版本号。本次发布产物、源码验证与远端发布的边界见下方“2026-11-15：命令行工具 PowerShell 启动与软件库 96 条（v0.1.29）”。
 
 默认客户端安装位置是 `%LOCALAPPDATA%\Programs\GitHubStore`，按当前用户安装，无需管理员权限。卸载客户端保留用户数据和通过客户端安装的软件。
 
@@ -115,7 +115,11 @@ EXE/MSI 优先使用设置中的安装目录（默认 `C:\githubapps\<应用名>
 
 安装器回执可以指向外部目录，绿色便携包仍要求位于配置安装根的直接子目录。EXE/MSI 的文件由第三方卸载器管理；卸载前仍按回执重新核对 Windows 登记，不因目录例外而授予直接删除权限。已有但从未保存回执的旧安装不会被自动扫描认领，可在新版中重新运行该应用的安装流程完成核对登记。
 
-本次验证：Debug x64 整个解决方案构建成功，0 警告、0 错误；同进程完整回归 1,932 通过、0 失败、0 跳过，报告 [external-installer-registration-Debug.json](artifacts/test-results/external-installer-registration-Debug.json)。新增 24 项用例覆盖目录发现与拒绝、Inno 预填、外部回执重载/启动/已安装/卸载接入以及便携目录限制。只读核查确认本机 Zed 1.26.2 有 Windows 安装与卸载登记；没有重新安装、移动或卸载真实 Zed。随后按用户要求完成 v0.1.23 的 Release x64 测试（1,932 通过、0 失败、0 跳过）、自包含发布与 Inno Setup 打包；安装包文件版本 `0.1.23.0`、50,639,171 字节，摘要和交付边界见 [安装包状态](packaging/README.md#当前产物状态2026-11-02)。首次还原遇到 NuGet 审计服务不可达，仅在重试打包进程中临时设置 `NuGetAudit=false`；未修改长期配置。没有替换当前客户端或上传远端 Release。
+本次验证：Debug x64 整个解决方案构建成功，0 警告、0 错误；同进程完整回归 1,932 通过、0 失败、0 跳过，报告 [external-installer-registration-Debug.json](artifacts/test-results/external-installer-registration-Debug.json)。新增 24 项用例覆盖目录发现与拒绝、Inno 预填、外部回执重载/启动/已安装/卸载接入以及便携目录限制。只读核查确认本机 Zed 1.26.2 有 Windows 安装与卸载登记；没有重新安装、移动或卸载真实 Zed。随后按用户要求完成 v0.1.23 的 Release x64 测试（1,932 通过、0 失败、0 跳过）、自包含发布与 Inno Setup 打包；安装包文件版本 `0.1.23.0`、50,639,171 字节，摘要和交付边界见 [安装包状态](packaging/README.md)。首次还原遇到 NuGet 审计服务不可达，仅在重试打包进程中临时设置 `NuGetAudit=false`；未修改长期配置。没有替换当前客户端或上传远端 Release。
+
+## 2026-11-15：命令行工具 PowerShell 启动与软件库 96 条（v0.1.29）
+
+本次交付在最新工作区上完成：Release x64 应用与测试项目构建 0 警告、0 错误；完整回归 **1,958 项通过、0 失败、0 跳过**，报告 [inprocess-Release-x64.json](artifacts/test-results/inprocess-Release-x64.json)。变更包含手动启动器对 `.exe`/`.lnk`/`.vbs` 的添加与按 PE `Subsystem` 在 PowerShell 中运行（设置可配置 PowerShell 7、优先 Windows Terminal 回退控制台）、软件库由 81 条增至 96 条（并入本机 15 个手工源），以及 Electron `win32-x64` 选包修复。Windows x64 自包含发布与 Inno Setup 安装包生成通过，产物见 [安装包状态](packaging/README.md#当前产物状态2026-11-15)。
 
 ## 历史验证记录
 

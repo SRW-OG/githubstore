@@ -180,6 +180,7 @@ public sealed class ManualAppLauncherTests
     [Theory]
     [InlineData("exe")]
     [InlineData("lnk")]
+    [InlineData("vbs")]
     public async Task LaunchUsesSavedIdAndLeavesShortcutArgumentsAndDirectoryToTheShell(string extension)
     {
         using var fixture = new Fixture();
@@ -197,6 +198,49 @@ public sealed class ManualAppLauncherTests
         receivedPath = null;
         Assert.Equal("manual_launcher_not_found", (await launcher.LaunchAsync(added.Id)).ErrorCode);
         Assert.Null(receivedPath);
+    }
+
+    [Fact]
+    public async Task VbsScriptIsAcceptedAndStoredAsScriptEntry()
+    {
+        using var fixture = new Fixture();
+        var path = fixture.Target("deploy.vbs");
+        var added = await fixture.Launcher().AddAsync(path, "Deploy script", new CategoryId("tools"));
+        var reloaded = Assert.Single(await fixture.Launcher().ListAsync());
+        Assert.Equal(path, reloaded.Path);
+        Assert.True(reloaded.IsAvailable);
+        Assert.Equal(new CategoryId("tools"), reloaded.Category);
+        Assert.Equal(added, reloaded);
+    }
+
+    [Fact]
+    public async Task VbsScriptLaunchBypassesConsoleLauncherEvenInPowerShellMode()
+    {
+        using var fixture = new Fixture();
+        var path = fixture.Target("run.vbs");
+        System.Diagnostics.ProcessStartInfo? shellStart = null;
+        var consoleCalled = false;
+        var launcher = new ManualAppLauncher(fixture.DataDirectory,
+            optionProcessStarter: info => { shellStart = info; return true; },
+            consoleStarter: (_, _, _, _) => { consoleCalled = true; return new LauncherLaunchResult(true); });
+        var added = await launcher.AddAsync(path, "Run script");
+        // 即使显式选择“在 PowerShell 中运行”，.vbs 也必须交给 ShellExecute（脚本宿主）执行。
+        var result = await launcher.LaunchWithOptionsAsync(added.Id,
+            new LauncherEntryOptions { LaunchMode = LaunchMode.PowerShell, KeepConsoleWindowOpen = true });
+        Assert.True(result.Started);
+        Assert.False(consoleCalled);
+        Assert.NotNull(shellStart);
+        Assert.Equal(path, shellStart!.FileName);
+        Assert.True(shellStart.UseShellExecute);
+    }
+
+    [Fact]
+    public async Task CmdScriptRemainsUnsupported()
+    {
+        using var fixture = new Fixture();
+        var path = fixture.Target("batch.cmd");
+        Assert.Equal("manual_launcher_invalid_path", (await Assert.ThrowsAsync<LauncherException>(
+            () => fixture.Launcher().AddAsync(path, "Batch"))).Code);
     }
 
     [Fact]

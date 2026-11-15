@@ -19,8 +19,12 @@
             <NavigationViewItemHeader Content="{Binding Text[Categories]}" />
         </NavigationView.MenuItems>
         <NavigationView.FooterMenuItems>
-            <!-- 设置保持在固定底部，并用分隔线与可滚动的分类区域区分。 -->
-            <NavigationViewItemSeparator />
+            <!--
+                设置保持在固定底部，并始终在分类区与设置之间显示且仅显示一条分隔线。
+                NavigationView 内置的 VisualItemsSeparator 会随布局状态自动显隐（滚动/紧凑模式），
+                代码中把它固定隐藏，只保留这里这一条显式分隔线，避免出现两条或一条都没有。
+            -->
+            <NavigationViewItemSeparator x:Name="FooterSettingsSeparator" AutomationProperties.AutomationId="FooterSettingsSeparator" />
             <NavigationViewItem Content="{Binding Text[NavSettings]}" Tag="settings" Icon="Setting" AutomationProperties.AutomationId="SettingsNavigationItem" />
         </NavigationView.FooterMenuItems>
         <!--

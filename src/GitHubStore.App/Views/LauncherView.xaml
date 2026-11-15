@@ -75,6 +75,9 @@
                                                                            IconPath="{Binding Options.IconPath}" HorizontalAlignment="Center" />
                                                     <TextBlock Text="{Binding DisplayName}" TextAlignment="Center" TextWrapping="Wrap"
                                                                TextTrimming="CharacterEllipsis" MaxLines="2" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding Text[LauncherConsoleBadge]}" FontSize="10" TextAlignment="Center"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               Visibility="{Binding IsConsoleApp, Converter={StaticResource BooleanToVisibility}}" />
                                                 </StackPanel>
                                             </Border>
                                         </DataTemplate>

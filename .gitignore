@@ -20,6 +20,7 @@
 *.dmp
 *.tmp
 *.temp
+/.dotnet_home/
 
 # Local configuration and credentials (never share user profiles)
 .env

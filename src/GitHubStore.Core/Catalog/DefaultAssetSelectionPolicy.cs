@@ -19,7 +19,11 @@ public static class DefaultAssetSelectionPolicy
     private static readonly Regex PortableTokens = Tokens("portable|standalone|noinstall");
     private static readonly Regex Amd64Tokens = Tokens("x86[_-]64|x64|amd64|win64");
     private static readonly Regex Arm64Tokens = Tokens("arm[_-]?64|aarch64");
-    private static readonly Regex X86Tokens = Tokens("x86|win32|i[3-6]86");
+    private static readonly Regex X86Tokens = Tokens("x86|i[3-6]86");
+    // Electron spells the combined platform-architecture pair as "win32-x64"/"win32-arm64",
+    // where "win32" is the platform (Windows), not a 32-bit marker. Treat a lone win32 as
+    // x86, but never as x86 when an explicit 64-bit token is also present.
+    private static readonly Regex Win32PlatformToken = Tokens("win32");
     // An archive whose stem names an installer wraps that installer; it is not a green build.
     private static readonly Regex InstallerStemTokens = Tokens("setup|install|installer|webinstall|online");
     // Platform words carry no product identity: "Recordly-x64.zip" and
@@ -240,10 +244,16 @@ public static class DefaultAssetSelectionPolicy
     private static List<Arch> FilenameArchitectures(string name)
     {
         var result = new List<Arch>(3);
-        if (Amd64Tokens.IsMatch(name)) result.Add(Arch.Amd64);
-        if (Arm64Tokens.IsMatch(name)) result.Add(Arch.Arm64);
-        // Consume the complete x86_64/x86-64 token before looking for x86.
+        var amd64 = Amd64Tokens.IsMatch(name);
+        var arm64 = Arm64Tokens.IsMatch(name);
+        if (amd64) result.Add(Arch.Amd64);
+        if (arm64) result.Add(Arch.Arm64);
+        // Consume the complete x86_64/x86-64 token before looking for a bare x86.
         if (X86Tokens.IsMatch(Amd64Tokens.Replace(name, " "))) result.Add(Arch.X86);
+        // "win32" only denotes 32-bit x86 when it is not part of an Electron-style
+        // "win32-x64"/"win32-arm64" platform-architecture pair (e.g. cindy's
+        // "cindy-0.1.136-win32-x64-cn.exe"). Otherwise the name is not ambiguous.
+        else if (!amd64 && !arm64 && Win32PlatformToken.IsMatch(name)) result.Add(Arch.X86);
         return result;
     }
 

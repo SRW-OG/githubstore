@@ -12,6 +12,22 @@ public sealed record LauncherCustomization
     public LauncherEntryOptions Options { get; init; } = new();
 }
 
+/// <summary>
+/// 一条启动器条目的启动方式。
+/// <see cref="Auto"/> 由入口文件是否为控制台程序自动决定：控制台程序在 PowerShell 中打开，
+/// 桌面程序保持直接启动。既有条目都用默认值 Auto，因此升级后行为与被识别结果一致，
+/// 不会把原本直接启动的桌面程序突然改为终端启动。
+/// </summary>
+public enum LaunchMode
+{
+    /// <summary>按入口文件判定：控制台程序走 PowerShell，桌面程序直接启动。</summary>
+    Auto,
+    /// <summary>始终直接启动入口程序，不经过 PowerShell。</summary>
+    Direct,
+    /// <summary>始终在 PowerShell 中打开，适合需要命令行环境或想在执行后继续输入命令的工具。</summary>
+    PowerShell,
+}
+
 /// <summary>User-selected launch settings and launcher presentation. Arguments go directly to the saved entry, never cmd.</summary>
 public sealed record LauncherEntryOptions
 {
@@ -22,13 +38,24 @@ public sealed record LauncherEntryOptions
     public string? Color { get; init; }
     public string? Hotkey { get; init; }
     public string Notes { get; init; } = string.Empty;
+
+    /// <summary>启动方式；默认 Auto，按控制台/桌面自动判定。</summary>
+    public LaunchMode LaunchMode { get; init; } = LaunchMode.Auto;
+
+    /// <summary>
+    /// 执行后是否保留 PowerShell 窗口。<c>true</c> 保留（默认），<c>false</c> 执行结束后自动关闭。
+    /// 仅对在 PowerShell 中启动的条目生效，直接启动的桌面程序忽略此值。
+    /// </summary>
+    public bool KeepConsoleWindowOpen { get; init; } = true;
 }
 
 /// <summary>Shared validation for persisted options and direct launch requests.</summary>
 public static class LauncherEntryOptionsValidation
 {
     public static bool RequiresCustomLaunch(LauncherEntryOptions options) =>
-        !string.IsNullOrEmpty(options.Arguments) || !string.IsNullOrEmpty(options.WorkingDirectory) || options.RunAsAdministrator;
+        !string.IsNullOrEmpty(options.Arguments) || !string.IsNullOrEmpty(options.WorkingDirectory)
+        || options.RunAsAdministrator || options.LaunchMode != LaunchMode.Auto
+        || !options.KeepConsoleWindowOpen;
 
     public static bool IsValid(LauncherEntryOptions? options) => options is not null
         && options.Arguments is { Length: <= 8192 } && !options.Arguments.Contains('\0')
@@ -36,6 +63,7 @@ public static class LauncherEntryOptionsValidation
         && (options.Hotkey is null || options.Hotkey.Length <= 80 && !options.Hotkey.Any(char.IsControl))
         && (string.IsNullOrEmpty(options.Color) || options.Color.Length is 7 or 9 && options.Color[0] == '#'
             && options.Color.Skip(1).All(Uri.IsHexDigit))
+        && Enum.IsDefined(options.LaunchMode)
         && IsLocalPath(options.IconPath) && IsLocalPath(options.WorkingDirectory);
 
     private static bool IsLocalPath(string? path)

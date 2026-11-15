@@ -31,11 +31,19 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
     private readonly Func<string, string, bool>? _processStarter;
     private readonly Func<ProcessStartInfo, bool>? _optionProcessStarter;
 
+    /// <summary>
+    /// 可选：命令行工具启动委托。参数为(工具绝对路径, 工作目录, 参数, 是否保留窗口)，返回是否成功打开。
+    /// 为空时退回原有的直接启动，保证既有安装和测试不受影响。
+    /// </summary>
+    private readonly Func<string, string?, string?, bool, LauncherLaunchResult>? _consoleStarter;
+
     public ManagedAppLauncher(string dataDirectory, string? installRoot = null,
         Func<string, string, bool>? processStarter = null, Func<string>? installRootProvider = null,
-        Func<ProcessStartInfo, bool>? optionProcessStarter = null)
+        Func<ProcessStartInfo, bool>? optionProcessStarter = null,
+        Func<string, string?, string?, bool, LauncherLaunchResult>? consoleStarter = null)
     {
         _optionProcessStarter = optionProcessStarter;
+        _consoleStarter = consoleStarter;
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
         _fixedRoot = NormalizeLocalPath(installRoot ?? @"C:\githubapps");
         _installRootProvider = installRootProvider;
@@ -258,6 +266,16 @@ public sealed class ManagedAppLauncher : IManagedAppLauncher
                 ? Path.GetDirectoryName(executable)! : options.WorkingDirectory!;
             if (!string.IsNullOrWhiteSpace(options.WorkingDirectory) && !Directory.Exists(options.WorkingDirectory))
                 return new(false, "launcher_invalid_working_directory");
+
+            // 命令行工具走 PowerShell：用户显式选择 PowerShell，或 Auto 且入口是控制台程序。
+            if (_consoleStarter is not null
+                && ConsoleProgramDetector.ShouldLaunchInConsole(options.LaunchMode, executable))
+            {
+                // 管理员运行与 PowerShell 启动组合第一版不支持：如实拒绝，而不是悄悄降级。
+                if (options.RunAsAdministrator) return new(false, "launcher_console_elevation_unsupported");
+                return _consoleStarter(executable, directory, options.Arguments, options.KeepConsoleWindowOpen);
+            }
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = executable,

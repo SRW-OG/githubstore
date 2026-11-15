@@ -50,6 +50,19 @@ public sealed class LauncherProgramResolverTests
             () => new LauncherProgramResolver().ResolveAsync(shortcut))).Code);
     }
 
+    [Fact]
+    public async Task VbsScriptResolvesToItselfWithoutShortcutResolution()
+    {
+        using var fixture = new Fixture();
+        var script = fixture.File("deploy.vbs");
+        var shortcutReaderInvoked = false;
+        var resolver = new LauncherProgramResolver(_ => { shortcutReaderInvoked = true; return new(script, "--x"); });
+        var result = await resolver.ResolveAsync(script);
+        Assert.Equal(script, result.Path);
+        Assert.Equal(string.Empty, result.Arguments);
+        Assert.False(shortcutReaderInvoked);
+    }
+
     [Theory]
     [InlineData(@"\\server\share\tool.exe")]
     [InlineData(@"C:\apps\..\tool.exe")]

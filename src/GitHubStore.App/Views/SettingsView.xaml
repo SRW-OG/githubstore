@@ -178,6 +178,28 @@
                 </Border>
                 <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding Text[SettingsPowerShellTitle]}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBox Header="{Binding Text[SettingsPowerShell7Path]}"
+                                 Text="{Binding PowerShell7Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="2048" IsEnabled="{Binding CanApply}"
+                                 AutomationProperties.AutomationId="PowerShell7PathInput" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button Content="{Binding Text[SettingsPowerShellSave]}" IsEnabled="{Binding CanApply}" Click="OnApplyPowerShellClick"
+                                    AutomationProperties.AutomationId="SavePowerShellSettingsButton" />
+                            <Button Content="{Binding Text[SettingsPowerShellDetect]}" IsEnabled="{Binding CanApply}" Click="OnDetectPowerShellClick"
+                                    AutomationProperties.AutomationId="DetectPowerShellButton" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Text[SettingsPowerShellHint]}" TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="{Binding PowerShellStatus}" TextWrapping="Wrap"
+                                   AutomationProperties.AutomationId="PowerShellStatusText" />
+                        <TextBlock Text="{Binding PowerShellError}" TextWrapping="Wrap" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                   AutomationProperties.AutomationId="PowerShellErrorText" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="20" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
                     <StackPanel Spacing="16">
                         <TextBlock Text="{Binding Text[SettingsNetwork]}" Style="{StaticResource SubtitleTextBlockStyle}" />
                         <StackPanel Spacing="4">
