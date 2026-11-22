@@ -462,17 +462,41 @@ public sealed partial class LauncherView : UserControl, IDisposable
         });
     }
 
-    private void OnRemoveManualMenuLoaded(object sender, RoutedEventArgs args)
+    private void OnRemoveEntryMenuLoaded(object sender, RoutedEventArgs args)
     {
         if (sender is MenuFlyoutItem item && ViewModel is { } viewModel)
             item.Text = viewModel.Text["LauncherRemoveManual"];
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI menu boundary; the shared manual flow catches failures.")]
-    private async void OnRemoveManualClick(object sender, RoutedEventArgs args)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD100", Justification = "WinUI menu boundary; the shared launcher flow catches failures.")]
+    private async void OnRemoveEntryClick(object sender, RoutedEventArgs args)
     {
-        if (sender is FrameworkElement { Tag: LauncherItemViewModel { IsManual: true } item })
+        if (sender is not FrameworkElement { Tag: LauncherItemViewModel item }) return;
+        if (item.IsManual)
+        {
             await RunManualInteractionAsync((viewModel, ct) => viewModel.RemoveManualEntryAsync(item, ct));
+            return;
+        }
+        // 受管条目的“从启动器移除”只在该程序文件不存在或被移动时出现：移除登记，不删除任何文件。
+        if (item.IsAvailable) return;
+        await RunManualInteractionAsync(async (viewModel, ct) =>
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = viewModel.Text["LauncherRemoveEntryTitle"],
+                Content = viewModel.Text.Format("LauncherRemoveEntryConfirm", item.DisplayName),
+                PrimaryButtonText = viewModel.Text["LauncherRemoveEntryConfirmButton"],
+                CloseButtonText = viewModel.Text["Cancel"],
+                DefaultButton = ContentDialogButton.Close,
+            };
+            AutomationProperties.SetAutomationId(dialog, "LauncherRemoveEntryDialog");
+            _manualDialog = dialog;
+            var result = await dialog.ShowAsync();
+            ct.ThrowIfCancellationRequested();
+            if (result == ContentDialogResult.Primary)
+                await viewModel.RemoveEntryAsync(item, ct);
+        });
     }
 
     public void Dispose()

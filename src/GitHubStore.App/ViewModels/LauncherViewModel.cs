@@ -246,6 +246,35 @@ public sealed partial class LauncherViewModel : ObservableObject, IDisposable
         finally { if (!_disposed) IsAddingManual = false; }
     }
 
+    /// <summary>
+    /// “从启动器移除”统一入口：手动条目删除其启动入口；受管条目仅在程序文件不存在或已被移动时
+    /// 移除安装登记（只写登记，不删除任何程序或用户文件）。可用条目不会走这里，避免误删。
+    /// </summary>
+    public async Task RemoveEntryAsync(LauncherItemViewModel item, CancellationToken ct = default)
+    {
+        if (_disposed) return;
+        if (item.IsManual) { await RemoveManualEntryAsync(item, ct); return; }
+        if (IsAddingManual || item.IsAvailable) return;
+        IsAddingManual = true;
+        ErrorMessage = string.Empty;
+        StatusMessage = string.Empty;
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(ct, _lifetime.Token);
+        try
+        {
+            await _launcher.UnregisterAsync(item.InstallId, cancellation.Token);
+            await RefreshEntriesAsync(cancellation.Token);
+            if (!_disposed && !cancellation.IsCancellationRequested)
+                StatusMessage = Text.Format("LauncherEntryRemoved", item.DisplayName);
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception ex)
+        {
+            if (!_disposed) ErrorMessage = ex is LauncherException launcherError
+                ? ErrorCodeText(launcherError.Code) : Text["LauncherEntryRemoveFailed"];
+        }
+        finally { if (!_disposed) IsAddingManual = false; }
+    }
+
     private static string JoinArguments(string original, string extra) =>
         original.Length == 0 ? extra : extra.Length == 0 ? original : original + " " + extra;
 
@@ -565,6 +594,8 @@ public sealed class LauncherItemViewModel
     public string Version { get; } = string.Empty;
     public bool RequiresRecovery { get; }
     public bool IsManual { get; }
+    /// <summary>是否可“从启动器移除”：手动条目始终可以；受管条目仅在程序文件不存在或被移动时提供。</summary>
+    public bool CanRemove => IsManual || !IsAvailable;
     /// <summary>该条目是否在 PowerShell 终端中启动（命令行工具）。</summary>
     public bool IsConsoleApp { get; }
     public CategoryId? Category { get; }

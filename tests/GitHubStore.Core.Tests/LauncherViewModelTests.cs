@@ -44,6 +44,27 @@ public sealed class LauncherViewModelTests
     }
 
     [Fact]
+    public async Task MissingManagedEntryCanBeRemovedFromLauncherWithoutTouchingAvailableEntries()
+    {
+        var service = new StubLauncher { Entries = new[] { Entry("alpha", "Alpha"), Entry("missing", "Missing", false) } };
+        using var vm = new LauncherViewModel(service, new LocalizationService("zh-CN"));
+        await vm.RefreshEntriesAsync();
+        var available = vm.Apps.Single(item => item.DisplayName == "Alpha");
+        var missing = vm.Apps.Single(item => item.DisplayName == "Missing");
+        Assert.False(available.CanRemove);
+        Assert.True(missing.CanRemove);
+
+        // 可用条目不会走移除路径，避免误删登记。
+        await vm.RemoveEntryAsync(available);
+        Assert.Empty(service.Unregistered);
+
+        await vm.RemoveEntryAsync(missing);
+        Assert.Equal(new[] { "install-missing" }, service.Unregistered);
+        Assert.DoesNotContain(vm.Apps, item => item.DisplayName == "Missing");
+        Assert.Contains("已从启动器移除", vm.StatusMessage);
+    }
+
+    [Fact]
     public async Task LaunchUsesRegisteredIdAndMissingEntryReportsUnavailable()
     {
         var service = new StubLauncher { Entries = new[] { Entry("alpha", "Alpha"), Entry("missing", "Missing", false) } };
@@ -228,6 +249,7 @@ public sealed class LauncherViewModelTests
         public Func<CancellationToken, Task<IReadOnlyList<LauncherApp>>>? Read;
         public int Reads;
         public List<string> Launched { get; } = [];
+        public List<string> Unregistered { get; } = [];
         public LauncherLaunchResult LaunchResult = new(true);
         public Task<IReadOnlyList<LauncherApp>> ListAsync(CancellationToken ct = default)
         {
@@ -240,6 +262,11 @@ public sealed class LauncherViewModelTests
             return Task.FromResult(LaunchResult);
         }
         public Task RegisterCompletedInstallAsync(InstallRecord installation, string displayName, CancellationToken ct = default) => Task.CompletedTask;
-        public Task UnregisterAsync(string installId, CancellationToken ct = default) => Task.CompletedTask;
+        public Task UnregisterAsync(string installId, CancellationToken ct = default)
+        {
+            Unregistered.Add(installId);
+            Entries = Entries.Where(entry => entry.InstallId != installId).ToArray();
+            return Task.CompletedTask;
+        }
     }
 }

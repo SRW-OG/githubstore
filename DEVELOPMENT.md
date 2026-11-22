@@ -58,10 +58,10 @@ pwsh -File scripts\run-desktop.ps1 -Configuration Debug
 按 [Windows 安装包说明](packaging/README.md) 准备 Inno Setup 6，再运行：
 
 ```powershell
-pwsh -File scripts\build-installer.ps1 -Version 0.1.29 -CompilerPath 'C:\Path\To\ISCC.exe'
+pwsh -File scripts\build-installer.ps1 -Version 0.1.30 -CompilerPath 'C:\Path\To\ISCC.exe'
 ```
 
-本次交付版本为 v0.1.29，已生成自包含 Release 安装包及 SHA256 文件，写入 `dist`；上述命令展示对应打包方式，已存在的同版本安装包不会被静默覆盖。后续打包应按实际发布计划递增版本号。本次发布产物、源码验证与远端发布的边界见下方“2026-11-15：命令行工具 PowerShell 启动与软件库 96 条（v0.1.29）”。
+本次交付版本为 v0.1.30，已生成自包含 Release 安装包及 SHA256 文件，写入 `dist`；上述命令展示对应打包方式，已存在的同版本安装包不会被静默覆盖。后续打包应按实际发布计划递增版本号。本次发布产物、源码验证与远端发布的边界见下方“2026-11-22：启动器移除失效条目（v0.1.30）”。
 
 默认客户端安装位置是 `%LOCALAPPDATA%\Programs\GitHubStore`，按当前用户安装，无需管理员权限。卸载客户端保留用户数据和通过客户端安装的软件。
 
@@ -120,6 +120,10 @@ EXE/MSI 优先使用设置中的安装目录（默认 `C:\githubapps\<应用名>
 ## 2026-11-15：命令行工具 PowerShell 启动与软件库 96 条（v0.1.29）
 
 本次交付在最新工作区上完成：Release x64 应用与测试项目构建 0 警告、0 错误；完整回归 **1,958 项通过、0 失败、0 跳过**，报告 [inprocess-Release-x64.json](artifacts/test-results/inprocess-Release-x64.json)。变更包含手动启动器对 `.exe`/`.lnk`/`.vbs` 的添加与按 PE `Subsystem` 在 PowerShell 中运行（设置可配置 PowerShell 7、优先 Windows Terminal 回退控制台）、软件库由 81 条增至 96 条（并入本机 15 个手工源），以及 Electron `win32-x64` 选包修复。Windows x64 自包含发布与 Inno Setup 安装包生成通过，产物见 [安装包状态](packaging/README.md#当前产物状态2026-11-15)。
+
+## 2026-11-22：启动器移除失效条目（v0.1.30）
+
+本次交付在最新工作区上完成：Release x64 应用与测试项目构建 0 警告、0 错误；完整回归 **1,959 项通过、0 失败、0 跳过**，报告 [inprocess-Release-x64.json](artifacts/test-results/inprocess-Release-x64.json)。变更：启动器为“程序文件不存在或已被移动”的受管条目提供“从启动器移除”，确认后仅通过 `IManagedAppLauncher.UnregisterAsync` 移除安装登记（同时从已安装页和启动器消失），不删除任何程序或用户文件；程序仍可用时不显示该操作，手动条目行为不变。新增 1 项测试覆盖“不可用受管条目可移除、可用条目不受影响”。Windows x64 自包含发布与 Inno Setup 安装包生成通过，产物见 [安装包状态](packaging/README.md#当前产物状态2026-11-22)。
 
 ## 历史验证记录
 

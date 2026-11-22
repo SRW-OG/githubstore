@@ -66,8 +66,9 @@
                                                     <MenuFlyout>
                                                         <MenuFlyoutItem Tag="{Binding}" Name="LaunchEntryMenuItem" Loaded="OnEntryMenuLoaded" Click="OnLaunchEntryMenuClick" />
                                                         <MenuFlyoutItem Tag="{Binding}" Name="EntryPropertiesMenuItem" Loaded="OnEntryMenuLoaded" Click="OnEntryPropertiesClick" />
-                                                        <MenuFlyoutItem Tag="{Binding}" Loaded="OnRemoveManualMenuLoaded" Click="OnRemoveManualClick"
-                                                                        Visibility="{Binding IsManual, Converter={StaticResource BooleanToVisibility}}" />
+                                                        <MenuFlyoutItem Tag="{Binding}" Name="RemoveEntryMenuItem" Loaded="OnRemoveEntryMenuLoaded" Click="OnRemoveEntryClick"
+                                                                        AutomationProperties.AutomationId="LauncherRemoveEntryMenuItem"
+                                                                        Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibility}}" />
                                                     </MenuFlyout>
                                                 </Border.ContextFlyout>
                                                 <StackPanel Spacing="6" HorizontalAlignment="Stretch" VerticalAlignment="Center">

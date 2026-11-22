@@ -8,11 +8,15 @@
 卸载只删除客户端安装文件与快捷方式，保留 `%LOCALAPPDATA%\GitHubStore` 中的用户数据、
 下载缓存和用户通过客户端安装的软件。手动启动器记录 `manual-launcher.json`、启动次数及旧配置 `launcher-customizations.json` 同属用户数据，卸载客户端不会清空；移除启动器入口与卸载客户端/第三方软件是不同操作。
 
-## 当前产物状态（2026-11-15）
+## 当前产物状态（2026-11-22）
 
-最新本地安装包为 **v0.1.29**：[GitHubStore-Setup-0.1.29-win-x64.exe](../dist/GitHubStore-Setup-0.1.29-win-x64.exe)，附 [SHA-256 校验文件](../dist/GitHubStore-Setup-0.1.29-win-x64.exe.sha256)。包含命令行工具在 PowerShell 中启动（优先 Windows Terminal，回退 PowerShell 控制台，支持 PowerShell 7 环境配置）、软件库 96 条与 Electron `win32-x64` 选包修复。大小 **50,661,242 字节**，文件版本 `0.1.29.0`，SHA-256 为 `117cc4045a3317a019a0d47b5687ab18e3fd093e0a8bfb05eca3757aff67b7c0`。构建元数据见 [installer-build.json](../dist/installer-build.json)。
+最新本地安装包为 **v0.1.30**：[GitHubStore-Setup-0.1.30-win-x64.exe](../dist/GitHubStore-Setup-0.1.30-win-x64.exe)，附 [SHA-256 校验文件](../dist/GitHubStore-Setup-0.1.30-win-x64.exe.sha256)。新增启动器对“程序文件不存在或已被移动”的条目提供“从启动器移除”（仅移除登记、不删除文件），并包含命令行工具 PowerShell 启动、软件库 96 条与 Electron `win32-x64` 选包修复。大小 **50,680,586 字节**，文件版本 `0.1.30.0`，SHA-256 为 `9edcb6e29ebf50c7d3c13782aefb1606717a4e4b2156d918f9114d6ed330fea6`。构建元数据见 [installer-build.json](../dist/installer-build.json)。
 
-Release x64 应用与测试项目构建 0 警告、0 错误，完整回归 **1,958 项测试通过、0 失败、0 跳过**，报告 [inprocess-Release-x64.json](../artifacts/test-results/inprocess-Release-x64.json)。自包含发布及 Inno Setup 编译成功，安装包版本与摘要已核验。本次没有替换已安装客户端，也未执行新包的安装卸载全流程。
+Release x64 应用与测试项目构建 0 警告、0 错误，完整回归 **1,959 项测试通过、0 失败、0 跳过**，报告 [inprocess-Release-x64.json](../artifacts/test-results/inprocess-Release-x64.json)。自包含发布及 Inno Setup 编译成功，安装包版本与摘要已核验。本次没有替换已安装客户端，也未执行新包的安装卸载全流程。
+
+### 历史 v0.1.29 产物
+
+**v0.1.29**：[GitHubStore-Setup-0.1.29-win-x64.exe](../dist/GitHubStore-Setup-0.1.29-win-x64.exe)，包含命令行工具在 PowerShell 中启动、软件库 96 条与 Electron `win32-x64` 选包修复；大小 **50,661,242 字节**，文件版本 `0.1.29.0`，SHA-256 为 `117cc4045a3317a019a0d47b5687ab18e3fd093e0a8bfb05eca3757aff67b7c0`。
 
 ### 历史 v0.1.23 产物
 
@@ -31,12 +35,12 @@ Release x64 测试项目构建 0 警告、0 错误，完整回归 **1908 通过�
 先安装从 [Inno Setup 官网](https://jrsoftware.org/isdl.php) 下载的编译器，再在项目根目录运行：
 
 ```powershell
-.\scripts\build-installer.ps1 -Version 0.1.29 -CompilerPath 'C:\Path\To\ISCC.exe'
+.\scripts\build-installer.ps1 -Version 0.1.30 -CompilerPath 'C:\Path\To\ISCC.exe'
 ```
 
-上述命令展示本次 v0.1.29 产物的打包方式，该版本现已生成；再次打包应按实际发布计划设置新版本号，避免覆盖已有产物。脚本执行 Release 自包含发布，每次使用独立暂存目录，然后生成：
+上述命令展示本次 v0.1.30 产物的打包方式，该版本现已生成；再次打包应按实际发布计划设置新版本号，避免覆盖已有产物。脚本执行 Release 自包含发布，每次使用独立暂存目录，然后生成：
 
-- `dist\GitHubStore-Setup-0.1.29-win-x64.exe`
+- `dist\GitHubStore-Setup-0.1.30-win-x64.exe`
 - 对应的 `.exe.sha256` 校验文件
 - `dist\installer-build.json` 构建元数据
 

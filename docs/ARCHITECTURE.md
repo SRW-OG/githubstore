@@ -37,7 +37,7 @@ Core 不引用 App 或 Platform.Win32；Platform.Win32 当前也不引用 Core�
 | 软件卡片 | 展示仓库事实与按需加载的实际图片；点击打开中文 README，下载、安装与 AI 助手在详情中操作 |
 | 趋势首页 | Trendshift 每日榜和 Star History 每周新增 Star 独立获取；失败显示带原统计日期的缓存或随包快照 |
 | 下载与安装 | HTTP、内嵌 aria2、可选 Xget 与代理；持久安装包缓存；ZIP、便携 EXE 与交互式 EXE/MSI 首次安装 |
-| 启动器与已安装 | 已安装页仍只展示本商店成功安装回执；启动器合并受管入口与用户添加的本地 EXE/`.lnk`/`.vbs`，支持分类、搜索、成功启动计数排序、刷新、启动与路径/参数属性；按 PE `Subsystem` 识别控制台程序并在所选 PowerShell（优先 Windows Terminal，回退控制台）中运行，可在设置配置 PowerShell 7；不扫描系统全部软件，不创建桌面 `.lnk` |
+| 启动器与已安装 | 已安装页仍只展示本商店成功安装回执；启动器合并受管入口与用户添加的本地 EXE/`.lnk`/`.vbs`，支持分类、搜索、成功启动计数排序、刷新、启动与路径/参数属性；按 PE `Subsystem` 识别控制台程序并在所选 PowerShell（优先 Windows Terminal，回退控制台）中运行，可在设置配置 PowerShell 7；程序文件缺失/移动时右键可从启动器移除该登记（不删除文件）；不扫描系统全部软件，不创建桌面 `.lnk` |
 | 卸载 | 自行解包的安装按受管目录移除；第三方安装匹配并调用 Windows 注册卸载入口 |
 | AI | 中文 README、摘要、用途搜索、选包/版本解释、失败诊断、已安装问答和趋势点评；需用户配置模型 |
 | winget | 自动定位 Windows App Installer；静态精选、实时搜索、精确 ID 详情和独立交互式安装，不纳入商店受管安装登记 |
@@ -183,8 +183,8 @@ winget 从当前用户注册的 Windows App Installer 定位，必要时用 Wind
 
 GitHub 包的首次安装不覆盖已有目标；受支持绿色/便携安装已接通显式升级和上一版本回退，使用暂存、目录切换、回执更新与恢复日志，具体支持边界见 [安装说明](INSTALLATION.md#升级与回退绿色便携安装) 和 [优化实施记录](OPTIMIZATION-PROGRESS.md)。该能力不等于所有已安装应用均可自动更新：外部 EXE/MSI 升级、声明 PreservePaths 的保留式升级、目录迁移等仍有限制。外部安装器可忽略预填目录或提前返回，取消等待不等于回滚；GitHub 安装成功仍须核验目标入口，登记失败保留文件并提示残留。
 
-截至 2026-11-15，本次交付版本 v0.1.29 已完成 Release x64 应用与测试项目构建（0 警告、0 错误）、1,958 项完整回归（0 失败、0 跳过），以及客户端自包含发布 / Inno Setup 打包；测试报告为 [inprocess-Release-x64.json](../artifacts/test-results/inprocess-Release-x64.json)。本版新增命令行工具在 PowerShell 中启动（按 PE `Subsystem` 识别、优先 Windows Terminal、可配置 PowerShell 7）、软件库 96 条与 Electron `win32-x64` 选包修复；本次为实际重跑构建与测试。
+截至 2026-11-22，本次交付版本 v0.1.30 已完成 Release x64 应用与测试项目构建（0 警告、0 错误）、1,959 项完整回归（0 失败、0 跳过），以及客户端自包含发布 / Inno Setup 打包；测试报告为 [inprocess-Release-x64.json](../artifacts/test-results/inprocess-Release-x64.json)。本版新增启动器对程序文件缺失/移动条目的“从启动器移除”（仅移除登记、不删除文件），并保留命令行工具 PowerShell 启动、软件库 96 条与 Electron `win32-x64` 选包修复；本次为实际重跑构建与测试。
 
-v0.1.29 自包含安装包已生成并上传至 GitHub Releases（标签 v0.1.29），大小与 SHA-256 见 [安装包状态](../packaging/README.md#当前产物状态2026-11-15)。自动化测试与发布输出不替代安装器安装/卸载全流程或逐款第三方安装验收；本节不宣称这些人工验收已完成。
+v0.1.30 自包含安装包已生成，大小与 SHA-256 见 [安装包状态](../packaging/README.md#当前产物状态2026-11-22)。自动化测试与发布输出不替代安装器安装/卸载全流程或逐款第三方安装验收；本节不宣称这些人工验收已完成。
 
 历史 0.1.14 综合验证为 1,750 项测试通过，并从实际 DevToys/KeePassXC 文件提取核对图标。2026-10-25 14:25（Asia/Shanghai），用户确认该轮真实使用验收通过、DevToys 启动崩溃问题已解决；此前的“图标显示待验收、启动故障待调查”状态已关闭。此项依据为用户确认，没有新增代理复现或根因分析。该确认不代表 winget 的超时、UAC 拒绝、取消、全部安装器及跨设备矩阵均已实测，扩展场景仍按 [路线图](ROADMAP.md) 补充。
